@@ -26,7 +26,7 @@ public:
     bool    ComboDone() const;
 protected:
     bool m_bComboDone;
-    std::array<InputMove, 8> m_aAttackCombo;
+    std::array<InputMove, 3> m_aAttackCombo;
     uint8_t                  m_aCurrentSymbol;
     
         // visible

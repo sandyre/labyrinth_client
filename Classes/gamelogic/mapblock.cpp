@@ -33,7 +33,6 @@ MapBlock::IsDiscovered() const
 void
 MapBlock::SetDiscovered(bool val)
 {
-    m_pSprite->setVisible(val);
     m_bDiscovered = val;
 }
 

@@ -1,10 +1,10 @@
-    //
-    //  gamemap.cpp
-    //  labyrinth
-    //
-    //  Created by Aleksandr Borzikh on 17.01.17.
-    //
-    //
+//
+//  gamemap.cpp
+//  labyrinth
+//
+//  Created by Aleksandr Borzikh on 17.01.17.
+//
+//
 
 #include "gamemap.hpp"
 
@@ -242,18 +242,26 @@ GameMap::GenerateMap(const Configuration& settings)
                                                             block->GetSprite()->getContentSize());
                 block->GetSprite()->setPosition(spritePos);
                 
-                if(cocos2d::RandomHelper::random_int(0, 100) > 50)
-                {
-                    block->GetSprite()->setTexture("res/floor_2.png");
-                }
-                
                 m_pFloorLayer->addChild(block->GetSprite());
             }
             else if(tmp_map[i][j] == MapBlockType::WALL)
             {
                 block = new WallBlock();
                 
-                block->InitSprite("res/walls.png");
+                auto rand = cocos2d::RandomHelper::random_int(0, 2);
+                if(rand == 0)
+                {
+                    block->InitSprite("res/wall_1.png");
+                }
+                if(rand == 1)
+                {
+                    block->InitSprite("res/wall_2.png");
+                }
+                if(rand == 2)
+                {
+                    block->InitSprite("res/wall_3.png");
+                }
+                
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                             block->GetSprite()->getContentSize());

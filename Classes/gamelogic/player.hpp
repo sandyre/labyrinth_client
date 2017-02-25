@@ -21,7 +21,8 @@ public:
     {
         WALKING,
         SWAMP,
-        DUEL,
+        DUEL_PLAYER,
+        DUEL_MONSTER,
         DEAD
     };
 public:

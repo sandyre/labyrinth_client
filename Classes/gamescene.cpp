@@ -159,17 +159,16 @@ GameScene::init()
             
             if(!m_pLocalPlayer->GetSprite()->getNumberOfRunningActions())
             {
-            auto mov = GameEvent::CreateCLActionMove(builder,
-                                               m_pLocalPlayer->GetUID(),
-                                               pos.x,
-                                               pos.y);
-            auto gs_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLActionMove,
-                                                   mov.Union());
-            builder.Finish(gs_event);
-            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
-                                                     builder.GetSize());
-            builder.Clear();
+                auto mov = GameEvent::CreateCLActionMove(builder,
+                                                         m_pLocalPlayer->GetUID(),
+                                                         GameEvent::ActionMoveTarget_PLAYER,
+                                                         pos.x,
+                                                         pos.y);
+                auto gs_event = GameEvent::CreateEvent(builder,
+                                                       GameEvent::Events_CLActionMove,
+                                                       mov.Union());
+                builder.Finish(gs_event);
+                SendEventAndClear();
             }
         }
         else if(m_pLocalPlayer->GetState() == Player::State::SWAMP)
@@ -190,7 +189,8 @@ GameScene::init()
                     break;
             }
         }
-        else if(m_pLocalPlayer->GetState() == Player::State::DUEL)
+        else if(m_pLocalPlayer->GetState() == Player::State::DUEL_PLAYER ||
+                m_pLocalPlayer->GetState() == Player::State::DUEL_MONSTER)
         {
             switch(keyCode)
             {
@@ -225,7 +225,8 @@ GameScene::init()
                                      m_aItems.end(),
                                      [this](auto& item)
                                      {
-                                         return item->GetPosition() == m_pLocalPlayer->GetPosition();
+                                         return item->GetPosition() == m_pLocalPlayer->GetPosition() &&
+                                                item->GetCarrierID() == 0;
                                      });
             auto cl_take = GameEvent::CreateCLActionItem(builder,
                                                          m_pLocalPlayer->GetUID(),
@@ -235,10 +236,7 @@ GameScene::init()
                                                    GameEvent::Events_CLActionItem,
                                                    cl_take.Union());
             builder.Finish(gs_event);
-            
-            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
-                                                     builder.GetSize());
-            builder.Clear();
+            SendEventAndClear();
             
             return true;
         }
@@ -254,6 +252,15 @@ GameScene::init()
 void
 GameScene::update(float delta)
 {
+        // music
+    auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+    if(!audio->isBackgroundMusicPlaying())
+    {
+        audio->setEffectsVolume(0.2);
+        audio->setBackgroundMusicVolume(0.1);
+        audio->playBackgroundMusic("res/background.mp3");
+    }
+    
         // apply received events first
     auto& socket = NetSystem::Instance().Socket();
     unsigned char buf[512];
@@ -278,7 +285,7 @@ GameScene::update(float delta)
                         player->SetHealth(gs_spawn->hp());
                         player->SetMaxHealth(gs_spawn->max_hp());
                         
-                        player->InitSprite("res/player_right.png");
+                        player->InitSprite("res/player_down.png");
                         
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                                     player->GetSprite()->getContentSize());
@@ -288,6 +295,28 @@ GameScene::update(float delta)
                         break;
                     }
                 }
+                
+                break;
+            }
+                
+            case GameEvent::Events_SVSpawnMonster:
+            {
+                auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
+                
+                auto monster = std::make_shared<Monster>();
+                cocos2d::Vec2 log_coords(gs_spawn->x(),
+                                         gs_spawn->y());
+                monster->SetUID(gs_spawn->monster_uid());
+                monster->SetPosition(log_coords);
+                monster->SetHealth(gs_spawn->hp());
+                monster->InitSprite("res/monster.png");
+                
+                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
+                                                            monster->GetSprite()->getContentSize());
+                monster->GetSprite()->setPosition(spritePos);
+                m_pPlayersLayer->addChild(monster->GetSprite());
+                
+                m_aMonsters.push_back(std::move(monster));
                 
                 break;
             }
@@ -424,31 +453,54 @@ GameScene::update(float delta)
             case GameEvent::Events_SVActionMove:
             {
                 auto gs_mov = static_cast<const GameEvent::SVActionMove*>(gs_event->event());
-                for(auto player : m_aPlayers)
+                
+                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/step.mp3");
+                if(gs_mov->target_type() == GameEvent::ActionMoveTarget_PLAYER)
                 {
-                    if(player->GetUID() == gs_mov->player_uid())
+                    for(auto player : m_aPlayers)
                     {
-                        auto new_pos = cocos2d::Vec2(gs_mov->x(), gs_mov->y());
-                        
-                        if(player->GetPosition().x > new_pos.x)
+                        if(player->GetUID() == gs_mov->target_uid())
                         {
-                            player->GetSprite()->setTexture("res/player_left.png");
+                            auto new_pos = cocos2d::Vec2(gs_mov->x(), gs_mov->y());
+                            
+                            if(player->GetPosition().x > new_pos.x)
+                            {
+                                player->GetSprite()->setTexture("res/player_left.png");
+                            }
+                            else if(player->GetPosition().x < new_pos.x)
+                            {
+                                player->GetSprite()->setTexture("res/player_right.png");
+                            }
+                            else if(player->GetPosition().y < new_pos.y)
+                            {
+                                player->GetSprite()->setTexture("res/player_up.png");
+                            }
+                            else if(player->GetPosition().y > new_pos.y)
+                            {
+                                player->GetSprite()->setTexture("res/player_down.png");
+                            }
+                            
+                            player->SetPosition(new_pos);
+                            player->AnimationMoveTo(new_pos);
+                            
+                            break;
                         }
-                        else if(player->GetPosition().x < new_pos.x)
+                    }
+                }
+                else if(gs_mov->target_type() == GameEvent::ActionMoveTarget_MONSTER)
+                {
+                    for(auto& monster : m_aMonsters)
+                    {
+                        if(monster->GetUID() == gs_mov->target_uid())
                         {
-                            player->GetSprite()->setTexture("res/player_right.png");
+                            auto new_pos = cocos2d::Vec2(gs_mov->x(),
+                                                         gs_mov->y());
+                            
+                            monster->SetPosition(new_pos);
+                            monster->AnimationMoveTo(new_pos);
+                            
+                            break;
                         }
-                        else if(player->GetPosition().y < new_pos.y)
-                        {
-                            player->GetSprite()->setTexture("res/player_up.png");
-                        }
-                        else if(player->GetPosition().y > new_pos.y)
-                        {
-                            player->GetSprite()->setTexture("res/player_down.png");
-                        }
-                        
-                        player->SetPosition(new_pos);
-                        player->AnimationMoveTo(new_pos);
                     }
                 }
                 
@@ -471,6 +523,7 @@ GameScene::update(float delta)
                     case GameEvent::ActionItemType_TAKE:
                     {
                         (*item)->GetSprite()->setVisible(false);
+                        (*item)->SetCarrierID(gs_item->player_uid());
                         player->GetInventory().push_back((*item).get());
                         
                         break;
@@ -496,7 +549,7 @@ GameScene::update(float delta)
                                 break;
                             }
                         }
-
+                        
                         break;
                     }
                         
@@ -590,64 +643,143 @@ GameScene::update(float delta)
             {
                 auto sv_duel = static_cast<const GameEvent::SVActionDuel*>(gs_event->event());
                 
-                switch(sv_duel->type())
+                switch(sv_duel->act_type())
                 {
                     case GameEvent::ActionDuelType_STARTED:
                     {
-                        for(auto& player : m_aPlayers)
+                            // p v p
+                        if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_PLAYER)
                         {
-                            if(player->GetUID() == sv_duel->player1_uid())
+                            auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                            auto player2 = GetPlayerByUID(sv_duel->target2_uid());
+                            
+                            player1->SetState(Player::State::DUEL_PLAYER);
+                            player1->SetDuelTarget(sv_duel->target2_uid());
+                            
+                            if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                player->SetState(Player::State::DUEL);
-                                player->SetDuelTarget(sv_duel->player2_uid());
-                                
-                                if(m_pLocalPlayer->GetUID() == player->GetUID())
-                                {
-                                    m_pDuelMode->Show(true);
-                                }
+                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+                                m_pDuelMode->Show(true);
                             }
-                            else if(player->GetUID() == sv_duel->player2_uid())
+                            
+                            player2->SetState(Player::State::DUEL_PLAYER);
+                            player2->SetDuelTarget(sv_duel->target1_uid());
+                            
+                            if(m_pLocalPlayer->GetUID() == player2->GetUID())
                             {
-                                player->SetState(Player::State::DUEL);
-                                player->SetDuelTarget(sv_duel->player1_uid());
-                                
-                                if(m_pLocalPlayer->GetUID() == player->GetUID())
-                                {
-                                    m_pDuelMode->Show(true);
-                                }
+                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+                                m_pDuelMode->Show(true);
                             }
                         }
-                        
+                            // p v m
+                        else if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_MONSTER)
+                        {
+                            auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                            auto monster = GetMonsterByUID(sv_duel->target2_uid());
+                            
+                            player1->SetState(Player::State::DUEL_MONSTER);
+                            monster->SetState(Monster::State::DUEL);
+                            
+                            if(m_pLocalPlayer->GetUID() == player1->GetUID())
+                            {
+                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+                                m_pDuelMode->Show(true);
+                            }
+                        }
+
                         break;
                     }
                         
                     case GameEvent::ActionDuelType_ATTACK:
                     {
-                        auto player1 = GetPlayerByUID(sv_duel->player1_uid());
-                        auto player2 = GetPlayerByUID(sv_duel->player2_uid());
-                        
-                        auto dmg = 1;
-                        player2->SetHealth(player2->GetHealth()-dmg);
+                            // player attacks
+                        if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_PLAYER)
+                        {
+                                // p v p
+                            if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_PLAYER)
+                            {
+                                auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                                auto player2 = GetPlayerByUID(sv_duel->target2_uid());
+                                
+                                player2->SetHealth(player2->GetHealth()-1);
+                            }
+                                // p v m
+                            else if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_MONSTER)
+                            {
+                                auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                                auto monster = GetMonsterByUID(sv_duel->target2_uid());
+                                
+                                    // TODO: Set monsters health
+                                monster->SetHealth(monster->GetHealth()-1);
+                            }
+                        }
+                            // monster attacks
+                        else if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_MONSTER)
+                        {
+                            auto monster = GetMonsterByUID(sv_duel->target1_uid());
+                            auto player = GetPlayerByUID(sv_duel->target2_uid());
+                            
+                            player->SetHealth(player->GetHealth()-1);
+                        }
                         
                         break;
                     }
                         
                     case GameEvent::ActionDuelType_KILL:
                     {
-                        for(auto& player : m_aPlayers)
+                            // player killed
+                        if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_PLAYER)
                         {
-                            if(player->GetUID() == sv_duel->player1_uid())
+                            if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_PLAYER)
                             {
-                                player->SetState(Player::State::WALKING);
-                            }
-                            else if(player->GetUID() == sv_duel->player2_uid())
-                            {
-                                player->SetState(Player::State::DEAD);
+                                auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                                auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                                 
-                                player->AnimationDeath();
+                                player1->SetState(Player::State::WALKING);
+                                if(m_pLocalPlayer->GetUID() == player1->GetUID())
+                                {
+                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
+                                    m_pDuelMode->Show(false);
+                                    m_pDuelMode->Reset();
+                                }
+                                
+                                player2->SetState(Player::State::DEAD);
+                                player2->AnimationDeath();
+                                if(m_pLocalPlayer->GetUID() == player2->GetUID())
+                                {
+                                    m_pDuelMode->Show(false);
+                                    m_pDuelMode->Reset();
+                                }
                             }
+                            else if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_MONSTER)
+                            {
+                                auto player = GetPlayerByUID(sv_duel->target1_uid());
+                                auto monster = GetMonsterByUID(sv_duel->target2_uid());
+                                
+                                player->SetState(Player::State::WALKING);
+                                if(m_pLocalPlayer->GetUID() == player->GetUID())
+                                {
+                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
+                                    m_pDuelMode->Show(false);
+                                    m_pDuelMode->Reset();
+                                }
+                                
+                                monster->SetState(Monster::State::DEAD);
+                                monster->AnimationDeath();
+                            }
+                        }
+                            // monster killed
+                        else if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_MONSTER)
+                        {
+                            auto monster = GetMonsterByUID(sv_duel->target1_uid());
+                            auto player = GetPlayerByUID(sv_duel->target2_uid());
                             
-                            if(player->GetUID() == m_pLocalPlayer->GetUID())
+                            monster->SetState(Monster::State::WAITING);
+                            
+                            player->SetState(Player::State::DEAD);
+                            player->AnimationDeath();
+                            
+                            if(m_pLocalPlayer->GetUID() == player->GetUID())
                             {
                                 m_pDuelMode->Show(false);
                                 m_pDuelMode->Reset();
@@ -702,9 +834,9 @@ GameScene::update(float delta)
                     {
                         audio->playBackgroundMusic("res/win.mp3", false);
                     }
-                    
-                    Director::getInstance()->popScene();
                 }
+                
+                Director::getInstance()->replaceScene(MainMenuScene::createScene());
                 
                 break;
             }
@@ -715,23 +847,30 @@ GameScene::update(float delta)
         }
     }
     
-        // update map
-    for(auto i = 0; i < m_oGameMap[0].size(); ++i)
-    {
-        for(auto j = 0; j < m_oGameMap[0].size(); ++j)
-        {
-            if(m_oGameMap[i][j]->GetType() == MapBlock::Type::WALL &&
-               i == m_pLocalPlayer->GetPosition().x &&
-               (j+1) == m_pLocalPlayer->GetPosition().y)
-            {
-                m_oGameMap[i][j]->GetSprite()->setTexture("res/walls_tr.png");
-            }
-            else if(m_oGameMap[i][j]->GetType() == MapBlock::Type::WALL)
-            {
-                m_oGameMap[i][j]->GetSprite()->setTexture("res/walls.png");
-            }
-        }
-    }
+//        // update map
+//    auto pl_pos = m_pLocalPlayer->GetPosition();
+//    for(auto i = 0; i < m_oGameMap.GetMatrix().size(); ++i)
+//    {
+//        for(auto j = 0; j < m_oGameMap[i].size(); ++j)
+//        {
+//            if(m_oGameMap[i][j]->IsDiscovered())
+//            {
+//                m_oGameMap[i][j]->GetSprite()->setOpacity(100);
+//            }
+//            else
+//            {
+//                m_oGameMap[i][j]->GetSprite()->setOpacity(0);
+//            }
+//        }
+//    }
+//    
+//    for(auto i = pl_pos.x-1; i <= pl_pos.x+1; ++i)
+//    {
+//        for(auto j = pl_pos.y-1; j <= pl_pos.y+1; ++j)
+//        {
+//            m_oGameMap[i][j]->SetDiscovered(true);
+//        }
+//    }
     
         // representation is based on state
     if(m_pLocalPlayer->GetState() == Player::State::WALKING)
@@ -770,16 +909,12 @@ GameScene::update(float delta)
                                                    GameEvent::Events_CLActionSwamp,
                                                    cl_escape.Union());
             builder.Finish(gs_event);
-            
-            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
-                                                     builder.GetSize());
-            
-            builder.Clear();
+            SendEventAndClear();
         }
     }
-    else if(m_pLocalPlayer->GetState() == Player::State::DUEL)
+    else if(m_pLocalPlayer->GetState() == Player::State::DUEL_PLAYER)
     {
-        m_pGameHUD->m_pState->setString("DUEL MODE!");
+        m_pGameHUD->m_pState->setString("DUEL MODE! (PLAYER)");
         
         if(m_pDuelMode->ComboDone())
         {
@@ -787,19 +922,44 @@ GameScene::update(float delta)
             
             auto cl_attack = GameEvent::CreateCLActionDuel(builder,
                                                            m_pLocalPlayer->GetUID(),
+                                                           GameEvent::ActionDuelTarget_PLAYER,
                                                            m_pLocalPlayer->GetDuelTarget(),
+                                                           GameEvent::ActionDuelTarget_PLAYER,
                                                            GameEvent::ActionDuelType_ATTACK);
             auto sv_event = GameEvent::CreateEvent(builder,
                                                    GameEvent::Events_CLActionDuel,
                                                    cl_attack.Union());
             builder.Finish(sv_event);
-            
-            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
-                                                   builder.GetSize());
+            SendEventAndClear();
         }
         
         auto enemy = GetPlayerByUID(m_pLocalPlayer->GetDuelTarget());
         m_pDuelMode->SetEnemyInfo(enemy->GetNickname(),
+                                  enemy->GetHealth());
+    }
+    else if(m_pLocalPlayer->GetState() == Player::State::DUEL_MONSTER)
+    {
+        m_pGameHUD->m_pState->setString("DUEL MODE! (MONSTER)");
+        
+        if(m_pDuelMode->ComboDone())
+        {
+            m_pDuelMode->Reset();
+            
+            auto cl_attack = GameEvent::CreateCLActionDuel(builder,
+                                                           m_pLocalPlayer->GetUID(),
+                                                           GameEvent::ActionDuelTarget_PLAYER,
+                                                           m_pLocalPlayer->GetDuelTarget(),
+                                                           GameEvent::ActionDuelTarget_MONSTER,
+                                                           GameEvent::ActionDuelType_ATTACK);
+            auto sv_event = GameEvent::CreateEvent(builder,
+                                                   GameEvent::Events_CLActionDuel,
+                                                   cl_attack.Union());
+            builder.Finish(sv_event);
+            SendEventAndClear();
+        }
+        
+        auto enemy = GetMonsterByUID(m_pLocalPlayer->GetDuelTarget());
+        m_pDuelMode->SetEnemyInfo("Mike Wazowski",
                                   enemy->GetHealth());
     }
     else if(m_pLocalPlayer->GetState() == Player::State::DEAD)
@@ -835,4 +995,28 @@ GameScene::GetPlayerByUID(uint32_t uid)
     }
     
     return nullptr;
+}
+
+std::shared_ptr<Monster>
+GameScene::GetMonsterByUID(uint16_t uid)
+{
+    for(size_t i = 0;
+        i < m_aMonsters.size();
+        ++i)
+    {
+        if(m_aMonsters[i]->GetUID() == uid)
+        {
+            return m_aMonsters[i];
+        }
+    }
+    
+    return nullptr;
+}
+
+void
+GameScene::SendEventAndClear()
+{
+    NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
+                                             builder.GetSize());
+    builder.Clear();
 }

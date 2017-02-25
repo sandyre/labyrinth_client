@@ -44,6 +44,9 @@ public:
     
 protected:
     std::shared_ptr<Player>     GetPlayerByUID(uint32_t);
+    std::shared_ptr<Monster>    GetMonsterByUID(uint16_t);
+    
+    void    SendEventAndClear();
 private:
     GameScene::State            m_eState = State::WALKING;
     GameMap                     m_oGameMap;
@@ -53,9 +56,9 @@ private:
     
     std::shared_ptr<Player>       m_pLocalPlayer;
     std::vector<std::shared_ptr<Player>> m_aPlayers;
-    std::vector<std::unique_ptr<Item>> m_aItems;
-    std::vector<std::unique_ptr<Construction>> m_aConstrs;
-    std::vector<std::unique_ptr<Monster>> m_aMonsters;
+    std::vector<std::shared_ptr<Item>> m_aItems;
+    std::vector<std::shared_ptr<Construction>> m_aConstrs;
+    std::vector<std::shared_ptr<Monster>> m_aMonsters;
     
     SwampCombo *                m_pSwampCombo;
     DuelMode *                  m_pDuelMode;

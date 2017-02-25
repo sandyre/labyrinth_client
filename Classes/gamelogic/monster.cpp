@@ -10,7 +10,8 @@
 
 #include "cocos2d.h"
 
-Monster::Monster()
+Monster::Monster() :
+m_eState(State::WAITING)
 {
     
 }
@@ -30,6 +31,18 @@ Monster::SetUID(uint16_t uid)
 void
 Monster::AnimationMoveTo(cocos2d::Vec2 pos)
 {
-    auto moveto = cocos2d::MoveTo::create(0.3, pos * CELL_SIZE);
-    m_pSprite->runAction(moveto);
+    cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(pos,
+                                                m_pSprite->getContentSize());
+    auto move = cocos2d::MoveTo::create(0.5, spritePos);
+    
+    m_pSprite->runAction(move);
+}
+
+void
+Monster::AnimationDeath()
+{
+    auto fade = cocos2d::FadeOut::create(0.5);
+    auto rotate = cocos2d::RotateBy::create(1.0, 1080);
+    auto seq = cocos2d::Sequence::create(rotate, fade, nullptr);
+    this->m_pSprite->runAction(seq);
 }

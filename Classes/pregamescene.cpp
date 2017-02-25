@@ -14,6 +14,7 @@
 #include <netsystem.hpp>
 #include "msnet_generated.h"
 #include "gsnet_generated.h"
+#include "resourcemanager.hpp"
 
 template < typename T > std::string to_string( const T& n )
 {
@@ -169,6 +170,7 @@ PreGameScene::update(float delta)
                 sets.nSeed = gen_info->seed();
                 
                 m_pGameScene->GenerateMap(sets);
+                ResourceManager::Instance().PreloadSounds();
                 
                     // notify server that generating is done
                 auto gen_ok = GameEvent::CreateCLMapGenerated(builder,
