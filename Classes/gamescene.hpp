@@ -40,11 +40,12 @@ public:
     
         // for builder (pregamescene)
     void    GenerateMap(const GameMap::Configuration& conf);
-    std::vector<std::shared_ptr<Player>>& GetPlayersList();
+    std::vector<Player*>&       GetPlayersList();
     
 protected:
-    std::shared_ptr<Player>     GetPlayerByUID(uint32_t);
-    std::shared_ptr<Monster>    GetMonsterByUID(uint16_t);
+    Player *                    GetPlayerByUID(uint32_t);
+    Item *                      GetItemByUID(uint16_t);
+    Monster *                   GetMonsterByUID(uint16_t);
     
     void    SendEventAndClear();
 private:
@@ -54,11 +55,11 @@ private:
     cocos2d::Layer *            m_pPlayersLayer;
     cocos2d::Layer *            m_pItemsLayer;
     
-    std::shared_ptr<Player>       m_pLocalPlayer;
-    std::vector<std::shared_ptr<Player>> m_aPlayers;
-    std::vector<std::shared_ptr<Item>> m_aItems;
-    std::vector<std::shared_ptr<Construction>> m_aConstrs;
-    std::vector<std::shared_ptr<Monster>> m_aMonsters;
+    Player *                    m_pLocalPlayer;
+    std::vector<Player*>        m_aPlayers;
+    std::vector<Item*>          m_aItems;
+    std::vector<Construction*>  m_aConstrs;
+    std::vector<Monster*>       m_aMonsters;
     
     SwampCombo *                m_pSwampCombo;
     DuelMode *                  m_pDuelMode;

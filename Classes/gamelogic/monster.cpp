@@ -11,38 +11,47 @@
 #include "cocos2d.h"
 
 Monster::Monster() :
-m_eState(State::WAITING)
+m_eState(State::WAITING),
+m_nHealth(0)
 {
+    m_eObjType = GameObject::Type::MONSTER;
+}
+
+Monster *
+Monster::create(const std::string& filename)
+{
+    Monster * pMonster = new Monster();
     
+    if(pMonster->initWithFile(filename))
+    {
+        pMonster->autorelease();
+        return pMonster;
+    }
+    
+    CC_SAFE_DELETE(pMonster);
+    return nullptr;
+}
+
+Monster::State
+Monster::GetState() const
+{
+    return m_eState;
+}
+
+void
+Monster::SetState(Monster::State state)
+{
+    m_eState = state;
 }
 
 uint16_t
-Monster::GetUID() const
+Monster::GetHealth() const
 {
-    return m_nUID;
+    return m_nHealth;
 }
 
 void
-Monster::SetUID(uint16_t uid)
+Monster::SetHealth(uint16_t val)
 {
-    m_nUID = uid;
-}
-
-void
-Monster::AnimationMoveTo(cocos2d::Vec2 pos)
-{
-    cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(pos,
-                                                m_pSprite->getContentSize());
-    auto move = cocos2d::MoveTo::create(0.5, spritePos);
-    
-    m_pSprite->runAction(move);
-}
-
-void
-Monster::AnimationDeath()
-{
-    auto fade = cocos2d::FadeOut::create(0.5);
-    auto rotate = cocos2d::RotateBy::create(1.0, 1080);
-    auto seq = cocos2d::Sequence::create(rotate, fade, nullptr);
-    this->m_pSprite->runAction(seq);
+    m_nHealth = val;
 }

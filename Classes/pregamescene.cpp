@@ -154,7 +154,8 @@ PreGameScene::update(float delta)
                     // player is not in-game already, add him
                 if(iter == players_list.end())
                 {
-                    auto new_player = std::make_shared<Player>();
+                    auto new_player = Player::create("res/player_down.png");
+                    new_player->retain();
                     new_player->SetUID(con_info->player_uid());
                     new_player->SetNickname(con_info->nickname()->c_str()); // FIXME: no checks that its zero-terminated
                     players_list.push_back(new_player);
@@ -170,7 +171,7 @@ PreGameScene::update(float delta)
                 sets.nSeed = gen_info->seed();
                 
                 m_pGameScene->GenerateMap(sets);
-                ResourceManager::Instance().PreloadSounds();
+//                ResourceManager::Instance().PreloadSounds();
                 
                     // notify server that generating is done
                 auto gen_ok = GameEvent::CreateCLMapGenerated(builder,

@@ -22,28 +22,38 @@ public:
         SWAMP = 0x02
     };
 public:
+    Construction::Type  GetType() const;
+    
+protected:
     Construction();
     
-    Construction::Type  GetType() const;
-protected:
     Construction::Type  m_eType;
 };
 
 class Door : public Construction
 {
 public:
+    static Door *   create(const std::string&);
+    
+protected:
     Door();
 };
 
 class Graveyard : public Construction
 {
 public:
+    static Graveyard*   create(const std::string&);
+    
+protected:
     Graveyard();
 };
 
 class Swamp : public Construction
 {
 public:
+    static Swamp*   create(const std::string&);
+    
+protected:
     Swamp();
 };
 

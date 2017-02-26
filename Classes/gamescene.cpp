@@ -38,8 +38,6 @@ void
 GameScene::onExit()
 {
     Layer::onExit();
-    this->release();
-    this->release(); // dirty trick
 }
 
 /*
@@ -51,7 +49,7 @@ GameScene::GenerateMap(const GameMap::Configuration &conf)
     m_oGameMap.GenerateMap(conf);
 }
 
-std::vector<std::shared_ptr<Player>>&
+std::vector<Player*>&
 GameScene::GetPlayersList()
 {
     return m_aPlayers;
@@ -107,7 +105,7 @@ GameScene::init()
     {
         if(m_pLocalPlayer->GetState() == Player::State::WALKING)
         {
-            auto pos = m_pLocalPlayer->GetPosition();
+            auto pos = m_pLocalPlayer->GetLogicalPosition();
             auto pCam = Camera::getDefaultCamera();
             auto camPos = pCam->getPosition3D();
             switch(keyCode)
@@ -157,7 +155,7 @@ GameScene::init()
                 }
             }
             
-            if(!m_pLocalPlayer->GetSprite()->getNumberOfRunningActions())
+            if(!m_pLocalPlayer->getNumberOfRunningActions())
             {
                 auto mov = GameEvent::CreateCLActionMove(builder,
                                                          m_pLocalPlayer->GetUID(),
@@ -223,9 +221,9 @@ GameScene::init()
             
             auto item = std::find_if(m_aItems.begin(),
                                      m_aItems.end(),
-                                     [this](auto& item)
+                                     [this](Item * item)
                                      {
-                                         return item->GetPosition() == m_pLocalPlayer->GetPosition() &&
+                                         return item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition() &&
                                                 item->GetCarrierID() == 0;
                                      });
             auto cl_take = GameEvent::CreateCLActionItem(builder,
@@ -254,12 +252,12 @@ GameScene::update(float delta)
 {
         // music
     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-    if(!audio->isBackgroundMusicPlaying())
-    {
-        audio->setEffectsVolume(0.2);
-        audio->setBackgroundMusicVolume(0.1);
-        audio->playBackgroundMusic("res/background.mp3");
-    }
+//    if(!audio->isBackgroundMusicPlaying())
+//    {
+//        audio->setEffectsVolume(0.2);
+//        audio->setBackgroundMusicVolume(0.1);
+//        audio->playBackgroundMusic("res/background.mp3");
+//    }
     
         // apply received events first
     auto& socket = NetSystem::Instance().Socket();
@@ -281,16 +279,14 @@ GameScene::update(float delta)
                     {
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
-                        player->SetPosition(log_coords);
+                        player->SetLogicalPosition(log_coords);
                         player->SetHealth(gs_spawn->hp());
                         player->SetMaxHealth(gs_spawn->max_hp());
                         
-                        player->InitSprite("res/player_down.png");
-                        
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    player->GetSprite()->getContentSize());
-                        player->GetSprite()->setPosition(spritePos);
-                        m_pPlayersLayer->addChild(player->GetSprite());
+                                                                    player->getContentSize());
+                        player->setPosition(spritePos);
+                        m_pPlayersLayer->addChild(player);
                         
                         break;
                     }
@@ -303,20 +299,20 @@ GameScene::update(float delta)
             {
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
                 
-                auto monster = std::make_shared<Monster>();
+                auto monster = Monster::create("res/monster.png");
+                monster->SetUID(gs_spawn->monster_uid());
+                monster->SetHealth(gs_spawn->hp());
+                
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
-                monster->SetUID(gs_spawn->monster_uid());
-                monster->SetPosition(log_coords);
-                monster->SetHealth(gs_spawn->hp());
-                monster->InitSprite("res/monster.png");
-                
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            monster->GetSprite()->getContentSize());
-                monster->GetSprite()->setPosition(spritePos);
-                m_pPlayersLayer->addChild(monster->GetSprite());
+                                                            monster->getContentSize());
                 
-                m_aMonsters.push_back(std::move(monster));
+                monster->SetLogicalPosition(log_coords);
+                monster->setPosition(spritePos);
+                m_pPlayersLayer->addChild(monster);
+                
+                m_aMonsters.push_back(monster);
                 
                 break;
             }
@@ -325,52 +321,44 @@ GameScene::update(float delta)
             {
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnItem*>(gs_event->event());
                 
-                switch(gs_spawn->item_type())
+                switch((Item::Type)gs_spawn->item_type())
                 {
                     case Item::Type::KEY:
                     {
-                        cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                                 gs_spawn->y());
-                        
-                        auto key = std::make_unique<Key>();
+                        auto key = Key::create("res/key.png");
                         key->SetUID(gs_spawn->item_uid());
                         key->SetCarrierID(0);
-                        key->SetPosition(log_coords);
-                        key->InitSprite("res/key.png");
                         
+                        cocos2d::Vec2 log_coords(gs_spawn->x(),
+                                                 gs_spawn->y());
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    key->GetSprite()->getContentSize());
-                        key->GetSprite()->setPosition(spritePos);
-                        m_oGameMap.GetFloorLayer()->addChild(key->GetSprite());
-                            // run animation
-                        key->AnimationSpawn();
+                                                                    key->getContentSize());
                         
-                            // key is unavailable from here
-                        m_aItems.push_back(std::move(key));
+                        key->SetLogicalPosition(log_coords);
+                        key->setPosition(spritePos);
+                        m_oGameMap.GetFloorLayer()->addChild(key);
+                        
+                        m_aItems.push_back(key);
                         break;
                     }
                         
                     case Item::Type::SWORD:
                     {
-                        cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                                 gs_spawn->y());
-                        
-                        auto sword = std::make_unique<Sword>();
+                        auto sword = Sword::create("res/sword.png");
                         sword->SetUID(gs_spawn->item_uid());
                         sword->SetCarrierID(0);
-                        sword->SetPosition(log_coords);
-                        sword->InitSprite("res/sword.png");
                         
+                        cocos2d::Vec2 log_coords(gs_spawn->x(),
+                                                 gs_spawn->y());
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    sword->GetSprite()->getContentSize());
-                        sword->GetSprite()->setPosition(spritePos);
+                                                                    sword->getContentSize());
                         
-                        m_oGameMap.GetFloorLayer()->addChild(sword->GetSprite());
-                            // run animation
-                        sword->AnimationSpawn();
+                        sword->SetLogicalPosition(log_coords);
+                        sword->setPosition(spritePos);
                         
-                            // sword is unavailable from here
-                        m_aItems.push_back(std::move(sword));
+                        m_oGameMap.GetFloorLayer()->addChild(sword);
+                        
+                        m_aItems.push_back(sword);
                         break;
                     }
                         
@@ -390,55 +378,55 @@ GameScene::update(float delta)
                 {
                     case Construction::Type::SWAMP:
                     {
+                        auto swamp = Swamp::create("res/swamp.png");
+                        
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
-                        
-                        auto swamp = std::make_unique<Swamp>();
-                        swamp->SetPosition(log_coords);
-                        swamp->InitSprite("res/swamp.png");
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    swamp->GetSprite()->getContentSize());
-                        swamp->GetSprite()->setPosition(spritePos);
-                        m_oGameMap.GetFloorLayer()->addChild(swamp->GetSprite());
+                                                                    swamp->getContentSize());
                         
-                        m_aConstrs.push_back(std::move(swamp));
+                        swamp->SetLogicalPosition(log_coords);
+                        swamp->setPosition(spritePos);
                         
+                        m_oGameMap.GetFloorLayer()->addChild(swamp);
+                        
+                        m_aConstrs.push_back(swamp);
                         break;
                     }
                         
                     case Construction::Type::GRAVEYARD:
                     {
+                        auto grave = Graveyard::create("res/graveyard.png");
+
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
-                        
-                        auto grave = std::make_unique<Graveyard>();
-                        grave->SetPosition(log_coords);
-                        grave->InitSprite("res/graveyard.png");
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    grave->GetSprite()->getContentSize());
-                        grave->GetSprite()->setPosition(spritePos);
-                        m_oGameMap.GetFloorLayer()->addChild(grave->GetSprite());
+                                                                    grave->getContentSize());
                         
-                        m_aConstrs.push_back(std::move(grave));
+                        grave->SetLogicalPosition(log_coords);
+                        grave->setPosition(spritePos);
                         
+                        m_oGameMap.GetFloorLayer()->addChild(grave);
+                        
+                        m_aConstrs.push_back(grave);
                         break;
                     }
                         
                     case Construction::Type::DOOR:
                     {
+                        auto door = Door::create("res/door.png");
+                        
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
-                        
-                        auto door = std::make_unique<Door>();
-                        door->SetPosition(log_coords);
-                        door->InitSprite("res/door.png");
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    door->GetSprite()->getContentSize());
-                        door->GetSprite()->setPosition(spritePos);
-                        m_oGameMap.GetFloorLayer()->addChild(door->GetSprite());
+                                                                    door->getContentSize());
                         
-                        m_aConstrs.push_back(std::move(door));
+                        door->SetLogicalPosition(log_coords);
+                        door->setPosition(spritePos);
                         
+                        m_oGameMap.GetFloorLayer()->addChild(door);
+                        
+                        m_aConstrs.push_back(door);
                         break;
                     }
                         
@@ -454,7 +442,7 @@ GameScene::update(float delta)
             {
                 auto gs_mov = static_cast<const GameEvent::SVActionMove*>(gs_event->event());
                 
-                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/step.mp3");
+//                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/step.mp3");
                 if(gs_mov->target_type() == GameEvent::ActionMoveTarget_PLAYER)
                 {
                     for(auto player : m_aPlayers)
@@ -463,25 +451,26 @@ GameScene::update(float delta)
                         {
                             auto new_pos = cocos2d::Vec2(gs_mov->x(), gs_mov->y());
                             
-                            if(player->GetPosition().x > new_pos.x)
+                            if(player->GetLogicalPosition().x > new_pos.x)
                             {
-                                player->GetSprite()->setTexture("res/player_left.png");
+                                player->setTexture("res/player_left.png");
                             }
-                            else if(player->GetPosition().x < new_pos.x)
+                            else if(player->GetLogicalPosition().x < new_pos.x)
                             {
-                                player->GetSprite()->setTexture("res/player_right.png");
+                                player->setTexture("res/player_right.png");
                             }
-                            else if(player->GetPosition().y < new_pos.y)
+                            else if(player->GetLogicalPosition().y < new_pos.y)
                             {
-                                player->GetSprite()->setTexture("res/player_up.png");
+                                player->setTexture("res/player_up.png");
                             }
-                            else if(player->GetPosition().y > new_pos.y)
+                            else if(player->GetLogicalPosition().y > new_pos.y)
                             {
-                                player->GetSprite()->setTexture("res/player_down.png");
+                                player->setTexture("res/player_down.png");
                             }
                             
-                            player->SetPosition(new_pos);
-                            player->AnimationMoveTo(new_pos);
+                            player->SetLogicalPosition(new_pos);
+                            player->setPosition(LOG_TO_PHYS_COORD(new_pos,
+                                                                  player->getContentSize()));
                             
                             break;
                         }
@@ -496,8 +485,9 @@ GameScene::update(float delta)
                             auto new_pos = cocos2d::Vec2(gs_mov->x(),
                                                          gs_mov->y());
                             
-                            monster->SetPosition(new_pos);
-                            monster->AnimationMoveTo(new_pos);
+                            monster->SetLogicalPosition(new_pos);
+                            monster->setPosition(LOG_TO_PHYS_COORD(new_pos,
+                                                                   monster->getContentSize()));
                             
                             break;
                         }
@@ -512,7 +502,7 @@ GameScene::update(float delta)
                 auto gs_item = static_cast<const GameEvent::SVActionItem*>(gs_event->event());
                 auto item = std::find_if(m_aItems.begin(),
                                          m_aItems.end(),
-                                         [gs_item](auto& item)
+                                         [gs_item](Item * item)
                                          {
                                              return item->GetUID() == gs_item->item_uid();
                                          });
@@ -522,28 +512,28 @@ GameScene::update(float delta)
                 {
                     case GameEvent::ActionItemType_TAKE:
                     {
-                        (*item)->GetSprite()->setVisible(false);
+                        (*item)->setVisible(false);
                         (*item)->SetCarrierID(gs_item->player_uid());
-                        player->GetInventory().push_back((*item).get());
+                        player->GetInventory().push_back((*item)->GetUID());
                         
                         break;
                     }
                         
                     case GameEvent::ActionItemType_DROP:
                     {
-                        (*item)->GetSprite()->setVisible(true);
+                        (*item)->setVisible(true);
                         (*item)->SetCarrierID(0);
-                        (*item)->SetPosition(player->GetPosition());
-                        (*item)->GetSprite()->setPosition(
-                                                          LOG_TO_PHYS_COORD(player->GetPosition(),
-                                                                            (*item)->GetSprite()->getContentSize()));
+                        (*item)->SetLogicalPosition(player->GetLogicalPosition());
+                        (*item)->setPosition(
+                                             LOG_TO_PHYS_COORD(player->GetLogicalPosition(),
+                                                               (*item)->getContentSize()));
                         
                             // delete item from players inventory
                         for(auto it = player->GetInventory().begin();
                             it != player->GetInventory().end();
                             ++it)
                         {
-                            if((*it)->GetUID() == (*item)->GetUID())
+                            if((*it) == (*item)->GetUID())
                             {
                                 player->GetInventory().erase(it);
                                 break;
@@ -594,7 +584,6 @@ GameScene::update(float delta)
                             if(player->GetUID() == gs_swamp->player_uid())
                             {
                                 player->SetState(Player::State::DEAD);
-                                player->AnimationDeath();
                                 
                                 if(player->GetUID() == gs_swamp->player_uid())
                                 {
@@ -654,20 +643,20 @@ GameScene::update(float delta)
                             auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                             
                             player1->SetState(Player::State::DUEL_PLAYER);
-                            player1->SetDuelTarget(sv_duel->target2_uid());
+                            player1->SetDuelTargetID(sv_duel->target2_uid());
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+//                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                             
                             player2->SetState(Player::State::DUEL_PLAYER);
-                            player2->SetDuelTarget(sv_duel->target1_uid());
+                            player2->SetDuelTargetID(sv_duel->target1_uid());
                             
                             if(m_pLocalPlayer->GetUID() == player2->GetUID())
                             {
-                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+//                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                         }
@@ -682,7 +671,7 @@ GameScene::update(float delta)
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
+//                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                         }
@@ -738,13 +727,13 @@ GameScene::update(float delta)
                                 player1->SetState(Player::State::WALKING);
                                 if(m_pLocalPlayer->GetUID() == player1->GetUID())
                                 {
-                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
+//                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
                                     m_pDuelMode->Show(false);
                                     m_pDuelMode->Reset();
                                 }
                                 
                                 player2->SetState(Player::State::DEAD);
-                                player2->AnimationDeath();
+                                
                                 if(m_pLocalPlayer->GetUID() == player2->GetUID())
                                 {
                                     m_pDuelMode->Show(false);
@@ -759,13 +748,13 @@ GameScene::update(float delta)
                                 player->SetState(Player::State::WALKING);
                                 if(m_pLocalPlayer->GetUID() == player->GetUID())
                                 {
-                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
+//                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
                                     m_pDuelMode->Show(false);
                                     m_pDuelMode->Reset();
                                 }
                                 
                                 monster->SetState(Monster::State::DEAD);
-                                monster->AnimationDeath();
+                                
                             }
                         }
                             // monster killed
@@ -777,7 +766,6 @@ GameScene::update(float delta)
                             monster->SetState(Monster::State::WAITING);
                             
                             player->SetState(Player::State::DEAD);
-                            player->AnimationDeath();
                             
                             if(m_pLocalPlayer->GetUID() == player->GetUID())
                             {
@@ -810,13 +798,12 @@ GameScene::update(float delta)
                         cocos2d::Vec2 log_coords(gs_resp->x(),
                                                  gs_resp->y());
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    player->GetSprite()->getContentSize());
-                        player->SetPosition(log_coords);
+                                                                    player->getContentSize());
+                        player->SetLogicalPosition(log_coords);
                         player->SetHealth(gs_resp->hp());
                         player->SetMaxHealth(gs_resp->max_hp());
                         
-                        player->GetSprite()->setPosition(spritePos);
-                        player->AnimationRespawn();
+                        player->setPosition(spritePos);
                         break;
                     }
                 }
@@ -832,10 +819,11 @@ GameScene::update(float delta)
                     auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
                     if(!audio->isBackgroundMusicPlaying())
                     {
-                        audio->playBackgroundMusic("res/win.mp3", false);
+//                        audio->playBackgroundMusic("res/win.mp3", false);
                     }
                 }
                 
+                this->release();
                 Director::getInstance()->replaceScene(MainMenuScene::createScene());
                 
                 break;
@@ -879,8 +867,8 @@ GameScene::update(float delta)
             // check that player can take some item
         for(auto& item : m_aItems)
         {
-            if(item->GetSprite()->isVisible() &&
-               item->GetPosition() == m_pLocalPlayer->GetPosition())
+            if(item->isVisible() &&
+               item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition())
             {
                 m_pGameHUD->m_pTakeItem->setVisible(true);
                 break;
@@ -890,8 +878,8 @@ GameScene::update(float delta)
         
         auto pCam = Camera::getDefaultCamera();
         pCam->setPosition3D(Vec3(
-                                 m_pLocalPlayer->GetSprite()->getPosition().x,
-                                 m_pLocalPlayer->GetSprite()->getPosition().y,
+                                 m_pLocalPlayer->getPosition().x,
+                                 m_pLocalPlayer->getPosition().y,
                                  800));
     }
     else if(m_pLocalPlayer->GetState() == Player::State::SWAMP)
@@ -923,7 +911,7 @@ GameScene::update(float delta)
             auto cl_attack = GameEvent::CreateCLActionDuel(builder,
                                                            m_pLocalPlayer->GetUID(),
                                                            GameEvent::ActionDuelTarget_PLAYER,
-                                                           m_pLocalPlayer->GetDuelTarget(),
+                                                           m_pLocalPlayer->GetDuelTargetID(),
                                                            GameEvent::ActionDuelTarget_PLAYER,
                                                            GameEvent::ActionDuelType_ATTACK);
             auto sv_event = GameEvent::CreateEvent(builder,
@@ -933,7 +921,7 @@ GameScene::update(float delta)
             SendEventAndClear();
         }
         
-        auto enemy = GetPlayerByUID(m_pLocalPlayer->GetDuelTarget());
+        auto enemy = GetPlayerByUID(m_pLocalPlayer->GetDuelTargetID());
         m_pDuelMode->SetEnemyInfo(enemy->GetNickname(),
                                   enemy->GetHealth());
     }
@@ -948,7 +936,7 @@ GameScene::update(float delta)
             auto cl_attack = GameEvent::CreateCLActionDuel(builder,
                                                            m_pLocalPlayer->GetUID(),
                                                            GameEvent::ActionDuelTarget_PLAYER,
-                                                           m_pLocalPlayer->GetDuelTarget(),
+                                                           m_pLocalPlayer->GetDuelTargetID(),
                                                            GameEvent::ActionDuelTarget_MONSTER,
                                                            GameEvent::ActionDuelType_ATTACK);
             auto sv_event = GameEvent::CreateEvent(builder,
@@ -958,7 +946,7 @@ GameScene::update(float delta)
             SendEventAndClear();
         }
         
-        auto enemy = GetMonsterByUID(m_pLocalPlayer->GetDuelTarget());
+        auto enemy = GetMonsterByUID(m_pLocalPlayer->GetDuelTargetID());
         m_pDuelMode->SetEnemyInfo("Mike Wazowski",
                                   enemy->GetHealth());
     }
@@ -971,8 +959,9 @@ GameScene::update(float delta)
                                                      m_pLocalPlayer->GetHealth(),
                                                      m_pLocalPlayer->GetMaxHealth()));
     std::string inventory = "Inventory:\n";
-    for(auto& item : m_pLocalPlayer->GetInventory())
+    for(auto item_id : m_pLocalPlayer->GetInventory())
     {
+        Item * item = GetItemByUID(item_id);
         if(item->GetType() == Item::Type::KEY)
             inventory += "Key\n";
         else if(item->GetType() == Item::Type::SWORD)
@@ -981,7 +970,21 @@ GameScene::update(float delta)
     m_pGameHUD->m_pInventory->setString(inventory);
 }
 
-std::shared_ptr<Player>
+Item *
+GameScene::GetItemByUID(uint16_t uid)
+{
+    for(size_t i = 0;
+        i < m_aItems.size();
+        ++i)
+    {
+        if(m_aItems[i]->GetUID() == uid)
+            return m_aItems[i];
+    }
+    
+    return nullptr;
+}
+
+Player *
 GameScene::GetPlayerByUID(uint32_t uid)
 {
     for(size_t i = 0;
@@ -989,15 +992,13 @@ GameScene::GetPlayerByUID(uint32_t uid)
         ++i)
     {
         if(m_aPlayers[i]->GetUID() == uid)
-        {
             return m_aPlayers[i];
-        }
     }
     
     return nullptr;
 }
 
-std::shared_ptr<Monster>
+Monster *
 GameScene::GetMonsterByUID(uint16_t uid)
 {
     for(size_t i = 0;
@@ -1005,9 +1006,7 @@ GameScene::GetMonsterByUID(uint16_t uid)
         ++i)
     {
         if(m_aMonsters[i]->GetUID() == uid)
-        {
             return m_aMonsters[i];
-        }
     }
     
     return nullptr;

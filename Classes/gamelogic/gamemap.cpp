@@ -235,48 +235,54 @@ GameMap::GenerateMap(const Configuration& settings)
             auto& block = m_oMap[i][j];
             if(tmp_map[i][j] == MapBlockType::NOBLOCK)
             {
-                block = new NoBlock();
-                block->InitSprite("res/floor.png");
+                block = NoBlock::create("res/floor.png");
+                
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            block->GetSprite()->getContentSize());
-                block->GetSprite()->setPosition(spritePos);
+                                                            block->getContentSize());
                 
-                m_pFloorLayer->addChild(block->GetSprite());
+                block->SetLogicalPosition(log_coords);
+                block->setPosition(spritePos);
+                
+                m_pFloorLayer->addChild(block);
             }
             else if(tmp_map[i][j] == MapBlockType::WALL)
             {
-                block = new WallBlock();
-                
                 auto rand = cocos2d::RandomHelper::random_int(0, 2);
                 if(rand == 0)
                 {
-                    block->InitSprite("res/wall_1.png");
+                    block = WallBlock::create("res/wall_1.png");
                 }
                 if(rand == 1)
                 {
-                    block->InitSprite("res/wall_2.png");
+                    block = WallBlock::create("res/wall_2.png");
                 }
                 if(rand == 2)
                 {
-                    block->InitSprite("res/wall_3.png");
+                    block = WallBlock::create("res/wall_3.png");
                 }
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            block->GetSprite()->getContentSize());
-                block->GetSprite()->setPosition(spritePos);
-                m_pWallsLayer->addChild(block->GetSprite());
+                                                            block->getContentSize());
+                
+                block->SetLogicalPosition(log_coords);
+                block->setPosition(spritePos);
+                
+                m_pWallsLayer->addChild(block);
             }
             else if(tmp_map[i][j] == MapBlockType::BORDER)
             {
-                block = new BorderBlock();
-                block->InitSprite("res/walls.png");
+                block = BorderBlock::create("res/walls.png");
+                
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            block->GetSprite()->getContentSize());
-                block->GetSprite()->setPosition(spritePos);
-                m_pWallsLayer->addChild(block->GetSprite());
+                                                            block->getContentSize());
+                
+                block->SetLogicalPosition(log_coords);
+                block->setPosition(spritePos);
+                
+                m_pWallsLayer->addChild(block);
             }
             else
             {
