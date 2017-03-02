@@ -20,6 +20,7 @@ public:
     cocos2d::Sprite * m_pTakeItem;
     cocos2d::Label * m_pState;
     cocos2d::Label * m_pHP;
+    cocos2d::Label * m_pDMG;
     cocos2d::Label * m_pInventory;
 };
 

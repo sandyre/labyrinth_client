@@ -24,13 +24,6 @@
 class GameScene : public cocos2d::Layer
 {
 public:
-    enum State
-    {
-        WALKING, // walking state
-        DUEL,   // battle
-        DROWNING
-    };
-public:
     GameScene();
     ~GameScene();
     virtual void onExit(); // destructor
@@ -47,9 +40,10 @@ protected:
     Item *                      GetItemByUID(uint16_t);
     Monster *                   GetMonsterByUID(uint16_t);
     
-    void    SendEventAndClear();
+    void    ApplyInputEvents();
+    void    SendOutputEvents();
+    void    UpdateView(float);
 private:
-    GameScene::State            m_eState = State::WALKING;
     GameMap                     m_oGameMap;
     GameHUD *                   m_pGameHUD;
     cocos2d::Layer *            m_pPlayersLayer;
@@ -63,7 +57,9 @@ private:
     
     SwampCombo *                m_pSwampCombo;
     DuelMode *                  m_pDuelMode;
+    
         // used to send events
+    std::queue<std::vector<char>> m_aOutEvents;
     flatbuffers::FlatBufferBuilder builder;
     uint16_t nSuccCount = 0;
 };

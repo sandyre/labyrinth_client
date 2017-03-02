@@ -16,13 +16,21 @@
 class PreGameScene : public cocos2d::Layer
 {
 public:
+    struct PlayerConnectionInfo
+    {
+        uint32_t    nUID;
+        std::string sNickname;
+        Hero        eHeroPicked;
+    };
+public:
     enum Status
     {
+        CONNECTING_TO_MS,
         REQUESTING_LOBBY,
         CONNECTING_TO_GS,
         WAITING_ACCEPT,
         WAITING_OTHERS,
-        READY_TO_START,
+        HERO_PICK_STAGE,
         GENERATING_LEVEL,
         WAITING_SERVER_START
     };
@@ -38,6 +46,11 @@ protected:
     cocos2d::Label * m_pStatusInfo;
     Poco::Net::SocketAddress m_stGSAddr;
     
+    cocos2d::Sprite * m_pRogueSprite;
+    cocos2d::Sprite * m_pPaladinSprite;
+    cocos2d::Sprite * m_pReadyButton;
+    std::vector<PlayerConnectionInfo> m_aLobbyPlayers;
+    GameMap::Configuration m_stMapConfig;
     GameScene * m_pGameScene; // building
     
     CREATE_FUNC(PreGameScene);

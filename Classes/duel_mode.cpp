@@ -85,7 +85,7 @@ DuelMode::Reset()
     m_pSymbolSprite->setTexture(SpritesPath[(int)m_aAttackCombo[m_aCurrentSymbol]]);
     
         // FIXME: hardcoded!
-    m_pCount->setString("0/8");
+    m_pCount->setString(cocos2d::StringUtils::format("0/%zu", m_aAttackCombo.size()));
 }
 
 bool

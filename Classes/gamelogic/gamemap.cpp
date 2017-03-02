@@ -48,7 +48,7 @@ GameMap::GenerateMap(const Configuration& settings)
     m_stSettings = settings;
     
     auto m_oRandGen = std::mt19937(m_stSettings.nSeed);
-    auto m_oRandDistr = std::uniform_int_distribution<>(0, 1000);
+    auto m_oRandDistr = std::uniform_real_distribution<float>(0, 1000);
     
     std::vector<std::vector<MapBlockType>> tmp_map(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2,
                                                    std::vector<MapBlockType>(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2,
@@ -92,8 +92,8 @@ GameMap::GenerateMap(const Configuration& settings)
             std::vector<Cell> list;
             uint16_t x, y;
             
-            x = m_oRandDistr(m_oRandGen) % n;
-            y = m_oRandDistr(m_oRandGen) % n;
+            x = (int)m_oRandDistr(m_oRandGen) % n;
+            y = (int)m_oRandDistr(m_oRandGen) % n;
             
             rooms[i][j].cells[x][y] = MapBlockType::NOBLOCK;
             if (x > 0)
@@ -119,7 +119,7 @@ GameMap::GenerateMap(const Configuration& settings)
             
             while (list.size())
             {
-                int rand = m_oRandDistr(m_oRandGen) % list.size();
+                int rand = (int)m_oRandDistr(m_oRandGen) % list.size();
                 Cell cell = list[rand];
                 std::vector<Cell> neighbours;
                 int count = 0;
@@ -273,7 +273,7 @@ GameMap::GenerateMap(const Configuration& settings)
             }
             else if(tmp_map[i][j] == MapBlockType::BORDER)
             {
-                block = BorderBlock::create("res/walls.png");
+                block = BorderBlock::create("res/wall_1.png");
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,

@@ -25,7 +25,7 @@ m_aCurrentSymbol(0)
                                  size.height/2);
     this->addChild(m_pSymbolSprite);
     
-    m_pCount = cocos2d::Label::createWithTTF("0/0",
+    m_pCount = cocos2d::Label::createWithTTF(cocos2d::StringUtils::format("0/%zu", m_aCombo.size()),
                                              "fonts/arial.ttf",
                                              20);
     m_pCount->setPosition(size.width * 0.5,
@@ -70,8 +70,7 @@ SwampCombo::Reset()
     m_bComboDone = false;
     m_pSymbolSprite->setTexture(SpritesPath[(int)m_aCombo[m_aCurrentSymbol]]);
     
-        // FIXME: hardcoded!
-    m_pCount->setString("0/8");
+    m_pCount->setString(cocos2d::StringUtils::format("0/%zu", m_aCombo.size()));
 }
 
 bool

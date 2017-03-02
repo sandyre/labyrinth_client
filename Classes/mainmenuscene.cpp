@@ -66,6 +66,15 @@ MainMenuScene::init()
     titleLabel->enableGlow(Color4B::RED);
     this->addChild(titleLabel);
     
+    auto gameVersion = Label::createWithTTF(StringUtils::format("v%d.%d.%d",
+                                                                GAMEVERSION_MAJOR,
+                                                                GAMEVERSION_MINOR,
+                                                                GAMEVERSION_BUILD),
+                                            "fonts/ethnocentric rg.ttf", 16);
+    gameVersion->setPosition(visibleSize.width * 0.9,
+                             visibleSize.height * 0.03);
+    this->addChild(gameVersion);
+    
     auto gameLabel = Label::createWithTTF(
                                           "find game",
                                           "fonts/ethnocentric rg.ttf",

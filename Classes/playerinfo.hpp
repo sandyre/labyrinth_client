@@ -10,6 +10,7 @@
 #define playerinfo_hpp
 
 #include <string>
+#include <fstream>
 #include <cocos2d.h>
 
 class PlayerInfo
@@ -29,8 +30,9 @@ public:
 private:
     PlayerInfo()
     {
+        std::ifstream   file("res/player_info.txt");
         m_nUID = cocos2d::RandomHelper::random_int(0, 666666);
-        m_sNickname = "sandyre";
+        file >> m_sNickname;
     }
     ~PlayerInfo() {}
     

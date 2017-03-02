@@ -55,3 +55,24 @@ Monster::SetHealth(uint16_t val)
 {
     m_nHealth = val;
 }
+
+void
+Monster::AnimationSpawn()
+{
+    auto fadeIn = cocos2d::FadeIn::create(1);
+    this->runAction(fadeIn);
+}
+
+void
+Monster::AnimationDeath()
+{
+    auto fadeOut = cocos2d::FadeOut::create(1);
+    this->runAction(fadeOut);
+}
+
+void
+Monster::AnimationMoveTo(cocos2d::Vec2 pos)
+{
+    auto moveTo = cocos2d::MoveTo::create(0.5, pos);
+    this->runAction(moveTo);
+}

@@ -30,6 +30,9 @@ public:
     uint16_t    GetHealth() const;
     void        SetHealth(uint16_t);
     
+    virtual void    AnimationSpawn();
+    virtual void    AnimationDeath();
+    virtual void    AnimationMoveTo(cocos2d::Vec2);
 protected:
     Monster();
     
