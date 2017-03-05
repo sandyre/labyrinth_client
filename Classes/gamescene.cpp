@@ -17,6 +17,11 @@
 #include "netsystem.hpp"
 #include "gsnet_generated.h"
 
+#include "water_elementalist.hpp"
+#include "fire_elementalist.hpp"
+#include "air_elementalist.hpp"
+#include "earth_elementalist.hpp"
+
 USING_NS_CC;
 
 GameScene::GameScene() :
@@ -49,7 +54,7 @@ GameScene::GenerateMap(const GameMap::Configuration &conf)
     m_oGameMap.GenerateMap(conf);
 }
 
-std::vector<Player*>&
+std::vector<Hero*>&
 GameScene::GetPlayersList()
 {
     return m_aPlayers;
@@ -103,7 +108,7 @@ GameScene::init()
     auto eventListener = EventListenerKeyboard::create();
     eventListener->onKeyPressed = [this](EventKeyboard::KeyCode keyCode, Event * event)
     {
-        if(m_pLocalPlayer->GetState() == Player::State::WALKING)
+        if(m_pLocalPlayer->GetState() == Hero::State::WALKING)
         {
             auto pos = m_pLocalPlayer->GetLogicalPosition();
             auto pCam = Camera::getDefaultCamera();
@@ -118,6 +123,7 @@ GameScene::init()
                     {
                         --pos.x;
                     }
+                    m_pLocalPlayer->SetOrientation(Hero::Orientation::LEFT);
                     break;
                 }
                     
@@ -129,6 +135,7 @@ GameScene::init()
                     {
                         ++pos.x;
                     }
+                    m_pLocalPlayer->SetOrientation(Hero::Orientation::RIGHT);
                     break;
                 }
                     
@@ -140,6 +147,7 @@ GameScene::init()
                     {
                         ++pos.y;
                     }
+                    m_pLocalPlayer->SetOrientation(Hero::Orientation::UP);
                     break;
                 }
                     
@@ -151,6 +159,7 @@ GameScene::init()
                     {
                         --pos.y;
                     }
+                    m_pLocalPlayer->SetOrientation(Hero::Orientation::DOWN);
                     break;
                 }
                 case EventKeyboard::KeyCode::KEY_T:
@@ -186,7 +195,7 @@ GameScene::init()
                 m_aOutEvents.push(event);
             }
         }
-        else if(m_pLocalPlayer->GetState() == Player::State::SWAMP)
+        else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
         {
             switch(keyCode)
             {
@@ -204,8 +213,8 @@ GameScene::init()
                     break;
             }
         }
-        else if(m_pLocalPlayer->GetState() == Player::State::DUEL_PLAYER ||
-                m_pLocalPlayer->GetState() == Player::State::DUEL_MONSTER)
+        else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_PLAYER ||
+                m_pLocalPlayer->GetState() == Hero::State::DUEL_MONSTER)
         {
             switch(keyCode)
             {
@@ -269,8 +278,8 @@ GameScene::update(float delta)
     {
         auto pos1 = player->GetLogicalPosition();
         auto pos2 = m_pLocalPlayer->GetLogicalPosition();
-        if(m_pLocalPlayer->GetState() == Player::State::WALKING &&
-           player->GetState() == Player::State::WALKING &&
+        if((m_pLocalPlayer->GetStatus() & Hero::Status::DUELABLE) &&
+           (player->GetStatus() & Hero::Status::DUELABLE) &&
            ((std::abs(pos1.x - pos2.x) + std::abs(pos1.y - pos2.y)) == 1))
         {
             auto event = m_pLocalPlayer->EventDuelStart(player->GetUID());
@@ -293,7 +302,7 @@ GameScene::GetItemByUID(uint16_t uid)
     return nullptr;
 }
 
-Player *
+Hero *
 GameScene::GetPlayerByUID(uint32_t uid)
 {
     for(size_t i = 0;
@@ -325,7 +334,7 @@ void
 GameScene::UpdateView(float delta)
 {
         // representation is based on state
-    if(m_pLocalPlayer->GetState() == Player::State::WALKING)
+    if(m_pLocalPlayer->GetState() == Hero::State::WALKING)
     {
         m_pGameHUD->m_pState->setString("Just walking around...");
             // check that player can take some item
@@ -349,7 +358,7 @@ GameScene::UpdateView(float delta)
                                  cur_pos.y,
                                  800));
     }
-    else if(m_pLocalPlayer->GetState() == Player::State::SWAMP)
+    else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
     {
         m_pGameHUD->m_pState->setString("You are drowning!\nEnter combo!!!");
         
@@ -368,7 +377,7 @@ GameScene::UpdateView(float delta)
                                                 builder.GetBufferPointer() + builder.GetSize()));
         }
     }
-    else if(m_pLocalPlayer->GetState() == Player::State::DUEL_PLAYER)
+    else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_PLAYER)
     {
         m_pGameHUD->m_pState->setString("DUEL MODE! (PLAYER)");
         
@@ -383,7 +392,7 @@ GameScene::UpdateView(float delta)
         m_pDuelMode->SetEnemyInfo(enemy->GetNickname(),
                                   enemy->GetHealth());
     }
-    else if(m_pLocalPlayer->GetState() == Player::State::DUEL_MONSTER)
+    else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_MONSTER)
     {
         m_pGameHUD->m_pState->setString("DUEL MODE! (MONSTER)");
         
@@ -399,7 +408,7 @@ GameScene::UpdateView(float delta)
         m_pDuelMode->SetEnemyInfo("Mike Wazowski",
                                   enemy->GetHealth());
     }
-    else if(m_pLocalPlayer->GetState() == Player::State::DEAD)
+    else if(m_pLocalPlayer->GetState() == Hero::State::DEAD)
     {
         m_pGameHUD->m_pState->setString("You are DEAD\nWait respawn");
     }
@@ -613,7 +622,6 @@ GameScene::ApplyInputEvents()
             {
                 auto gs_mov = static_cast<const GameEvent::SVActionMove*>(gs_event->event());
                 
-                    //                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/step.mp3");
                 if(gs_mov->target_type() == GameEvent::ActionMoveTarget_PLAYER)
                 {
                     for(auto player : m_aPlayers)
@@ -624,19 +632,19 @@ GameScene::ApplyInputEvents()
                             
                             if(player->GetLogicalPosition().x > new_pos.x)
                             {
-                                player->setTexture("res/player_left.png");
+                                player->SetOrientation(Hero::Orientation::LEFT);
                             }
                             else if(player->GetLogicalPosition().x < new_pos.x)
                             {
-                                player->setTexture("res/player_right.png");
+                                player->SetOrientation(Hero::Orientation::RIGHT);
                             }
                             else if(player->GetLogicalPosition().y < new_pos.y)
                             {
-                                player->setTexture("res/player_up.png");
+                                player->SetOrientation(Hero::Orientation::UP);
                             }
                             else if(player->GetLogicalPosition().y > new_pos.y)
                             {
-                                player->setTexture("res/player_down.png");
+                                player->SetOrientation(Hero::Orientation::DOWN);
                             }
                             
                             player->SetLogicalPosition(new_pos);
@@ -680,7 +688,7 @@ GameScene::ApplyInputEvents()
                     {
                         item->AnimationTaken();
                         item->SetCarrierID(gs_item->player_uid());
-                        player->GetInventory().push_back(GetItemByUID(gs_item->item_uid()));
+                        player->AnimationTakeItem(GetItemByUID(gs_item->item_uid()));
                         player->UpdateStats();
                         
                         break;
@@ -731,7 +739,7 @@ GameScene::ApplyInputEvents()
                         {
                             if(player->GetUID() == gs_swamp->player_uid())
                             {
-                                player->SetState(Player::State::SWAMP);
+                                player->SetState(Hero::State::SWAMP);
                                 
                                 if(player->GetUID() == m_pLocalPlayer->GetUID())
                                 {
@@ -750,7 +758,7 @@ GameScene::ApplyInputEvents()
                         {
                             if(player->GetUID() == gs_swamp->player_uid())
                             {
-                                player->SetState(Player::State::DEAD);
+                                player->SetState(Hero::State::DEAD);
                                 player->AnimationDeath();
                                 
                                 if(player->GetUID() == gs_swamp->player_uid())
@@ -771,7 +779,7 @@ GameScene::ApplyInputEvents()
                         {
                             if(player->GetUID() == gs_swamp->player_uid())
                             {
-                                player->SetState(Player::State::WALKING);
+                                player->SetState(Hero::State::WALKING);
                                 
                                 if(player->GetUID() == m_pLocalPlayer->GetUID())
                                 {
@@ -808,7 +816,7 @@ GameScene::ApplyInputEvents()
                             auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                             auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                             
-                            player1->SetState(Player::State::DUEL_PLAYER);
+                            player1->SetState(Hero::State::DUEL_PLAYER);
                             player1->SetDuelTargetID(sv_duel->target2_uid());
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
@@ -817,7 +825,7 @@ GameScene::ApplyInputEvents()
                                 m_pDuelMode->Show(true);
                             }
                             
-                            player2->SetState(Player::State::DUEL_PLAYER);
+                            player2->SetState(Hero::State::DUEL_PLAYER);
                             player2->SetDuelTargetID(sv_duel->target1_uid());
                             
                             if(m_pLocalPlayer->GetUID() == player2->GetUID())
@@ -832,7 +840,7 @@ GameScene::ApplyInputEvents()
                             auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                             auto monster = GetMonsterByUID(sv_duel->target2_uid());
                             
-                            player1->SetState(Player::State::DUEL_MONSTER);
+                            player1->SetState(Hero::State::DUEL_MONSTER);
                             monster->SetState(Monster::State::DUEL);
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
@@ -891,7 +899,7 @@ GameScene::ApplyInputEvents()
                                 auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                                 auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                                 
-                                player1->SetState(Player::State::WALKING);
+                                player1->SetState(Hero::State::WALKING);
                                 if(m_pLocalPlayer->GetUID() == player1->GetUID())
                                 {
                                         //                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
@@ -899,7 +907,7 @@ GameScene::ApplyInputEvents()
                                     m_pDuelMode->Reset();
                                 }
                                 
-                                player2->SetState(Player::State::DEAD);
+                                player2->SetState(Hero::State::DEAD);
                                 player2->AnimationDeath();
                                 
                                 if(m_pLocalPlayer->GetUID() == player2->GetUID())
@@ -913,7 +921,7 @@ GameScene::ApplyInputEvents()
                                 auto player = GetPlayerByUID(sv_duel->target1_uid());
                                 auto monster = GetMonsterByUID(sv_duel->target2_uid());
                                 
-                                player->SetState(Player::State::WALKING);
+                                player->SetState(Hero::State::WALKING);
                                 if(m_pLocalPlayer->GetUID() == player->GetUID())
                                 {
                                         //                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
@@ -933,7 +941,7 @@ GameScene::ApplyInputEvents()
                             
                             monster->SetState(Monster::State::WAITING);
                             
-                            player->SetState(Player::State::DEAD);
+                            player->SetState(Hero::State::DEAD);
                             player->AnimationDeath();
                             
                             if(m_pLocalPlayer->GetUID() == player->GetUID())
@@ -962,7 +970,7 @@ GameScene::ApplyInputEvents()
                 {
                     if(player->GetUID() == gs_resp->player_uid())
                     {
-                        player->SetState(Player::State::WALKING);
+                        player->SetState(Hero::State::WALKING);
                         
                         cocos2d::Vec2 log_coords(gs_resp->x(),
                                                  gs_resp->y());
@@ -995,13 +1003,30 @@ GameScene::ApplyInputEvents()
                 auto gs_spell = static_cast<const GameEvent::SVActionSpell*>(gs_event->event());
                 auto player = GetPlayerByUID(gs_spell->player_uid());
                 
-                player->AnimationSpell1();
-                
-                if(player->GetHero() == Hero::ROGUE)
+                if(player->GetHero() == Hero::Type::AIR_ELEMENTALIST)
                 {
-                    auto smoke = Sprite::create("res/rogue_swamp.png");
-                    smoke->setPosition(player->getPosition());
-                    m_oGameMap.GetFloorLayer()->addChild(smoke);
+                    auto air = static_cast<AirElementalist*>(player);
+                    air->SpellCast1();
+                }
+                else if(player->GetHero() == Hero::Type::WATER_ELEMENTALIST)
+                {
+                    auto water = static_cast<WaterElementalist*>(player);
+                    water->SpellCast1();
+                }
+                else if(player->GetHero() == Hero::Type::EARTH_ELEMENTALIST)
+                {
+                    auto earth = static_cast<EarthElementalist*>(player);
+                    earth->SpellCast1();
+                    
+                    auto& block = m_oGameMap[gs_spell->point_x()][gs_spell->point_y()];
+                    block->removeFromParentAndCleanup(true);
+                    block = NoBlock::create("res/floor.png");
+                    block->SetLogicalPosition(Vec2(gs_spell->point_x(),
+                                                   gs_spell->point_y()));
+                    block->setPosition(LOG_TO_PHYS_COORD(Vec2(gs_spell->point_x(),
+                                                              gs_spell->point_y()),
+                                                         block->getContentSize()));
+                    m_oGameMap.GetFloorLayer()->addChild(block);
                 }
                 
                 break;

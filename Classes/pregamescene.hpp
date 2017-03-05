@@ -20,7 +20,7 @@ public:
     {
         uint32_t    nUID;
         std::string sNickname;
-        Hero        eHeroPicked;
+        Hero::Type  eHeroPicked;
     };
 public:
     enum Status
@@ -46,8 +46,11 @@ protected:
     cocos2d::Label * m_pStatusInfo;
     Poco::Net::SocketAddress m_stGSAddr;
     
-    cocos2d::Sprite * m_pRogueSprite;
-    cocos2d::Sprite * m_pPaladinSprite;
+    cocos2d::Sprite * m_pAirElem;
+    cocos2d::Sprite * m_pFireElem;
+    cocos2d::Sprite * m_pWaterElem;
+    cocos2d::Sprite * m_pEarthElem;
+    
     cocos2d::Sprite * m_pReadyButton;
     std::vector<PlayerConnectionInfo> m_aLobbyPlayers;
     GameMap::Configuration m_stMapConfig;

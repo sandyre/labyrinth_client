@@ -16,6 +16,11 @@
 #include "gsnet_generated.h"
 #include "resourcemanager.hpp"
 
+#include "air_elementalist.hpp"
+#include "earth_elementalist.hpp"
+#include "water_elementalist.hpp"
+#include "fire_elementalist.hpp"
+
 template < typename T > std::string to_string( const T& n )
 {
     std::ostringstream stm ;
@@ -65,14 +70,14 @@ PreGameScene::init()
     auto eventListenerTouch = EventListenerTouchOneByOne::create();
     eventListenerTouch->onTouchBegan = [this](Touch * touch, Event * event)
     {
-        if(m_pRogueSprite->getBoundingBox().containsPoint(touch->getLocation()))
+        if(m_pAirElem->getBoundingBox().containsPoint(touch->getLocation()))
         {
             m_pReadyButton->setVisible(true);
             
             flatbuffers::FlatBufferBuilder builder;
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::Hero_ROGUE);
+                                                       GameEvent::HeroType_AIR_ELEMENTALIST);
             auto sv_event = GameEvent::CreateEvent(builder,
                                                    GameEvent::Events_CLHeroPick,
                                                    sv_pick.Union());
@@ -83,14 +88,50 @@ PreGameScene::init()
             
             return true;
         }
-        if(m_pPaladinSprite->getBoundingBox().containsPoint(touch->getLocation()))
+        if(m_pEarthElem->getBoundingBox().containsPoint(touch->getLocation()))
         {
             m_pReadyButton->setVisible(true);
             
             flatbuffers::FlatBufferBuilder builder;
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::Hero_PALADIN);
+                                                       GameEvent::HeroType_EARTH_ELEMENTALIST);
+            auto sv_event = GameEvent::CreateEvent(builder,
+                                                   GameEvent::Events_CLHeroPick,
+                                                   sv_pick.Union());
+            builder.Finish(sv_event);
+            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
+                                                     builder.GetSize());
+            builder.Clear();
+            
+            return true;
+        }
+        if(m_pWaterElem->getBoundingBox().containsPoint(touch->getLocation()))
+        {
+            m_pReadyButton->setVisible(true);
+            
+            flatbuffers::FlatBufferBuilder builder;
+            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
+                                                       PlayerInfo::Instance().GetUID(),
+                                                       GameEvent::HeroType_WATER_ELEMENTALIST);
+            auto sv_event = GameEvent::CreateEvent(builder,
+                                                   GameEvent::Events_CLHeroPick,
+                                                   sv_pick.Union());
+            builder.Finish(sv_event);
+            NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
+                                                     builder.GetSize());
+            builder.Clear();
+            
+            return true;
+        }
+        if(m_pFireElem->getBoundingBox().containsPoint(touch->getLocation()))
+        {
+            m_pReadyButton->setVisible(true);
+            
+            flatbuffers::FlatBufferBuilder builder;
+            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
+                                                       PlayerInfo::Instance().GetUID(),
+                                                       GameEvent::HeroType_FIRE_ELEMENTALIST);
             auto sv_event = GameEvent::CreateEvent(builder,
                                                    GameEvent::Events_CLHeroPick,
                                                    sv_pick.Union());
@@ -264,17 +305,25 @@ PreGameScene::update(float delta)
                     this->addChild(m_pReadyButton);
                     m_pStatusInfo->setString("STATUS: HERO PICKING");
                     
-                    m_pRogueSprite = Sprite::create("res/rogue.png");
-                    m_pRogueSprite->setScale(2.0);
-                    m_pRogueSprite->setPosition(cocos2d::Vec2(size.width * 0.3,
-                                                              size.height * 0.6));
-                    this->addChild(m_pRogueSprite);
+                    m_pAirElem = Sprite::create("res/air_elem.png");
+                    m_pAirElem->setPosition(cocos2d::Vec2(size.width * 0.20,
+                                                          size.height * 0.6));
+                    this->addChild(m_pAirElem);
                     
-                    m_pPaladinSprite = Sprite::create("res/paladin.png");
-                    m_pPaladinSprite->setScale(2.0);
-                    m_pPaladinSprite->setPosition(cocos2d::Vec2(size.width * 0.6,
-                                                              size.height * 0.6));
-                    this->addChild(m_pPaladinSprite);
+                    m_pFireElem = Sprite::create("res/fire_elem.png");
+                    m_pFireElem->setPosition(cocos2d::Vec2(size.width * 0.40,
+                                                           size.height * 0.6));
+                    this->addChild(m_pFireElem);
+                    
+                    m_pWaterElem = Sprite::create("res/water_elem.png");
+                    m_pWaterElem->setPosition(cocos2d::Vec2(size.width * 0.60,
+                                                            size.height * 0.6));
+                    this->addChild(m_pWaterElem);
+                    
+                    m_pEarthElem = Sprite::create("res/earth_elem.png");
+                    m_pEarthElem->setPosition(cocos2d::Vec2(size.width * 0.80,
+                                                            size.height * 0.6));
+                    this->addChild(m_pEarthElem);
                 }
             }
             
@@ -308,7 +357,7 @@ PreGameScene::update(float delta)
                                                  return pl.nUID == hero_pick->player_uid();
                                              });
                     
-                    iter->eHeroPicked = (Hero)hero_pick->hero_type();
+                    iter->eHeroPicked = (Hero::Type)hero_pick->hero_type();
                 }
                 else if(gs_event->event_type() == GameEvent::Events_SVGenerateMap)
                 {
@@ -333,21 +382,37 @@ PreGameScene::update(float delta)
             
             for(auto& player : m_aLobbyPlayers)
             {
-                if(player.eHeroPicked == Hero::ROGUE)
+                if(player.eHeroPicked == Hero::Type::AIR_ELEMENTALIST)
                 {
-                    auto rogue = Rogue::create("res/player_down.png");
-                    rogue->SetUID(player.nUID);
-                    rogue->SetNickname(player.sNickname);
-                    rogue->retain();
-                    m_pGameScene->GetPlayersList().push_back(rogue);
+                    auto air = AirElementalist::create("res/player_down.png");
+                    air->SetUID(player.nUID);
+                    air->SetNickname(player.sNickname);
+                    air->retain();
+                    m_pGameScene->GetPlayersList().push_back(air);
                 }
-                else if(player.eHeroPicked == Hero::PALADIN)
+                else if(player.eHeroPicked == Hero::Type::EARTH_ELEMENTALIST)
                 {
-                    auto paladin = Paladin::create("res/player_down.png");
-                    paladin->SetUID(player.nUID);
-                    paladin->SetNickname(player.sNickname);
-                    paladin->retain();
-                    m_pGameScene->GetPlayersList().push_back(paladin);
+                    auto earth = EarthElementalist::create("res/player_down.png");
+                    earth->SetUID(player.nUID);
+                    earth->SetNickname(player.sNickname);
+                    earth->retain();
+                    m_pGameScene->GetPlayersList().push_back(earth);
+                }
+                else if(player.eHeroPicked == Hero::Type::FIRE_ELEMENTALIST)
+                {
+                    auto fire = FireElementalist::create("res/player_down.png");
+                    fire->SetUID(player.nUID);
+                    fire->SetNickname(player.sNickname);
+                    fire->retain();
+                    m_pGameScene->GetPlayersList().push_back(fire);
+                }
+                else if(player.eHeroPicked == Hero::Type::WATER_ELEMENTALIST)
+                {
+                    auto water = WaterElementalist::create("res/player_down.png");
+                    water->SetUID(player.nUID);
+                    water->SetNickname(player.sNickname);
+                    water->retain();
+                    m_pGameScene->GetPlayersList().push_back(water);
                 }
             }
             

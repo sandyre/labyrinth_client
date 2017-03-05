@@ -11,7 +11,7 @@
 
 #include "cocos2d.h"
 #include "gamelogic/gamemap.hpp"
-#include "gamelogic/player.hpp"
+#include "gamelogic/hero.hpp"
 #include "gamelogic/monster.hpp"
 #include "gamelogic/item.hpp"
 #include "gamelogic/construction.hpp"
@@ -33,10 +33,10 @@ public:
     
         // for builder (pregamescene)
     void    GenerateMap(const GameMap::Configuration& conf);
-    std::vector<Player*>&       GetPlayersList();
+    std::vector<Hero*>&       GetPlayersList();
     
 protected:
-    Player *                    GetPlayerByUID(uint32_t);
+    Hero *                      GetPlayerByUID(uint32_t);
     Item *                      GetItemByUID(uint16_t);
     Monster *                   GetMonsterByUID(uint16_t);
     
@@ -49,8 +49,8 @@ private:
     cocos2d::Layer *            m_pPlayersLayer;
     cocos2d::Layer *            m_pItemsLayer;
     
-    Player *                    m_pLocalPlayer;
-    std::vector<Player*>        m_aPlayers;
+    Hero *                      m_pLocalPlayer;
+    std::vector<Hero*>          m_aPlayers;
     std::vector<Item*>          m_aItems;
     std::vector<Construction*>  m_aConstrs;
     std::vector<Monster*>       m_aMonsters;

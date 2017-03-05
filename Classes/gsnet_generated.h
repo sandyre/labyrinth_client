@@ -50,6 +50,10 @@ namespace GameEvent {
     
     struct SVActionDuel;
     
+    struct CLActionMap;
+    
+    struct SVActionMap;
+    
     struct SVSpawnPlayer;
     
     struct SVSpawnMonster;
@@ -85,27 +89,31 @@ namespace GameEvent {
         return EnumNamesConnectionStatus()[index];
     }
     
-    enum Hero {
-        Hero_ROGUE = 0,
-        Hero_PALADIN = 1,
-        Hero_UNDEFINED = 2,
-        Hero_MIN = Hero_ROGUE,
-        Hero_MAX = Hero_UNDEFINED
+    enum HeroType {
+        HeroType_AIR_ELEMENTALIST = 0,
+        HeroType_WATER_ELEMENTALIST = 1,
+        HeroType_FIRE_ELEMENTALIST = 2,
+        HeroType_EARTH_ELEMENTALIST = 3,
+        HeroType_UNDEFINED = 4,
+        HeroType_MIN = HeroType_AIR_ELEMENTALIST,
+        HeroType_MAX = HeroType_UNDEFINED
     };
     
-    inline const char **EnumNamesHero() {
+    inline const char **EnumNamesHeroType() {
         static const char *names[] = {
-            "ROGUE",
-            "PALADIN",
+            "AIR_ELEMENTALIST",
+            "WATER_ELEMENTALIST",
+            "FIRE_ELEMENTALIST",
+            "EARTH_ELEMENTALIST",
             "UNDEFINED",
             nullptr
         };
         return names;
     }
     
-    inline const char *EnumNameHero(Hero e) {
+    inline const char *EnumNameHeroType(HeroType e) {
         const size_t index = static_cast<int>(e);
-        return EnumNamesHero()[index];
+        return EnumNamesHeroType()[index];
     }
     
     enum ActionMoveTarget {
@@ -244,6 +252,27 @@ namespace GameEvent {
         return EnumNamesActionDuelTarget()[index];
     }
     
+    enum ActionMapType {
+        ActionMapType_CREATE_BLOCK = 0,
+        ActionMapType_DESTROY_BLOCK = 1,
+        ActionMapType_MIN = ActionMapType_CREATE_BLOCK,
+        ActionMapType_MAX = ActionMapType_DESTROY_BLOCK
+    };
+    
+    inline const char **EnumNamesActionMapType() {
+        static const char *names[] = {
+            "CREATE_BLOCK",
+            "DESTROY_BLOCK",
+            nullptr
+        };
+        return names;
+    }
+    
+    inline const char *EnumNameActionMapType(ActionMapType e) {
+        const size_t index = static_cast<int>(e);
+        return EnumNamesActionMapType()[index];
+    }
+    
     enum ItemType {
         ItemType_KEY = 0,
         ItemType_SWORD = 1,
@@ -311,12 +340,14 @@ namespace GameEvent {
         Events_SVActionDuel = 19,
         Events_CLActionSpell = 20,
         Events_SVActionSpell = 21,
-        Events_SVSpawnPlayer = 22,
-        Events_SVRespawnPlayer = 23,
-        Events_SVSpawnMonster = 24,
-        Events_SVSpawnItem = 25,
-        Events_SVSpawnConstr = 26,
-        Events_SVGameEnd = 27,
+        Events_CLActionMap = 22,
+        Events_SVActionMap = 23,
+        Events_SVSpawnPlayer = 24,
+        Events_SVRespawnPlayer = 25,
+        Events_SVSpawnMonster = 26,
+        Events_SVSpawnItem = 27,
+        Events_SVSpawnConstr = 28,
+        Events_SVGameEnd = 29,
         Events_MIN = Events_NONE,
         Events_MAX = Events_SVGameEnd
     };
@@ -345,6 +376,8 @@ namespace GameEvent {
             "SVActionDuel",
             "CLActionSpell",
             "SVActionSpell",
+            "CLActionMap",
+            "SVActionMap",
             "SVSpawnPlayer",
             "SVRespawnPlayer",
             "SVSpawnMonster",
@@ -447,6 +480,14 @@ namespace GameEvent {
     
     template<> struct EventsTraits<SVActionSpell> {
         static const Events enum_value = Events_SVActionSpell;
+    };
+    
+    template<> struct EventsTraits<CLActionMap> {
+        static const Events enum_value = Events_CLActionMap;
+    };
+    
+    template<> struct EventsTraits<SVActionMap> {
+        static const Events enum_value = Events_SVActionMap;
     };
     
     template<> struct EventsTraits<SVSpawnPlayer> {
@@ -684,8 +725,8 @@ namespace GameEvent {
         uint32_t player_uid() const {
             return GetField<uint32_t>(VT_PLAYER_UID, 0);
         }
-        Hero hero_type() const {
-            return static_cast<Hero>(GetField<int8_t>(VT_HERO_TYPE, 0));
+        HeroType hero_type() const {
+            return static_cast<HeroType>(GetField<int8_t>(VT_HERO_TYPE, 0));
         }
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
@@ -701,7 +742,7 @@ namespace GameEvent {
         void add_player_uid(uint32_t player_uid) {
             fbb_.AddElement<uint32_t>(CLHeroPick::VT_PLAYER_UID, player_uid, 0);
         }
-        void add_hero_type(Hero hero_type) {
+        void add_hero_type(HeroType hero_type) {
             fbb_.AddElement<int8_t>(CLHeroPick::VT_HERO_TYPE, static_cast<int8_t>(hero_type), 0);
         }
         CLHeroPickBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -719,7 +760,7 @@ namespace GameEvent {
     inline flatbuffers::Offset<CLHeroPick> CreateCLHeroPick(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
-                                                            Hero hero_type = Hero_ROGUE) {
+                                                            HeroType hero_type = HeroType_AIR_ELEMENTALIST) {
         CLHeroPickBuilder builder_(_fbb);
         builder_.add_player_uid(player_uid);
         builder_.add_hero_type(hero_type);
@@ -734,8 +775,8 @@ namespace GameEvent {
         uint32_t player_uid() const {
             return GetField<uint32_t>(VT_PLAYER_UID, 0);
         }
-        Hero hero_type() const {
-            return static_cast<Hero>(GetField<int8_t>(VT_HERO_TYPE, 0));
+        HeroType hero_type() const {
+            return static_cast<HeroType>(GetField<int8_t>(VT_HERO_TYPE, 0));
         }
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
@@ -751,7 +792,7 @@ namespace GameEvent {
         void add_player_uid(uint32_t player_uid) {
             fbb_.AddElement<uint32_t>(SVHeroPick::VT_PLAYER_UID, player_uid, 0);
         }
-        void add_hero_type(Hero hero_type) {
+        void add_hero_type(HeroType hero_type) {
             fbb_.AddElement<int8_t>(SVHeroPick::VT_HERO_TYPE, static_cast<int8_t>(hero_type), 0);
         }
         SVHeroPickBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -769,7 +810,7 @@ namespace GameEvent {
     inline flatbuffers::Offset<SVHeroPick> CreateSVHeroPick(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
-                                                            Hero hero_type = Hero_ROGUE) {
+                                                            HeroType hero_type = HeroType_AIR_ELEMENTALIST) {
         SVHeroPickBuilder builder_(_fbb);
         builder_.add_player_uid(player_uid);
         builder_.add_hero_type(hero_type);
@@ -1684,6 +1725,146 @@ namespace GameEvent {
         return builder_.Finish();
     }
     
+    struct CLActionMap FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_PLAYER_UID = 4,
+            VT_ACT_TYPE = 6,
+            VT_X = 8,
+            VT_Y = 10
+        };
+        uint32_t player_uid() const {
+            return GetField<uint32_t>(VT_PLAYER_UID, 0);
+        }
+        ActionMapType act_type() const {
+            return static_cast<ActionMapType>(GetField<int8_t>(VT_ACT_TYPE, 0));
+        }
+        uint16_t x() const {
+            return GetField<uint16_t>(VT_X, 0);
+        }
+        uint16_t y() const {
+            return GetField<uint16_t>(VT_Y, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_PLAYER_UID) &&
+            VerifyField<int8_t>(verifier, VT_ACT_TYPE) &&
+            VerifyField<uint16_t>(verifier, VT_X) &&
+            VerifyField<uint16_t>(verifier, VT_Y) &&
+            verifier.EndTable();
+        }
+    };
+    
+    struct CLActionMapBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_player_uid(uint32_t player_uid) {
+            fbb_.AddElement<uint32_t>(CLActionMap::VT_PLAYER_UID, player_uid, 0);
+        }
+        void add_act_type(ActionMapType act_type) {
+            fbb_.AddElement<int8_t>(CLActionMap::VT_ACT_TYPE, static_cast<int8_t>(act_type), 0);
+        }
+        void add_x(uint16_t x) {
+            fbb_.AddElement<uint16_t>(CLActionMap::VT_X, x, 0);
+        }
+        void add_y(uint16_t y) {
+            fbb_.AddElement<uint16_t>(CLActionMap::VT_Y, y, 0);
+        }
+        CLActionMapBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        CLActionMapBuilder &operator=(const CLActionMapBuilder &);
+        flatbuffers::Offset<CLActionMap> Finish() {
+            const auto end = fbb_.EndTable(start_, 4);
+            auto o = flatbuffers::Offset<CLActionMap>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<CLActionMap> CreateCLActionMap(
+                                                              flatbuffers::FlatBufferBuilder &_fbb,
+                                                              uint32_t player_uid = 0,
+                                                              ActionMapType act_type = ActionMapType_CREATE_BLOCK,
+                                                              uint16_t x = 0,
+                                                              uint16_t y = 0) {
+        CLActionMapBuilder builder_(_fbb);
+        builder_.add_player_uid(player_uid);
+        builder_.add_y(y);
+        builder_.add_x(x);
+        builder_.add_act_type(act_type);
+        return builder_.Finish();
+    }
+    
+    struct SVActionMap FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_PLAYER_UID = 4,
+            VT_ACT_TYPE = 6,
+            VT_X = 8,
+            VT_Y = 10
+        };
+        uint32_t player_uid() const {
+            return GetField<uint32_t>(VT_PLAYER_UID, 0);
+        }
+        ActionMapType act_type() const {
+            return static_cast<ActionMapType>(GetField<int8_t>(VT_ACT_TYPE, 0));
+        }
+        uint16_t x() const {
+            return GetField<uint16_t>(VT_X, 0);
+        }
+        uint16_t y() const {
+            return GetField<uint16_t>(VT_Y, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_PLAYER_UID) &&
+            VerifyField<int8_t>(verifier, VT_ACT_TYPE) &&
+            VerifyField<uint16_t>(verifier, VT_X) &&
+            VerifyField<uint16_t>(verifier, VT_Y) &&
+            verifier.EndTable();
+        }
+    };
+    
+    struct SVActionMapBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_player_uid(uint32_t player_uid) {
+            fbb_.AddElement<uint32_t>(SVActionMap::VT_PLAYER_UID, player_uid, 0);
+        }
+        void add_act_type(ActionMapType act_type) {
+            fbb_.AddElement<int8_t>(SVActionMap::VT_ACT_TYPE, static_cast<int8_t>(act_type), 0);
+        }
+        void add_x(uint16_t x) {
+            fbb_.AddElement<uint16_t>(SVActionMap::VT_X, x, 0);
+        }
+        void add_y(uint16_t y) {
+            fbb_.AddElement<uint16_t>(SVActionMap::VT_Y, y, 0);
+        }
+        SVActionMapBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        SVActionMapBuilder &operator=(const SVActionMapBuilder &);
+        flatbuffers::Offset<SVActionMap> Finish() {
+            const auto end = fbb_.EndTable(start_, 4);
+            auto o = flatbuffers::Offset<SVActionMap>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<SVActionMap> CreateSVActionMap(
+                                                              flatbuffers::FlatBufferBuilder &_fbb,
+                                                              uint32_t player_uid = 0,
+                                                              ActionMapType act_type = ActionMapType_CREATE_BLOCK,
+                                                              uint16_t x = 0,
+                                                              uint16_t y = 0) {
+        SVActionMapBuilder builder_(_fbb);
+        builder_.add_player_uid(player_uid);
+        builder_.add_y(y);
+        builder_.add_x(x);
+        builder_.add_act_type(act_type);
+        return builder_.Finish();
+    }
+    
     struct SVSpawnPlayer FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -2242,6 +2423,14 @@ namespace GameEvent {
             }
             case Events_SVActionSpell: {
                 auto ptr = reinterpret_cast<const SVActionSpell *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Events_CLActionMap: {
+                auto ptr = reinterpret_cast<const CLActionMap *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Events_SVActionMap: {
+                auto ptr = reinterpret_cast<const SVActionMap *>(obj);
                 return verifier.VerifyTable(ptr);
             }
             case Events_SVSpawnPlayer: {
