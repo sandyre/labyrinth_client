@@ -3,6 +3,7 @@
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 19.02.17.
+//  Changed by Sergey
 //
 //
 
