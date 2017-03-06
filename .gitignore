@@ -27,3 +27,15 @@
 *.exe
 *.out
 *.app
+/cocos2d
+/proj.android
+/proj.android-studio
+/thirdparty
+/proj.win8.1-universal
+/proj.win32
+/proj.win10
+/proj.tizen
+/proj.linux
+/proj.ios_mac
+/CMakeLists.txt
+/.cocos-project.json

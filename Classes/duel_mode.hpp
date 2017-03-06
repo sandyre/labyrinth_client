@@ -30,6 +30,7 @@ protected:
     uint8_t                  m_aCurrentSymbol;
     
         // visible
+	std::vector<cocos2d::Sprite *> m_aSymbols;
     cocos2d::Sprite * m_pSymbolSprite;
     cocos2d::Label * m_pCount;
     cocos2d::Label * m_pEnemyInfo;
