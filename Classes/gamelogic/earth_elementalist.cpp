@@ -63,9 +63,9 @@ EarthElementalist::EventSpellCast1()
                                                  GameEvent::ActionSpellTarget_TARGET_POINT,
                                                  demo_block.x,
                                                  demo_block.y);
-    auto event = GameEvent::CreateEvent(builder,
-                                        GameEvent::Events_CLActionSpell,
-                                        spell1.Union());
+    auto event = GameEvent::CreateMessage(builder,
+                                          GameEvent::Events_CLActionSpell,
+                                          spell1.Union());
     builder.Finish(event);
     
     return std::vector<char>(builder.GetBufferPointer(),

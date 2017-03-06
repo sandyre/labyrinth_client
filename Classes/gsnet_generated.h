@@ -66,7 +66,7 @@ namespace GameEvent {
     
     struct SVGameEnd;
     
-    struct Event;
+    struct Message;
     
     enum ConnectionStatus {
         ConnectionStatus_ACCEPTED = 0,
@@ -2285,7 +2285,7 @@ namespace GameEvent {
         return builder_.Finish();
     }
     
-    struct Event FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+    struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_EVENT_TYPE = 4,
             VT_EVENT = 6
@@ -2305,32 +2305,32 @@ namespace GameEvent {
         }
     };
     
-    struct EventBuilder {
+    struct MessageBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
         void add_event_type(Events event_type) {
-            fbb_.AddElement<uint8_t>(Event::VT_EVENT_TYPE, static_cast<uint8_t>(event_type), 0);
+            fbb_.AddElement<uint8_t>(Message::VT_EVENT_TYPE, static_cast<uint8_t>(event_type), 0);
         }
         void add_event(flatbuffers::Offset<void> event) {
-            fbb_.AddOffset(Event::VT_EVENT, event);
+            fbb_.AddOffset(Message::VT_EVENT, event);
         }
-        EventBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
             start_ = fbb_.StartTable();
         }
-        EventBuilder &operator=(const EventBuilder &);
-        flatbuffers::Offset<Event> Finish() {
+        MessageBuilder &operator=(const MessageBuilder &);
+        flatbuffers::Offset<Message> Finish() {
             const auto end = fbb_.EndTable(start_, 2);
-            auto o = flatbuffers::Offset<Event>(end);
+            auto o = flatbuffers::Offset<Message>(end);
             return o;
         }
     };
     
-    inline flatbuffers::Offset<Event> CreateEvent(
-                                                  flatbuffers::FlatBufferBuilder &_fbb,
-                                                  Events event_type = Events_NONE,
-                                                  flatbuffers::Offset<void> event = 0) {
-        EventBuilder builder_(_fbb);
+    inline flatbuffers::Offset<Message> CreateMessage(
+                                                      flatbuffers::FlatBufferBuilder &_fbb,
+                                                      Events event_type = Events_NONE,
+                                                      flatbuffers::Offset<void> event = 0) {
+        MessageBuilder builder_(_fbb);
         builder_.add_event(event);
         builder_.add_event_type(event_type);
         return builder_.Finish();
@@ -2472,18 +2472,18 @@ namespace GameEvent {
         return true;
     }
     
-    inline const GameEvent::Event *GetEvent(const void *buf) {
-        return flatbuffers::GetRoot<GameEvent::Event>(buf);
+    inline const GameEvent::Message *GetMessage(const void *buf) {
+        return flatbuffers::GetRoot<GameEvent::Message>(buf);
     }
     
-    inline bool VerifyEventBuffer(
-                                  flatbuffers::Verifier &verifier) {
-        return verifier.VerifyBuffer<GameEvent::Event>(nullptr);
+    inline bool VerifyMessageBuffer(
+                                    flatbuffers::Verifier &verifier) {
+        return verifier.VerifyBuffer<GameEvent::Message>(nullptr);
     }
     
-    inline void FinishEventBuffer(
-                                  flatbuffers::FlatBufferBuilder &fbb,
-                                  flatbuffers::Offset<GameEvent::Event> root) {
+    inline void FinishMessageBuffer(
+                                    flatbuffers::FlatBufferBuilder &fbb,
+                                    flatbuffers::Offset<GameEvent::Message> root) {
         fbb.Finish(root);
     }
     

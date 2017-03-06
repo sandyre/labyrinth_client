@@ -166,9 +166,9 @@ Hero::EventMove(cocos2d::Vec2 pos)
                                                     GameEvent::ActionMoveTarget_PLAYER,
                                                     pos.x,
                                                     pos.y);
-        auto gs_event = GameEvent::CreateEvent(builder,
-                                               GameEvent::Events_CLActionMove,
-                                               cl_mov.Union());
+        auto gs_event = GameEvent::CreateMessage(builder,
+                                                 GameEvent::Events_CLActionMove,
+                                                 cl_mov.Union());
         builder.Finish(gs_event);
         
         event.assign(builder.GetBufferPointer(),
@@ -186,9 +186,9 @@ Hero::EventItemTake(uint32_t itemid)
                                                  this->GetUID(),
                                                  itemid,
                                                  GameEvent::ActionItemType_TAKE);
-    auto gs_event = GameEvent::CreateEvent(builder,
-                                           GameEvent::Events_CLActionItem,
-                                           cl_take.Union());
+    auto gs_event = GameEvent::CreateMessage(builder,
+                                             GameEvent::Events_CLActionItem,
+                                             cl_take.Union());
     builder.Finish(gs_event);
     
     return std::vector<char>(builder.GetBufferPointer(),
@@ -207,9 +207,9 @@ Hero::EventDuelAttack()
                                                                                     GameEvent::ActionDuelTarget_MONSTER,
                                                    GameEvent::ActionDuelType_ATTACK,
                                                    m_nDamage);
-    auto sv_event = GameEvent::CreateEvent(builder,
-                                           GameEvent::Events_CLActionDuel,
-                                           cl_attack.Union());
+    auto sv_event = GameEvent::CreateMessage(builder,
+                                             GameEvent::Events_CLActionDuel,
+                                             cl_attack.Union());
     builder.Finish(sv_event);
     
     return std::vector<char>(builder.GetBufferPointer(),
@@ -226,9 +226,9 @@ Hero::EventDuelStart(uint32_t id)
                                                  id,
                                                  GameEvent::ActionDuelTarget_PLAYER,
                                                  GameEvent::ActionDuelType_STARTED);
-    auto gs_event = GameEvent::CreateEvent(builder,
-                                           GameEvent::Events_CLActionDuel,
-                                           cl_duel.Union());
+    auto gs_event = GameEvent::CreateMessage(builder,
+                                             GameEvent::Events_CLActionDuel,
+                                             cl_duel.Union());
     builder.Finish(gs_event);
     
     return std::vector<char>(builder.GetBufferPointer(),

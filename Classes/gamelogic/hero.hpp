@@ -37,9 +37,7 @@ public:
         SWAMP,
         DUEL_PLAYER,
         DUEL_MONSTER,
-        DEAD,
-        INVISIBLE,
-        INVULNERABLE
+        DEAD
     };
     enum class Orientation
     {

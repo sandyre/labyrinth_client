@@ -1,10 +1,10 @@
-//
-//  pregamescene.cpp
-//  labyrinth
-//
-//  Created by Aleksandr Borzikh on 07.02.17.
-//
-//
+    //
+    //  pregamescene.cpp
+    //  labyrinth
+    //
+    //  Created by Aleksandr Borzikh on 07.02.17.
+    //
+    //
 
 #include "pregamescene.hpp"
 
@@ -16,10 +16,10 @@
 #include "gsnet_generated.h"
 #include "resourcemanager.hpp"
 
-#include "air_elementalist.hpp"
-#include "earth_elementalist.hpp"
-#include "water_elementalist.hpp"
-#include "fire_elementalist.hpp"
+#include "gamelogic/air_elementalist.hpp"
+#include "gamelogic/earth_elementalist.hpp"
+#include "gamelogic/water_elementalist.hpp"
+#include "gamelogic/fire_elementalist.hpp"
 
 template < typename T > std::string to_string( const T& n )
 {
@@ -78,9 +78,9 @@ PreGameScene::init()
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
                                                        GameEvent::HeroType_AIR_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLHeroPick,
-                                                   sv_pick.Union());
+            auto sv_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLHeroPick,
+                                                     sv_pick.Union());
             builder.Finish(sv_event);
             NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
                                                      builder.GetSize());
@@ -96,9 +96,9 @@ PreGameScene::init()
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
                                                        GameEvent::HeroType_EARTH_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLHeroPick,
-                                                   sv_pick.Union());
+            auto sv_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLHeroPick,
+                                                     sv_pick.Union());
             builder.Finish(sv_event);
             NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
                                                      builder.GetSize());
@@ -114,9 +114,9 @@ PreGameScene::init()
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
                                                        GameEvent::HeroType_WATER_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLHeroPick,
-                                                   sv_pick.Union());
+            auto sv_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLHeroPick,
+                                                     sv_pick.Union());
             builder.Finish(sv_event);
             NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
                                                      builder.GetSize());
@@ -132,9 +132,9 @@ PreGameScene::init()
             auto sv_pick = GameEvent::CreateCLHeroPick(builder,
                                                        PlayerInfo::Instance().GetUID(),
                                                        GameEvent::HeroType_FIRE_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLHeroPick,
-                                                   sv_pick.Union());
+            auto sv_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLHeroPick,
+                                                     sv_pick.Union());
             builder.Finish(sv_event);
             NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
                                                      builder.GetSize());
@@ -147,9 +147,9 @@ PreGameScene::init()
             flatbuffers::FlatBufferBuilder builder;
             auto sv_ready = GameEvent::CreateCLReadyToStart(builder,
                                                             PlayerInfo::Instance().GetUID());
-            auto sv_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLReadyToStart,
-                                                   sv_ready.Union());
+            auto sv_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLReadyToStart,
+                                                     sv_ready.Union());
             builder.Finish(sv_event);
             NetSystem::Instance().Socket().sendBytes(builder.GetBufferPointer(),
                                                      builder.GetSize());
@@ -235,9 +235,9 @@ PreGameScene::update(float delta)
             auto con_info = GameEvent::CreateCLConnection(builder,
                                                           PlayerInfo::Instance().GetUID(),
                                                           nickname);
-            auto gs_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLConnection,
-                                                   con_info.Union());
+            auto gs_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLConnection,
+                                                     con_info.Union());
             builder.Finish(gs_event);
             
             socket.sendBytes(builder.GetBufferPointer(),
@@ -253,7 +253,7 @@ PreGameScene::update(float delta)
             auto& socket = NetSystem::Instance().Socket();
             char buf[256];
             socket.receiveBytes(buf, 256);
-            auto accept = GameEvent::GetEvent(buf);
+            auto accept = GameEvent::GetMessage(buf);
             
             if(accept->event_type() == GameEvent::Events_SVConnectionStatus)
             {
@@ -271,7 +271,7 @@ PreGameScene::update(float delta)
             {
                 socket.receiveBytes(buf, 256);
                 
-                auto gs_event = GameEvent::GetEvent(buf);
+                auto gs_event = GameEvent::GetMessage(buf);
                 if(gs_event->event_type() == GameEvent::Events_SVPlayerConnected)
                 {
                     auto con_info = static_cast<const GameEvent::SVPlayerConnected*>(gs_event->event());
@@ -346,7 +346,7 @@ PreGameScene::update(float delta)
             {
                 socket.receiveBytes(buf, 256);
                 
-                auto gs_event = GameEvent::GetEvent(buf);
+                auto gs_event = GameEvent::GetMessage(buf);
                 if(gs_event->event_type() == GameEvent::Events_SVHeroPick)
                 {
                     auto hero_pick = static_cast<const GameEvent::SVHeroPick*>(gs_event->event());
@@ -419,9 +419,9 @@ PreGameScene::update(float delta)
                 // notify server that generating is done
             auto gen_ok = GameEvent::CreateCLMapGenerated(builder,
                                                           PlayerInfo::Instance().GetUID());
-            auto cl_event = GameEvent::CreateEvent(builder,
-                                                   GameEvent::Events_CLMapGenerated,
-                                                   gen_ok.Union());
+            auto cl_event = GameEvent::CreateMessage(builder,
+                                                     GameEvent::Events_CLMapGenerated,
+                                                     gen_ok.Union());
             builder.Finish(cl_event);
             
             socket.sendBytes(builder.GetBufferPointer(),
@@ -439,7 +439,7 @@ PreGameScene::update(float delta)
             {
                 socket.receiveBytes(buf, 256);
                 
-                auto gs_event = GameEvent::GetEvent(buf);
+                auto gs_event = GameEvent::GetMessage(buf);
                 if(gs_event->event_type() == GameEvent::Events_SVGameStart)
                 {
                     if(m_pGameScene->init())

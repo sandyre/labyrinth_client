@@ -17,10 +17,10 @@
 #include "netsystem.hpp"
 #include "gsnet_generated.h"
 
-#include "water_elementalist.hpp"
-#include "fire_elementalist.hpp"
-#include "air_elementalist.hpp"
-#include "earth_elementalist.hpp"
+#include "gamelogic/water_elementalist.hpp"
+#include "gamelogic/fire_elementalist.hpp"
+#include "gamelogic/air_elementalist.hpp"
+#include "gamelogic/earth_elementalist.hpp"
 
 USING_NS_CC;
 
@@ -369,7 +369,7 @@ GameScene::UpdateView(float delta)
             auto cl_escape = GameEvent::CreateCLActionSwamp(builder,
                                                             m_pLocalPlayer->GetUID(),
                                                             GameEvent::ActionSwampStatus_ESCAPED);
-            auto gs_event = GameEvent::CreateEvent(builder,
+            auto gs_event = GameEvent::CreateMessage(builder,
                                                    GameEvent::Events_CLActionSwamp,
                                                    cl_escape.Union());
             builder.Finish(gs_event);
@@ -439,7 +439,7 @@ GameScene::ApplyInputEvents()
     {
         socket.receiveBytes(buf, 512);
         
-        auto gs_event = GameEvent::GetEvent(buf);
+        auto gs_event = GameEvent::GetMessage(buf);
         
         switch(gs_event->event_type())
         {
