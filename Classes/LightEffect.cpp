@@ -47,7 +47,7 @@ LightEffect* LightEffect::create()
 
 bool LightEffect::init()
 {
-    if (initGLProgramState("pointlight.frag"))
+    if (initGLProgramState("res/pointlight.frag"))
     {
         setLightColor(cocos2d::Color3B::WHITE);
         setAmbientLightColor(cocos2d::Color3B(127,127,127));

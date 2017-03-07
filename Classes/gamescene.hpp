@@ -11,13 +11,13 @@
 
 #include "cocos2d.h"
 #include "gamelogic/gamemap.hpp"
-#include "gamelogic/units/hero.hpp"
-#include "gamelogic/units/monster.hpp"
+#include "gamelogic/units/units_inc.hpp"
 #include "gamelogic/item.hpp"
 #include "gamelogic/construction.hpp"
 #include "gamehud.hpp"
 #include "swamp_combo.hpp"
 #include "duel_mode.hpp"
+#include "LightEffect.h"
 
 #include "gsnet_generated.h"
 
@@ -62,6 +62,9 @@ private:
     std::queue<std::vector<char>> m_aOutEvents;
     flatbuffers::FlatBufferBuilder builder;
     uint16_t nSuccCount = 0;
+    
+        // do be deleted
+    LightEffect *               m_pLight;
 };
 
 #endif /* gamescene_hpp */

@@ -102,6 +102,32 @@ GameScene::init()
     m_pDuelMode->Show(false);
     m_pGameHUD->addChild(m_pDuelMode);
     
+        // light
+    m_pLight = LightEffect::create();
+    m_pLight->retain();
+    m_pLight->setLightPos(m_pLocalPlayer->getPosition3D());
+    m_pLight->setAmbientLightColor(Color3B(25,25,25));
+    m_pLight->setLightCutoffRadius(200);
+    m_pLight->setLightHalfRadius(1.0);
+    m_pLight->setBrightness(5.0);
+    
+        // apply light to map
+    for(auto i = 0; i < m_oGameMap.GetMatrix().size(); ++i)
+    {
+        for(auto j = 0; j < m_oGameMap[i].size(); ++j)
+        {
+            auto& block = m_oGameMap[i][j];
+            if(block->GetType() == MapBlock::Type::WALL)
+            {
+                block->setEffect(m_pLight, "res/wall_1_n.png");
+            }
+            else if(block->GetType() == MapBlock::Type::NOBLOCK)
+            {
+                block->setEffect(m_pLight, "res/floor_n.png");
+            }
+        }
+    }
+    
     auto eventListener = EventListenerKeyboard::create();
     eventListener->onKeyPressed = [this](EventKeyboard::KeyCode keyCode, Event * event)
     {
@@ -352,6 +378,7 @@ GameScene::UpdateView(float delta)
                                  cur_pos.x,
                                  cur_pos.y,
                                  800));
+        m_pLight->setLightPos(m_pLocalPlayer->getPosition3D());
     }
     else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
     {
@@ -440,7 +467,8 @@ GameScene::ApplyInputEvents()
             {
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
                 
-                auto monster = Monster::create("res/monster.png");
+                auto monster = Monster::create("res/units/monster.png");
+                monster->setEffect(m_pLight, "res/units/monster_n.png");
                 monster->SetUID(gs_spawn->monster_uid());
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
@@ -461,6 +489,7 @@ GameScene::ApplyInputEvents()
                     case Item::Type::KEY:
                     {
                         auto key = Key::create("res/key.png");
+                        key->setEffect(m_pLight, "res/key_n.png");
                         key->SetUID(gs_spawn->item_uid());
                         key->SetCarrierID(0);
                         
@@ -482,6 +511,7 @@ GameScene::ApplyInputEvents()
                     case Item::Type::SWORD:
                     {
                         auto sword = Sword::create("res/sword.png");
+                        sword->setEffect(m_pLight, "res/sword_n.png");
                         sword->SetUID(gs_spawn->item_uid());
                         sword->SetCarrierID(0);
                         

@@ -381,7 +381,7 @@ PreGameScene::update(float delta)
             {
                 if(player.eHeroPicked == Hero::Type::AIR_ELEMENTALIST)
                 {
-                    auto air = AirElementalist::create("res/player_down.png");
+                    auto air = AirElementalist::create("res/units/player_down.png");
                     air->SetUID(player.nUID);
                     air->SetName(player.sNickname);
                     air->retain();
@@ -389,7 +389,7 @@ PreGameScene::update(float delta)
                 }
                 else if(player.eHeroPicked == Hero::Type::EARTH_ELEMENTALIST)
                 {
-                    auto earth = EarthElementalist::create("res/player_down.png");
+                    auto earth = EarthElementalist::create("res/units/player_down.png");
                     earth->SetUID(player.nUID);
                     earth->SetName(player.sNickname);
                     earth->retain();
@@ -397,7 +397,7 @@ PreGameScene::update(float delta)
                 }
                 else if(player.eHeroPicked == Hero::Type::FIRE_ELEMENTALIST)
                 {
-                    auto fire = FireElementalist::create("res/player_down.png");
+                    auto fire = FireElementalist::create("res/units/player_down.png");
                     fire->SetUID(player.nUID);
                     fire->SetName(player.sNickname);
                     fire->retain();
@@ -405,7 +405,7 @@ PreGameScene::update(float delta)
                 }
                 else if(player.eHeroPicked == Hero::Type::WATER_ELEMENTALIST)
                 {
-                    auto water = WaterElementalist::create("res/player_down.png");
+                    auto water = WaterElementalist::create("res/units/player_down.png");
                     water->SetUID(player.nUID);
                     water->SetName(player.sNickname);
                     water->retain();

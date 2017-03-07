@@ -175,22 +175,22 @@ Hero::Turn(Hero::Orientation orient)
     {
         case Orientation::UP:
         {
-            this->setTexture("res/player_up.png");
+            this->setTexture("res/units/player_up.png");
             break;
         }
         case Orientation::DOWN:
         {
-            this->setTexture("res/player_down.png");
+            this->setTexture("res/units/player_down.png");
             break;
         }
         case Orientation::LEFT:
         {
-            this->setTexture("res/player_left.png");
+            this->setTexture("res/units/player_left.png");
             break;
         }
         case Orientation::RIGHT:
         {
-            this->setTexture("res/player_right.png");
+            this->setTexture("res/units/player_right.png");
             break;
         }
     }
