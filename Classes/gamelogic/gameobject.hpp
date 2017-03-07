@@ -9,10 +9,11 @@
 #ifndef gameobject_hpp
 #define gameobject_hpp
 
-#include "cocos2d.h"
+#include <cocos2d.h>
+#include "EffectSprite.h"
 #include "globals.h"
 
-class GameObject : public cocos2d::Sprite
+class GameObject : public EffectSprite
 {
 public:
     enum Type

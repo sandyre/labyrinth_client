@@ -10,6 +10,7 @@
 #define ingamehud_hpp
 
 #include <cocos2d.h>
+#include <ui/CocosGUI.h>
 
 class GameHUD : public cocos2d::Layer
 {
@@ -18,7 +19,6 @@ public:
     ~GameHUD();
     
     cocos2d::Sprite * m_pTakeItem;
-    cocos2d::Label * m_pState;
     cocos2d::Label * m_pHP;
     cocos2d::Label * m_pDMG;
     cocos2d::Label * m_pInventory;

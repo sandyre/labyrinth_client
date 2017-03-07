@@ -332,7 +332,6 @@ GameScene::UpdateView(float delta)
         // representation is based on state
     if(m_pLocalPlayer->GetState() == Hero::State::WALKING)
     {
-        m_pGameHUD->m_pState->setString("Just walking around...");
             // check that player can take some item
         for(auto& item : m_aItems)
         {
@@ -356,8 +355,6 @@ GameScene::UpdateView(float delta)
     }
     else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
     {
-        m_pGameHUD->m_pState->setString("You are drowning!\nEnter combo!!!");
-        
         if(m_pSwampCombo->ComboDone())
         {
             m_pSwampCombo->Reset();
@@ -375,8 +372,6 @@ GameScene::UpdateView(float delta)
     }
     else if(m_pLocalPlayer->GetState() == Unit::State::DUEL)
     {
-        m_pGameHUD->m_pState->setString("DUEL MODE!");
-        
         if(m_pDuelMode->ComboDone())
         {
             m_pDuelMode->Reset();
@@ -390,7 +385,7 @@ GameScene::UpdateView(float delta)
     }
     else if(m_pLocalPlayer->GetState() == Hero::State::DEAD)
     {
-        m_pGameHUD->m_pState->setString("You are DEAD\nWait respawn");
+        
     }
         // update hud
     m_pGameHUD->m_pHP->setString(StringUtils::format("Health: %d/%d",
