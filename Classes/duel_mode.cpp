@@ -3,6 +3,7 @@
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 19.02.17.
+//  Changed by Sergey
 //
 //
 
@@ -66,7 +67,9 @@ DuelMode::TakeInput(InputMove move)
 			int pos_y = size.height / 2;
 			for (int i = 0; i < 5; i++)
 			{
-				m_aSymbols[i]->setPosition(pos_x + (i - m_aCurrentSymbol)*(m_aSymbols[i]->getContentSize().width + 8), pos_y);
+				auto moveTo = cocos2d::MoveTo::create(0.07, cocos2d::Vec2(pos_x + (i - m_aCurrentSymbol)*(m_aSymbols[i]->getContentSize().width + 8), pos_y));
+				//m_aSymbols[i]->setPosition(pos_x + (i - m_aCurrentSymbol)*(m_aSymbols[i]->getContentSize().width + 8), pos_y);
+				m_aSymbols[i]->runAction(moveTo);
 				if (i < m_aCurrentSymbol) {
 					m_aSymbols[i]->setOpacity(25);
 				}
