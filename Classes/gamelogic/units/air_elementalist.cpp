@@ -14,7 +14,8 @@ AirElementalist::AirElementalist()
 {
     m_eHero = Hero::Type::AIR_ELEMENTALIST;
     m_nMoveSpeed = 0.1;
-    m_nDamage = 6;
+    m_nMHealth = m_nHealth = 75;
+    m_nBaseDamage = m_nActualDamage = 6;
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;
@@ -71,7 +72,7 @@ AirElementalist::SpellCast1()
 }
 
 void
-AirElementalist::AnimationTakeItem(Item * item)
+AirElementalist::TakeItem(Item * item)
 {
     m_aInventory.push_back(item);
     

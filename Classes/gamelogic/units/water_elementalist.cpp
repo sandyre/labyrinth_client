@@ -14,7 +14,8 @@ WaterElementalist::WaterElementalist()
 {
     m_eHero = Hero::Type::WATER_ELEMENTALIST;
     m_nMoveSpeed = 0.3;
-    m_nDamage = 8;
+    m_nMHealth = m_nHealth = 75;
+    m_nBaseDamage = m_nActualDamage = 8;
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;

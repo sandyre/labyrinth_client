@@ -17,10 +17,7 @@
 #include "netsystem.hpp"
 #include "gsnet_generated.h"
 
-#include "gamelogic/water_elementalist.hpp"
-#include "gamelogic/fire_elementalist.hpp"
-#include "gamelogic/air_elementalist.hpp"
-#include "gamelogic/earth_elementalist.hpp"
+#include "gamelogic/units/units_inc.hpp"
 
 USING_NS_CC;
 
@@ -108,7 +105,7 @@ GameScene::init()
     auto eventListener = EventListenerKeyboard::create();
     eventListener->onKeyPressed = [this](EventKeyboard::KeyCode keyCode, Event * event)
     {
-        if(m_pLocalPlayer->GetState() == Hero::State::WALKING)
+        if(m_pLocalPlayer->GetState() == Unit::State::WALKING)
         {
             auto pos = m_pLocalPlayer->GetLogicalPosition();
             auto pCam = Camera::getDefaultCamera();
@@ -123,7 +120,7 @@ GameScene::init()
                     {
                         --pos.x;
                     }
-                    m_pLocalPlayer->SetOrientation(Hero::Orientation::LEFT);
+                    m_pLocalPlayer->Turn(Hero::Orientation::LEFT);
                     break;
                 }
                     
@@ -135,7 +132,7 @@ GameScene::init()
                     {
                         ++pos.x;
                     }
-                    m_pLocalPlayer->SetOrientation(Hero::Orientation::RIGHT);
+                    m_pLocalPlayer->Turn(Hero::Orientation::RIGHT);
                     break;
                 }
                     
@@ -147,7 +144,7 @@ GameScene::init()
                     {
                         ++pos.y;
                     }
-                    m_pLocalPlayer->SetOrientation(Hero::Orientation::UP);
+                    m_pLocalPlayer->Turn(Hero::Orientation::UP);
                     break;
                 }
                     
@@ -159,7 +156,7 @@ GameScene::init()
                     {
                         --pos.y;
                     }
-                    m_pLocalPlayer->SetOrientation(Hero::Orientation::DOWN);
+                    m_pLocalPlayer->Turn(Hero::Orientation::DOWN);
                     break;
                 }
                 case EventKeyboard::KeyCode::KEY_T:
@@ -195,7 +192,7 @@ GameScene::init()
                 m_aOutEvents.push(event);
             }
         }
-        else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
+        else if(m_pLocalPlayer->GetState() == Unit::State::SWAMP)
         {
             switch(keyCode)
             {
@@ -213,8 +210,7 @@ GameScene::init()
                     break;
             }
         }
-        else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_PLAYER ||
-                m_pLocalPlayer->GetState() == Hero::State::DUEL_MONSTER)
+        else if(m_pLocalPlayer->GetState() == Unit::State::DUEL)
         {
             switch(keyCode)
             {
@@ -377,9 +373,9 @@ GameScene::UpdateView(float delta)
                                                 builder.GetBufferPointer() + builder.GetSize()));
         }
     }
-    else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_PLAYER)
+    else if(m_pLocalPlayer->GetState() == Unit::State::DUEL)
     {
-        m_pGameHUD->m_pState->setString("DUEL MODE! (PLAYER)");
+        m_pGameHUD->m_pState->setString("DUEL MODE!");
         
         if(m_pDuelMode->ComboDone())
         {
@@ -388,24 +384,8 @@ GameScene::UpdateView(float delta)
             m_aOutEvents.push(event);
         }
         
-        auto enemy = GetPlayerByUID(m_pLocalPlayer->GetDuelTargetID());
-        m_pDuelMode->SetEnemyInfo(enemy->GetNickname(),
-                                  enemy->GetHealth());
-    }
-    else if(m_pLocalPlayer->GetState() == Hero::State::DUEL_MONSTER)
-    {
-        m_pGameHUD->m_pState->setString("DUEL MODE! (MONSTER)");
-        
-        if(m_pDuelMode->ComboDone())
-        {
-            m_pDuelMode->Reset();
-            
-            auto event = m_pLocalPlayer->EventDuelAttack();
-            m_aOutEvents.push(event);
-        }
-        
-        auto enemy = GetMonsterByUID(m_pLocalPlayer->GetDuelTargetID());
-        m_pDuelMode->SetEnemyInfo("Mike Wazowski",
+        auto enemy = m_pLocalPlayer->GetDuelTarget();
+        m_pDuelMode->SetEnemyInfo(enemy->GetName(),
                                   enemy->GetHealth());
     }
     else if(m_pLocalPlayer->GetState() == Hero::State::DEAD)
@@ -452,16 +432,8 @@ GameScene::ApplyInputEvents()
                     {
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
-                        player->SetLogicalPosition(log_coords);
-                        player->SetHealth(gs_spawn->hp());
-                        player->SetMaxHealth(gs_spawn->max_hp());
-                        
-                        cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    player->getContentSize());
-                        player->setPosition(spritePos);
-                        player->AnimationSpawn();
+                        player->Spawn(log_coords);
                         m_pPlayersLayer->addChild(player);
-                        
                         break;
                     }
                 }
@@ -475,21 +447,13 @@ GameScene::ApplyInputEvents()
                 
                 auto monster = Monster::create("res/monster.png");
                 monster->SetUID(gs_spawn->monster_uid());
-                monster->SetHealth(gs_spawn->hp());
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
-                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            monster->getContentSize());
                 
-                monster->SetLogicalPosition(log_coords);
-                monster->setPosition(spritePos);
+                monster->Spawn(log_coords);
                 m_pPlayersLayer->addChild(monster);
-                
-                monster->AnimationSpawn();
-                
                 m_aMonsters.push_back(monster);
-                
                 break;
             }
                 
@@ -632,25 +596,22 @@ GameScene::ApplyInputEvents()
                             
                             if(player->GetLogicalPosition().x > new_pos.x)
                             {
-                                player->SetOrientation(Hero::Orientation::LEFT);
+                                player->Turn(Hero::Orientation::LEFT);
                             }
                             else if(player->GetLogicalPosition().x < new_pos.x)
                             {
-                                player->SetOrientation(Hero::Orientation::RIGHT);
+                                player->Turn(Hero::Orientation::RIGHT);
                             }
                             else if(player->GetLogicalPosition().y < new_pos.y)
                             {
-                                player->SetOrientation(Hero::Orientation::UP);
+                                player->Turn(Hero::Orientation::UP);
                             }
                             else if(player->GetLogicalPosition().y > new_pos.y)
                             {
-                                player->SetOrientation(Hero::Orientation::DOWN);
+                                player->Turn(Hero::Orientation::DOWN);
                             }
                             
-                            player->SetLogicalPosition(new_pos);
-                            player->AnimationMoveTo(LOG_TO_PHYS_COORD(new_pos,
-                                                                      player->getContentSize()));
-                            
+                            player->Move(new_pos);
                             break;
                         }
                     }
@@ -664,10 +625,7 @@ GameScene::ApplyInputEvents()
                             auto new_pos = cocos2d::Vec2(gs_mov->x(),
                                                          gs_mov->y());
                             
-                            monster->SetLogicalPosition(new_pos);
-                            monster->AnimationMoveTo(LOG_TO_PHYS_COORD(new_pos,
-                                                                       monster->getContentSize()));
-                            
+                            monster->Move(new_pos);
                             break;
                         }
                     }
@@ -688,9 +646,8 @@ GameScene::ApplyInputEvents()
                     {
                         item->AnimationTaken();
                         item->SetCarrierID(gs_item->player_uid());
-                        player->AnimationTakeItem(GetItemByUID(gs_item->item_uid()));
+                        player->TakeItem(item);
                         player->UpdateStats();
-                        
                         break;
                     }
                         
@@ -729,77 +686,77 @@ GameScene::ApplyInputEvents()
                 
             case GameEvent::Events_SVActionSwamp:
             {
-                auto gs_swamp = static_cast<const GameEvent::SVActionSwamp*>(gs_event->event());
-                
-                switch(gs_swamp->status())
-                {
-                    case GameEvent::ActionSwampStatus_STARTED:
-                    {
-                        for(auto player : m_aPlayers)
-                        {
-                            if(player->GetUID() == gs_swamp->player_uid())
-                            {
-                                player->SetState(Hero::State::SWAMP);
-                                
-                                if(player->GetUID() == m_pLocalPlayer->GetUID())
-                                {
-                                    m_pSwampCombo->Show(true);
-                                }
-                                break;
-                            }
-                        }
-                        
-                        break;
-                    }
-                        
-                    case GameEvent::ActionSwampStatus_DIED:
-                    {
-                        for(auto player : m_aPlayers)
-                        {
-                            if(player->GetUID() == gs_swamp->player_uid())
-                            {
-                                player->SetState(Hero::State::DEAD);
-                                player->AnimationDeath();
-                                
-                                if(player->GetUID() == gs_swamp->player_uid())
-                                {
-                                    m_pSwampCombo->Show(false);
-                                    m_pSwampCombo->Reset();
-                                }
-                                break;
-                            }
-                        }
-                        
-                        break;
-                    }
-                        
-                    case GameEvent::ActionSwampStatus_ESCAPED:
-                    {
-                        for(auto player : m_aPlayers)
-                        {
-                            if(player->GetUID() == gs_swamp->player_uid())
-                            {
-                                player->SetState(Hero::State::WALKING);
-                                
-                                if(player->GetUID() == m_pLocalPlayer->GetUID())
-                                {
-                                    m_pSwampCombo->Show(false);
-                                    m_pSwampCombo->Reset();
-                                }
-                                
-                                break;
-                            }
-                        }
-                        
-                        break;
-                    }
-                        
-                    default:
-                        assert(false);
-                        break;
-                }
-                
-                break;
+//                auto gs_swamp = static_cast<const GameEvent::SVActionSwamp*>(gs_event->event());
+//                
+//                switch(gs_swamp->status())
+//                {
+//                    case GameEvent::ActionSwampStatus_STARTED:
+//                    {
+//                        for(auto player : m_aPlayers)
+//                        {
+//                            if(player->GetUID() == gs_swamp->player_uid())
+//                            {
+//                                player->SetState(Hero::State::SWAMP);
+//                                
+//                                if(player->GetUID() == m_pLocalPlayer->GetUID())
+//                                {
+//                                    m_pSwampCombo->Show(true);
+//                                }
+//                                break;
+//                            }
+//                        }
+//                        
+//                        break;
+//                    }
+//                        
+//                    case GameEvent::ActionSwampStatus_DIED:
+//                    {
+//                        for(auto player : m_aPlayers)
+//                        {
+//                            if(player->GetUID() == gs_swamp->player_uid())
+//                            {
+//                                player->SetState(Hero::State::DEAD);
+//                                player->AnimationDeath();
+//                                
+//                                if(player->GetUID() == gs_swamp->player_uid())
+//                                {
+//                                    m_pSwampCombo->Show(false);
+//                                    m_pSwampCombo->Reset();
+//                                }
+//                                break;
+//                            }
+//                        }
+//                        
+//                        break;
+//                    }
+//                        
+//                    case GameEvent::ActionSwampStatus_ESCAPED:
+//                    {
+//                        for(auto player : m_aPlayers)
+//                        {
+//                            if(player->GetUID() == gs_swamp->player_uid())
+//                            {
+//                                player->SetState(Hero::State::WALKING);
+//                                
+//                                if(player->GetUID() == m_pLocalPlayer->GetUID())
+//                                {
+//                                    m_pSwampCombo->Show(false);
+//                                    m_pSwampCombo->Reset();
+//                                }
+//                                
+//                                break;
+//                            }
+//                        }
+//                        
+//                        break;
+//                    }
+//                        
+//                    default:
+//                        assert(false);
+//                        break;
+//                }
+//                
+//                break;
             }
                 
             case GameEvent::Events_SVActionDuel:
@@ -816,21 +773,16 @@ GameScene::ApplyInputEvents()
                             auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                             auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                             
-                            player1->SetState(Hero::State::DUEL_PLAYER);
-                            player1->SetDuelTargetID(sv_duel->target2_uid());
+                            player1->StartDuel(player2);
+                            player2->StartDuel(player1);
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                    //                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                             
-                            player2->SetState(Hero::State::DUEL_PLAYER);
-                            player2->SetDuelTargetID(sv_duel->target1_uid());
-                            
                             if(m_pLocalPlayer->GetUID() == player2->GetUID())
                             {
-                                    //                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                         }
@@ -840,13 +792,11 @@ GameScene::ApplyInputEvents()
                             auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                             auto monster = GetMonsterByUID(sv_duel->target2_uid());
                             
-                            player1->SetState(Hero::State::DUEL_MONSTER);
-                            monster->SetState(Monster::State::DUEL);
+                            player1->StartDuel(monster);
+                            monster->StartDuel(player1);
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                m_pLocalPlayer->SetDuelTargetID(monster->GetUID());
-                                    //                                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_start.mp3");
                                 m_pDuelMode->Show(true);
                             }
                         }
@@ -859,31 +809,14 @@ GameScene::ApplyInputEvents()
                             // player attacks
                         if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_PLAYER)
                         {
-                                // p v p
-                            if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_PLAYER)
-                            {
-                                auto player1 = GetPlayerByUID(sv_duel->target1_uid());
-                                auto player2 = GetPlayerByUID(sv_duel->target2_uid());
-                                
-                                player2->SetHealth(player2->GetHealth()-sv_duel->damage());
-                            }
-                                // p v m
-                            else if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_MONSTER)
-                            {
-                                auto player1 = GetPlayerByUID(sv_duel->target1_uid());
-                                auto monster = GetMonsterByUID(sv_duel->target2_uid());
-                                
-                                    // TODO: Set monsters health
-                                monster->SetHealth(monster->GetHealth()-sv_duel->damage());
-                            }
+                            auto player1 = GetPlayerByUID(sv_duel->target1_uid());
+                            player1->Attack();
                         }
                             // monster attacks
                         else if(sv_duel->target1_type() == GameEvent::ActionDuelTarget_MONSTER)
                         {
                             auto monster = GetMonsterByUID(sv_duel->target1_uid());
-                            auto player = GetPlayerByUID(sv_duel->target2_uid());
-                            
-                            player->SetHealth(player->GetHealth()-sv_duel->damage());
+                            monster->Attack();
                         }
                         
                         break;
@@ -899,16 +832,16 @@ GameScene::ApplyInputEvents()
                                 auto player1 = GetPlayerByUID(sv_duel->target1_uid());
                                 auto player2 = GetPlayerByUID(sv_duel->target2_uid());
                                 
-                                player1->SetState(Hero::State::WALKING);
+                                player1->EndDuel();
+                                
                                 if(m_pLocalPlayer->GetUID() == player1->GetUID())
                                 {
-                                        //                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
                                     m_pDuelMode->Show(false);
                                     m_pDuelMode->Reset();
                                 }
                                 
-                                player2->SetState(Hero::State::DEAD);
-                                player2->AnimationDeath();
+                                player2->EndDuel();
+                                player2->Die();
                                 
                                 if(m_pLocalPlayer->GetUID() == player2->GetUID())
                                 {
@@ -921,16 +854,15 @@ GameScene::ApplyInputEvents()
                                 auto player = GetPlayerByUID(sv_duel->target1_uid());
                                 auto monster = GetMonsterByUID(sv_duel->target2_uid());
                                 
-                                player->SetState(Hero::State::WALKING);
+                                player->EndDuel();
                                 if(m_pLocalPlayer->GetUID() == player->GetUID())
                                 {
-                                        //                                    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("res/duel_win.mp3");
                                     m_pDuelMode->Show(false);
                                     m_pDuelMode->Reset();
                                 }
                                 
-                                monster->SetState(Monster::State::DEAD);
-                                monster->AnimationDeath();
+                                monster->EndDuel();
+                                monster->Die();
                             }
                         }
                             // monster killed player
@@ -939,10 +871,10 @@ GameScene::ApplyInputEvents()
                             auto monster = GetMonsterByUID(sv_duel->target1_uid());
                             auto player = GetPlayerByUID(sv_duel->target2_uid());
                             
-                            monster->SetState(Monster::State::WAITING);
+                            monster->EndDuel();
                             
-                            player->SetState(Hero::State::DEAD);
-                            player->AnimationDeath();
+                            player->EndDuel();
+                            player->Die();
                             
                             if(m_pLocalPlayer->GetUID() == player->GetUID())
                             {
@@ -970,18 +902,9 @@ GameScene::ApplyInputEvents()
                 {
                     if(player->GetUID() == gs_resp->player_uid())
                     {
-                        player->SetState(Hero::State::WALKING);
-                        
                         cocos2d::Vec2 log_coords(gs_resp->x(),
                                                  gs_resp->y());
-                        cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    player->getContentSize());
-                        player->SetLogicalPosition(log_coords);
-                        player->SetHealth(gs_resp->hp());
-                        player->SetMaxHealth(gs_resp->max_hp());
-                        
-                        player->setPosition(spritePos);
-                        player->AnimationRespawn();
+                        player->Respawn(log_coords);
                         break;
                     }
                 }
@@ -1019,7 +942,10 @@ GameScene::ApplyInputEvents()
                     earth->SpellCast1();
                     
                     auto& block = m_oGameMap[gs_spell->point_x()][gs_spell->point_y()];
-                    block->removeFromParentAndCleanup(true);
+                    auto scale = cocos2d::ScaleBy::create(1.0, 0.1);
+                    auto fade = cocos2d::FadeOut::create(1.0);
+                    auto spawn = cocos2d::Spawn::create(scale, fade, nullptr);
+                    block->runAction(spawn);
                     block = NoBlock::create("res/floor.png");
                     block->SetLogicalPosition(Vec2(gs_spell->point_x(),
                                                    gs_spell->point_y()));

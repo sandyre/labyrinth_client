@@ -14,7 +14,8 @@ FireElementalist::FireElementalist()
 {
     m_eHero = Hero::Type::FIRE_ELEMENTALIST;
     m_nMoveSpeed = 0.1;
-    m_nDamage = 10;
+    m_nMHealth = m_nHealth = 60;
+    m_nBaseDamage = m_nActualDamage = 10;
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;

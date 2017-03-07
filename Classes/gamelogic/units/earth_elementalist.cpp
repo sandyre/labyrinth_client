@@ -14,7 +14,8 @@ EarthElementalist::EarthElementalist()
 {
     m_eHero = Hero::Type::EARTH_ELEMENTALIST;
     m_nMoveSpeed = 0.4;
-    m_nDamage = 8;
+    m_nMHealth = m_nHealth = 100;
+    m_nBaseDamage = m_nActualDamage = 8;
     
     m_nSpell1CD = 3.0;
     m_nSpell1ACD = 0.0;

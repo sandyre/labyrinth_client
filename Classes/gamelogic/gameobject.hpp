@@ -21,8 +21,7 @@ public:
         MAPBLOCK,
         ITEM,
         CONSTRUCTION,
-        PLAYER,
-        MONSTER
+        UNIT
     };
     GameObject();
     ~GameObject();

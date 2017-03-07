@@ -11,8 +11,8 @@
 
 #include "cocos2d.h"
 #include "gamelogic/gamemap.hpp"
-#include "gamelogic/hero.hpp"
-#include "gamelogic/monster.hpp"
+#include "gamelogic/units/hero.hpp"
+#include "gamelogic/units/monster.hpp"
 #include "gamelogic/item.hpp"
 #include "gamelogic/construction.hpp"
 #include "gamehud.hpp"

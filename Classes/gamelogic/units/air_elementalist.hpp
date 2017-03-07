@@ -23,7 +23,7 @@ public:
     virtual void                SpellCast1();
     bool                        isInvisible() const;
     
-    virtual void                AnimationTakeItem(Item * item) override;
+    virtual void                TakeItem(Item*) override;
 protected:
     AirElementalist();
     

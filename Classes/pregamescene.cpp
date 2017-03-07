@@ -16,10 +16,7 @@
 #include "gsnet_generated.h"
 #include "resourcemanager.hpp"
 
-#include "gamelogic/air_elementalist.hpp"
-#include "gamelogic/earth_elementalist.hpp"
-#include "gamelogic/water_elementalist.hpp"
-#include "gamelogic/fire_elementalist.hpp"
+#include "gamelogic/units/units_inc.hpp"
 
 template < typename T > std::string to_string( const T& n )
 {
@@ -386,7 +383,7 @@ PreGameScene::update(float delta)
                 {
                     auto air = AirElementalist::create("res/player_down.png");
                     air->SetUID(player.nUID);
-                    air->SetNickname(player.sNickname);
+                    air->SetName(player.sNickname);
                     air->retain();
                     m_pGameScene->GetPlayersList().push_back(air);
                 }
@@ -394,7 +391,7 @@ PreGameScene::update(float delta)
                 {
                     auto earth = EarthElementalist::create("res/player_down.png");
                     earth->SetUID(player.nUID);
-                    earth->SetNickname(player.sNickname);
+                    earth->SetName(player.sNickname);
                     earth->retain();
                     m_pGameScene->GetPlayersList().push_back(earth);
                 }
@@ -402,7 +399,7 @@ PreGameScene::update(float delta)
                 {
                     auto fire = FireElementalist::create("res/player_down.png");
                     fire->SetUID(player.nUID);
-                    fire->SetNickname(player.sNickname);
+                    fire->SetName(player.sNickname);
                     fire->retain();
                     m_pGameScene->GetPlayersList().push_back(fire);
                 }
@@ -410,7 +407,7 @@ PreGameScene::update(float delta)
                 {
                     auto water = WaterElementalist::create("res/player_down.png");
                     water->SetUID(player.nUID);
-                    water->SetNickname(player.sNickname);
+                    water->SetName(player.sNickname);
                     water->retain();
                     m_pGameScene->GetPlayersList().push_back(water);
                 }
