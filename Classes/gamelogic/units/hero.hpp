@@ -43,6 +43,7 @@ public:
     std::vector<char>   EventDuelStart(uint32_t /*enemy id*/);
     std::vector<char>   EventDuelAttack();
     
+    float                       GetSpell1ACD() const;
     bool                        isSpellCast1Ready() const;
     virtual std::vector<char>   EventSpellCast1() = 0;
 protected:

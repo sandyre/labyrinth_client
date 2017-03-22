@@ -166,6 +166,12 @@ Hero::AnimationSpell1()
     
 }
 
+float
+Hero::GetSpell1ACD() const
+{
+    return m_nSpell1ACD;
+}
+
 void
 Hero::Turn(Hero::Orientation orient)
 {

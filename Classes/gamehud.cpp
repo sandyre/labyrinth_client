@@ -20,6 +20,20 @@ GameHUD::GameHUD()
                       size.height * 0.1);
     this->addChild(m_pTakeItem);
     
+    m_pSpell1CD = Label::createWithTTF("Spell 1 CD:",
+                                       "fonts/kenvector_future.ttf",
+                                       20);
+    m_pSpell1CD->setPosition(size.width * 0.20,
+                             size.height * 0.4);
+    this->addChild(m_pSpell1CD);
+    
+    m_pNetStatus = Label::createWithTTF("Ping:",
+                                        "fonts/kenvector_future.ttf",
+                                        20);
+    m_pNetStatus->setPosition(size.width * 0.2,
+                              size.height * 0.3);
+    this->addChild(m_pNetStatus);
+    
     m_pHP = Label::createWithTTF("HP:",
                                  "fonts/kenvector_future.ttf",
                                  20);

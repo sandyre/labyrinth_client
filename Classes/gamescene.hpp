@@ -42,6 +42,7 @@ protected:
     void    ApplyInputEvents();
     void    SendOutputEvents();
     void    UpdateView(float);
+    void    UpdateHUD(float);
 private:
     GameMap                     m_oGameMap;
     GameHUD *                   m_pGameHUD;

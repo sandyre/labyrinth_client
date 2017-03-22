@@ -22,6 +22,10 @@ public:
     cocos2d::Label * m_pHP;
     cocos2d::Label * m_pDMG;
     cocos2d::Label * m_pInventory;
+    
+    cocos2d::Label * m_pSpell1CD;
+    
+    cocos2d::Label * m_pNetStatus;
 };
 
 #endif /* ingamehud_hpp */
