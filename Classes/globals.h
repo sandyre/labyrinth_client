@@ -16,7 +16,7 @@ const int CELL_SIZE = 10;
 const int PACKET_MAX_SIZE = 128;
 
 const int GAMEVERSION_MAJOR = 0;
-const int GAMEVERSION_MINOR = 2;
+const int GAMEVERSION_MINOR = 4;
 const int GAMEVERSION_BUILD = 0;
 
 enum class InputMove : int

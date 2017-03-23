@@ -9,6 +9,7 @@
 #ifndef netsystem_hpp
 #define netsystem_hpp
 
+#include <array>
 #include <chrono>
 #include <Poco/Net/DatagramSocket.h>
 using namespace std::chrono;
@@ -16,64 +17,38 @@ using namespace std::chrono;
 class NetSystem
 {
 public:
-    static NetSystem& Instance()
+    enum ChannelState
     {
-        static NetSystem ns;
-        return ns;
-    }
-    
-    void    SetAddress(const Poco::Net::SocketAddress& addr)
+        DR_DONE,
+        DR_FAILED,
+        DR_TIMEOUT
+    };
+    class NetChannel
     {
-        m_oCurrentAddr = addr;
-    }
-    
-    const Poco::Net::SocketAddress& GetAddress() const
-    {
-        return m_oCurrentAddr;
-    }
-    
-    int     DataAvailable() const
-    {
-        return m_oDS.available();
-    }
-    
-    int     SendBytes(const void * buffer,
-                     size_t lenght)
-    {
-        return m_oDS.sendTo(buffer, lenght, m_oCurrentAddr);
-    }
-    
-    int     ReceiveBytes(void * buffer,
-                         size_t buffer_capacity)
-    {
-        int  bytes_received = 0;
-        auto cur_time = steady_clock::now();
-        try
-        {
-            bytes_received = m_oDS.receiveBytes(buffer, buffer_capacity);
-            m_oTimeSinceLastRcv = duration_cast<milliseconds>(cur_time - m_oLastRcv);
-            m_oLastRcv = cur_time;
-        }
-        catch(std::exception& e) {}
+    public:
+        NetChannel();
         
-        return bytes_received;
-    }
-    
-    milliseconds GetTimeSinceLastReceive() const
-    {
-        return m_oTimeSinceLastRcv;
-    }
-    
+        ChannelState    GetState() const;
+        
+        void            SetAddress(Poco::Net::SocketAddress);
+        const Poco::Net::SocketAddress& GetAddress() const;
+        int             DataAvailable() const;
+        int             SendBytes(const void*, int);
+        void            ReceiveBytes();
+        
+        const std::array<uint8_t, 512>& GetBuffer() const;
+    protected:
+        ChannelState                m_eCState;
+        std::array<uint8_t, 512>    m_aDBuffer;
+        Poco::Net::SocketAddress    m_oSockAddr;
+        Poco::Net::DatagramSocket   m_oDSocket;
+    };
+public:
+    static NetSystem&   Instance();
+    NetChannel&         GetChannel(size_t);
 protected:
-    NetSystem()
-    {
-        m_oDS.setReceiveTimeout(Poco::Timespan(1, 0));
-    }
-    
-    milliseconds               m_oTimeSinceLastRcv;
-    steady_clock::time_point   m_oLastRcv;
-    Poco::Net::SocketAddress  m_oCurrentAddr;
-    Poco::Net::DatagramSocket m_oDS;
+    NetSystem();
+    std::vector<NetChannel> m_aChannels;
 };
 
 #endif /* netsystem_hpp */

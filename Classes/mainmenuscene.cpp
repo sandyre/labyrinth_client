@@ -44,7 +44,7 @@ MainMenuScene::init()
     net_file.close();
     
     Poco::Net::SocketAddress ms_addr(ms_addr_t);
-    NetSystem::Instance().SetAddress(ms_addr);
+    NetSystem::Instance().GetChannel(0).SetAddress(ms_addr);
     
     auto visibleSize = Director::getInstance()->getVisibleSize();
     

@@ -404,8 +404,8 @@ GameScene::UpdateHUD(float delta)
     m_pGameHUD->m_pSpell1CD->setString(StringUtils::format("Spell 1 CD: %.2f",
                                                            m_pLocalPlayer->GetSpell1ACD()));
     
-    m_pGameHUD->m_pNetStatus->setString(StringUtils::format("Ping: %lldms",
-                                                            NetSystem::Instance().GetTimeSinceLastReceive().count()));
+//    m_pGameHUD->m_pNetStatus->setString(StringUtils::format("Ping: %lldms",
+//                                                            NetSystem::Instance().GetTimeSinceLastReceive().count()));
     
     std::string inventory = "Inventory:\n";
     for(auto item : m_pLocalPlayer->GetInventory())
@@ -421,13 +421,13 @@ GameScene::UpdateHUD(float delta)
 void
 GameScene::ApplyInputEvents()
 {
-    auto& socket = NetSystem::Instance();
+    auto& socket = NetSystem::Instance().GetChannel(1);
     unsigned char buf[512];
     while(socket.DataAvailable())
     {
-        socket.ReceiveBytes(buf, 512);
+        socket.ReceiveBytes();
         
-        auto gs_event = GameEvent::GetMessage(buf);
+        auto gs_event = GameEvent::GetMessage(socket.GetBuffer().data());
         
         switch(gs_event->event_type())
         {
@@ -978,8 +978,8 @@ GameScene::SendOutputEvents()
 {
     while(!m_aOutEvents.empty())
     {
-        NetSystem::Instance().SendBytes(m_aOutEvents.front().data(),
-                                        m_aOutEvents.front().size());
+        NetSystem::Instance().GetChannel(1).SendBytes(m_aOutEvents.front().data(),
+                                                      m_aOutEvents.front().size());
         m_aOutEvents.pop();
     }
 }

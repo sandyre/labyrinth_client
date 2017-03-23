@@ -79,8 +79,8 @@ PreGameScene::init()
                                                      GameEvent::Events_CLHeroPick,
                                                      sv_pick.Union());
             builder.Finish(sv_event);
-            NetSystem::Instance().SendBytes(builder.GetBufferPointer(),
-                                            builder.GetSize());
+            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
             builder.Clear();
             
             return true;
@@ -97,8 +97,8 @@ PreGameScene::init()
                                                      GameEvent::Events_CLHeroPick,
                                                      sv_pick.Union());
             builder.Finish(sv_event);
-            NetSystem::Instance().SendBytes(builder.GetBufferPointer(),
-                                            builder.GetSize());
+            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
             builder.Clear();
             
             return true;
@@ -115,8 +115,8 @@ PreGameScene::init()
                                                      GameEvent::Events_CLHeroPick,
                                                      sv_pick.Union());
             builder.Finish(sv_event);
-            NetSystem::Instance().SendBytes(builder.GetBufferPointer(),
-                                            builder.GetSize());
+            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
             builder.Clear();
             
             return true;
@@ -133,8 +133,8 @@ PreGameScene::init()
                                                      GameEvent::Events_CLHeroPick,
                                                      sv_pick.Union());
             builder.Finish(sv_event);
-            NetSystem::Instance().SendBytes(builder.GetBufferPointer(),
-                                            builder.GetSize());
+            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
             builder.Clear();
             
             return true;
@@ -148,8 +148,8 @@ PreGameScene::init()
                                                      GameEvent::Events_CLReadyToStart,
                                                      sv_ready.Union());
             builder.Finish(sv_event);
-            NetSystem::Instance().SendBytes(builder.GetBufferPointer(),
-                                            builder.GetSize());
+            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
             builder.Clear();
             
             return true;
@@ -173,7 +173,7 @@ PreGameScene::update(float delta)
     {
         case CONNECTING_TO_MS:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(0);
             auto req_lobby = MSNet::CreateCLFindGame(builder,
                                                      PlayerInfo::Instance().GetUID(),
                                                      GAMEVERSION_MAJOR,
@@ -188,9 +188,15 @@ PreGameScene::update(float delta)
                              builder.GetSize());
             builder.Clear();
             
-            socket.ReceiveBytes(buf, 256);
+            socket.ReceiveBytes();
             
-            auto event = MSNet::GetMSEvent(buf);
+            if(socket.GetState() == NetSystem::ChannelState::DR_TIMEOUT)
+            {
+                MessageBox("Connection timeout", "Server unavailable");
+                Director::getInstance()->popScene();
+            }
+            
+            auto event = MSNet::GetMSEvent(socket.GetBuffer().data());
             if(event->event_type() == MSNet::MSEvents_SVFindGame)
             {
                 auto con_resp = static_cast<const MSNet::SVFindGame*>(event->event());
@@ -208,17 +214,18 @@ PreGameScene::update(float delta)
         }
         case REQUESTING_LOBBY:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(0);
             
-            socket.ReceiveBytes(buf, 256);
-            auto lobby_info = MSNet::GetMSEvent(buf);
+            socket.ReceiveBytes();
+            
+            auto lobby_info = MSNet::GetMSEvent(socket.GetBuffer().data());
             if(lobby_info->event_type() == MSNet::MSEvents_MSGameFound)
             {
                 auto gs_info = static_cast<const MSNet::MSGameFound*>(lobby_info->event());
                 
                 m_stGSAddr = Poco::Net::SocketAddress(socket.GetAddress().host(),
                                                       gs_info->gs_port());
-                socket.SetAddress(m_stGSAddr);
+                NetSystem::Instance().GetChannel(1).SetAddress(m_stGSAddr);
                 
                 m_eStatus = Status::CONNECTING_TO_GS;
                 m_pStatusInfo->setString("STATUS: CONNECTING TO LOBBY");
@@ -227,7 +234,7 @@ PreGameScene::update(float delta)
         }
         case CONNECTING_TO_GS:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             auto nickname = builder.CreateString(PlayerInfo::Instance().GetNickname());
             auto con_info = GameEvent::CreateCLConnection(builder,
                                                           PlayerInfo::Instance().GetUID(),
@@ -247,10 +254,11 @@ PreGameScene::update(float delta)
         }
         case WAITING_ACCEPT:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             char buf[256];
-            socket.ReceiveBytes(buf, 256);
-            auto accept = GameEvent::GetMessage(buf);
+            socket.ReceiveBytes();
+            
+            auto accept = GameEvent::GetMessage(socket.GetBuffer().data());
             
             if(accept->event_type() == GameEvent::Events_SVConnectionStatus)
             {
@@ -263,12 +271,12 @@ PreGameScene::update(float delta)
         }
         case WAITING_OTHERS:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             while(socket.DataAvailable())
             {
-                socket.ReceiveBytes(buf, 256);
+                socket.ReceiveBytes();
                 
-                auto gs_event = GameEvent::GetMessage(buf);
+                auto gs_event = GameEvent::GetMessage(socket.GetBuffer().data());
                 if(gs_event->event_type() == GameEvent::Events_SVPlayerConnected)
                 {
                     auto con_info = static_cast<const GameEvent::SVPlayerConnected*>(gs_event->event());
@@ -338,12 +346,12 @@ PreGameScene::update(float delta)
         }
         case HERO_PICK_STAGE:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             while(socket.DataAvailable())
             {
-                socket.ReceiveBytes(buf, 256);
+                socket.ReceiveBytes();
                 
-                auto gs_event = GameEvent::GetMessage(buf);
+                auto gs_event = GameEvent::GetMessage(socket.GetBuffer().data());
                 if(gs_event->event_type() == GameEvent::Events_SVHeroPick)
                 {
                     auto hero_pick = static_cast<const GameEvent::SVHeroPick*>(gs_event->event());
@@ -374,7 +382,7 @@ PreGameScene::update(float delta)
         }
         case GENERATING_LEVEL:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             m_pGameScene->GenerateMap(m_stMapConfig);
             
             for(auto& player : m_aLobbyPlayers)
@@ -431,12 +439,12 @@ PreGameScene::update(float delta)
         }
         case WAITING_SERVER_START:
         {
-            auto& socket = NetSystem::Instance();
+            auto& socket = NetSystem::Instance().GetChannel(1);
             if(socket.DataAvailable())
             {
-                socket.ReceiveBytes(buf, 256);
+                socket.ReceiveBytes();
                 
-                auto gs_event = GameEvent::GetMessage(buf);
+                auto gs_event = GameEvent::GetMessage(socket.GetBuffer().data());
                 if(gs_event->event_type() == GameEvent::Events_SVGameStart)
                 {
                     if(m_pGameScene->init())
