@@ -8,6 +8,8 @@
 
 #include "netsystem.hpp"
 
+#include <fstream>
+
 NetSystem::NetChannel::NetChannel()
 {
     m_oDSocket.setReceiveTimeout(Poco::Timespan(1, 0));
@@ -68,6 +70,16 @@ NetSystem::NetSystem()
 {
         // create 2 netchannels (1 = MS, 2 = GS)
     m_aChannels.push_back(NetChannel());
+    
+        // read MS addr and setup channel
+    std::string ms_addr_t;
+    std::ifstream net_file("res/net_info.txt");
+    std::getline(net_file,ms_addr_t);
+    net_file.close();
+    
+    Poco::Net::SocketAddress ms_addr(ms_addr_t);
+    m_aChannels.front().SetAddress(ms_addr);
+    
     m_aChannels.push_back(NetChannel());
 }
 

@@ -6,28 +6,28 @@
 //
 //
 
-#include "playerinfo.hpp"
+#include "accountinfo.hpp"
 
 uint32_t
-PlayerInfo::GetUID() const
+AccountInfo::GetUID() const
 {
     return m_nUID;
 }
 
 void
-PlayerInfo::SetUID(uint32_t uid)
+AccountInfo::SetUID(uint32_t uid)
 {
     m_nUID = uid;
 }
 
 std::string
-PlayerInfo::GetNickname() const
+AccountInfo::GetNickname() const
 {
     return m_sNickname;
 }
 
 void
-PlayerInfo::SetNickname(const std::string& name)
+AccountInfo::SetNickname(const std::string& name)
 {
     m_sNickname = name;
 }

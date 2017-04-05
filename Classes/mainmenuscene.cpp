@@ -10,7 +10,7 @@
 
 #include "pregamescene.hpp"
 
-#include "playerinfo.hpp"
+#include "accountinfo.hpp"
 #include "netsystem.hpp"
 #include "msnet_generated.h"
 #include <fstream>
@@ -37,70 +37,106 @@ MainMenuScene::init()
         return false;
     }
     
-        // read MS addr
-    std::string ms_addr_t;
-    std::ifstream net_file("res/net_info.txt");
-    std::getline(net_file,ms_addr_t);
-    net_file.close();
-    
-    Poco::Net::SocketAddress ms_addr(ms_addr_t);
-    NetSystem::Instance().GetChannel(0).SetAddress(ms_addr);
-    
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
-    auto playerInfo = Label::createWithTTF(StringUtils::format(
-                                                               "logged as %s\nUID:%d",
-                                                               PlayerInfo::Instance().GetNickname().c_str(),
-                                                               PlayerInfo::Instance().GetUID()),
-                                             "fonts/ethnocentric rg.ttf", 16);
-    playerInfo->setPosition(visibleSize.width * 0.8, visibleSize.height * 0.95);
-    this->addChild(playerInfo);
+    m_pLayout = ui::Layout::create();
+    m_pLayout->setLayoutType(ui::Layout::Type::RELATIVE);
+    m_pLayout->setPosition(Vec2::ZERO);
+    m_pLayout->setContentSize(visibleSize);
+    m_pLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+    m_pLayout->setBackGroundColor(Color3B(37, 68, 53));
+//    m_pLayout->setBackGroundImage("res/mainmenu_back.png");
+    this->addChild(m_pLayout);
     
-    auto titleLabel = Label::createWithTTF(
-                                           "labyrinth reborn",
-                                           "fonts/jigsaw trouserdrop.ttf",
-                                           40);
-    titleLabel->setPosition(visibleSize.width/2, visibleSize.height * 0.8);
+    auto layout_par1 = ui::RelativeLayoutParameter::create();
+    layout_par1->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    layout_par1->setMargin(ui::Margin(10.0, 2.0, 0.0, 0.0));
+    
+    auto playerInfo = ui::Text::create(StringUtils::format(
+                                                           "logged as %s\nUID:%d",
+                                                           AccountInfo::Instance().GetNickname().c_str(),
+                                                           AccountInfo::Instance().GetUID()),
+                                       "fonts/kenvector_future.ttf", 20);
+    playerInfo->setLayoutParameter(layout_par1);
+    m_pLayout->addChild(playerInfo);
+    
+    auto layout_par2 = ui::RelativeLayoutParameter::create();
+    layout_par2->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    layout_par2->setMargin(ui::Margin(0, 100, 0, 0));
+    
+    auto titleLabel = ui::Text::create("labyrinth reborn",
+                                       "fonts/jigsaw trouserdrop.ttf",
+                                       40);
+    titleLabel->setLayoutParameter(layout_par2);
     titleLabel->enableShadow();
     titleLabel->enableOutline(Color4B::RED);
     titleLabel->enableGlow(Color4B::RED);
-    this->addChild(titleLabel);
+    m_pLayout->addChild(titleLabel);
     
-    auto gameVersion = Label::createWithTTF(StringUtils::format("v%d.%d.%d",
-                                                                GAMEVERSION_MAJOR,
-                                                                GAMEVERSION_MINOR,
-                                                                GAMEVERSION_BUILD),
-                                            "fonts/ethnocentric rg.ttf", 16);
-    gameVersion->setPosition(visibleSize.width * 0.9,
-                             visibleSize.height * 0.03);
-    this->addChild(gameVersion);
+    auto layout_par3 = ui::RelativeLayoutParameter::create();
+    layout_par3->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_RIGHT);
     
-    auto gameLabel = Label::createWithTTF(
-                                          "find game",
-                                          "fonts/ethnocentric rg.ttf",
-                                          32);
-    auto gameMItem = MenuItemLabel::create(gameLabel,
-                                           CC_CALLBACK_1(
-                                                         MainMenuScene::enterGameCallback,
-                                                         this));
-    gameMItem->setPosition(Vec2::ZERO);
+    auto gameVersion = ui::Text::create(StringUtils::format("v%d.%d.%d",
+                                                            GAMEVERSION_MAJOR,
+                                                            GAMEVERSION_MINOR,
+                                                            GAMEVERSION_BUILD),
+                                        "fonts/kenvector_future.ttf", 16);
+    gameVersion->setLayoutParameter(layout_par3);
+    m_pLayout->addChild(gameVersion);
     
-    auto menu = Menu::create(gameMItem, nullptr);
-    menu->setPosition(visibleSize.width/2, visibleSize.height/2);
+    auto layout_par4 = ui::RelativeLayoutParameter::create();
+    layout_par4->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
-    this->addChild(menu, 1);
+    auto menuLayout = ui::Layout::create();
+    menuLayout->setLayoutType(ui::Layout::Type::VERTICAL);
+    menuLayout->setContentSize(Size(400, 400)); // FIXME: hardcoded
+    menuLayout->setLayoutParameter(layout_par4);
+    m_pLayout->addChild(menuLayout);
     
-    auto logo = Sprite::create("res/hatered.png");
-    logo->setPosition(visibleSize.width * 0.5,
-                      visibleSize.height * 0.1);
-    logo->setScale(2.0);
-    this->addChild(logo);
+    auto button_par1 = ui::LinearLayoutParameter::create();
+    button_par1->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
-    return true;
-}
+    auto playButton = ui::Button::create("res/button_normal.png",
+                                         "res/button_pressed.png");
+    playButton->setTitleText("Play");
+    playButton->setTitleFontName("fonts/kenvector_future.ttf");
+    playButton->setTitleFontSize(16);
+    playButton->setLayoutParameter(button_par1);
+    playButton->addTouchEventListener([](Ref * pSender, ui::Widget::TouchEventType type)
+                                      {
+                                          if(type == ui::Widget::TouchEventType::ENDED)
+                                          {
+                                              Director::getInstance()->pushScene(PreGameScene::createScene());
+                                          }
+                                      });
+    menuLayout->addChild(playButton);
+    
+    auto button_par2 = ui::RelativeLayoutParameter::create();
+    button_par2->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
+    
+    auto settButton = ui::Button::create("res/settings.png");
+    settButton->setTitleText("Settings");
+    settButton->setTitleFontName("fonts/kenvector_future.ttf");
+    settButton->setTitleFontSize(16);
+    settButton->setLayoutParameter(button_par2);
+    m_pLayout->addChild(settButton);
+    
+    auto button_par3 = ui::RelativeLayoutParameter::create();
+    button_par3->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    
+    auto donateButton = ui::Button::create("res/donate.png");
+    donateButton->setTitleText("Donate");
+    donateButton->setTitleFontName("fonts/kenvector_future.ttf");
+    donateButton->setTitleFontSize(16);
+    donateButton->setLayoutParameter(button_par3);
+    m_pLayout->addChild(donateButton);
+    
+    auto logo_par1 = ui::RelativeLayoutParameter::create();
+    logo_par1->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+    
+    auto logo = ui::ImageView::create("res/hatered.png");
+    logo->setLayoutParameter(logo_par1);
+    m_pLayout->addChild(logo);
 
-void
-MainMenuScene::enterGameCallback(Ref * pSender)
-{
-    Director::getInstance()->pushScene(PreGameScene::createScene());
+    return true;
 }

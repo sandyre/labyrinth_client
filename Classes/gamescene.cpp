@@ -9,7 +9,7 @@
 #include "gamescene.hpp"
 
 #include "globals.h"
-#include "playerinfo.hpp"
+#include "accountinfo.hpp"
 
 #include <memory>
 #include <SimpleAudioEngine.h>
@@ -68,7 +68,7 @@ GameScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
         // set local player
-    m_pLocalPlayer = GetPlayerByUID(PlayerInfo::Instance().GetUID());
+    m_pLocalPlayer = GetPlayerByUID(AccountInfo::Instance().GetUID());
     
         // order matters!
     m_oGameMap.GetFloorLayer()->setPosition(Vec2::ZERO);

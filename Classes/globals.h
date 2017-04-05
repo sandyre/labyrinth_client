@@ -36,6 +36,24 @@ const std::array<std::string, 4> SpritesPath
     "res/arrow_left.png",
     "res/arrow_right.png"
 };
+    
+const std::array<std::string, 6> HeroNames
+{
+    "No hero selected",
+    "Air elementalist",
+    "Water elementalist",
+    "Fire elementalist",
+    "Earth elementalist",
+    "Random hero"
+};
+
+struct PlayerInfo
+{
+    uint32_t    nUID;
+    std::string sNickname;
+    int         nHeroIndex;
+        // additional fields
+};
 
 inline
 cocos2d::Vec2 LOG_TO_PHYS_COORD(const cocos2d::Vec2& logical,

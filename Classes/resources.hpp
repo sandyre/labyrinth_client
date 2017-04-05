@@ -11,6 +11,16 @@
 
 #include <array>
 
+static const std::array<std::string, 6> HeroIcons
+{
+    "res/no_hero.png",
+    "res/air_elem.png",
+    "res/water_elem.png",
+    "res/fire_elem.png",
+    "res/earth_elem.png",
+    "res/no_hero.png"
+};
+
 static const std::array<std::string, 3> SoundEffects
 {
     "res/step.mp3",

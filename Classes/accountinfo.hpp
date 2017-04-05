@@ -13,12 +13,12 @@
 #include <fstream>
 #include <cocos2d.h>
 
-class PlayerInfo
+class AccountInfo
 {
 public:
-    static PlayerInfo& Instance()
+    static AccountInfo& Instance()
     {
-        static PlayerInfo pi;
+        static AccountInfo pi;
         return pi;
     }
     
@@ -28,16 +28,16 @@ public:
     std::string GetNickname() const;
     void        SetNickname(const std::string&);
 private:
-    PlayerInfo()
+    AccountInfo()
     {
         std::ifstream   file("res/player_info.txt");
         m_nUID = cocos2d::RandomHelper::random_int(0, 666666);
         file >> m_sNickname;
     }
-    ~PlayerInfo() {}
+    ~AccountInfo() {}
     
-    PlayerInfo(PlayerInfo const&) = delete;
-    PlayerInfo& operator=(PlayerInfo const&) = delete;
+    AccountInfo(AccountInfo const&) = delete;
+    AccountInfo& operator=(AccountInfo const&) = delete;
     
 private:
     std::string m_sNickname;

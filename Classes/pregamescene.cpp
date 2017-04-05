@@ -9,7 +9,7 @@
 #include "pregamescene.hpp"
 
 #include <sstream>
-#include "playerinfo.hpp"
+#include "accountinfo.hpp"
 #include "gamescene.hpp"
 #include <netsystem.hpp>
 #include "msnet_generated.h"
@@ -52,112 +52,9 @@ PreGameScene::init()
     m_eStatus = Status::CONNECTING_TO_MS;
     
     auto visibleSize = Director::getInstance()->getVisibleSize();
-    
-    m_pStatusInfo = Label::createWithTTF("STATUS: CONNECTING TO NETWORK",
-                                         "fonts/ethnocentric rg.ttf", 24);
-    m_pStatusInfo->setPosition(visibleSize.width / 2, visibleSize.height / 2);
-    this->addChild(m_pStatusInfo);
-    
-    m_pLobbyInfo = Label::createWithTTF("Players:\n",
-                                        "fonts/ethnocentric rg.ttf",
-                                        15);
-    m_pLobbyInfo->setPosition(visibleSize.width * 0.3, visibleSize.height * 0.9);
-    this->addChild(m_pLobbyInfo);
-    
-    auto eventListenerTouch = EventListenerTouchOneByOne::create();
-    eventListenerTouch->onTouchBegan = [this](Touch * touch, Event * event)
-    {
-        if(m_pAirElem->getBoundingBox().containsPoint(touch->getLocation()))
-        {
-            m_pReadyButton->setVisible(true);
-            
-            flatbuffers::FlatBufferBuilder builder;
-            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
-                                                       PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::HeroType_AIR_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateMessage(builder,
-                                                     GameEvent::Events_CLHeroPick,
-                                                     sv_pick.Union());
-            builder.Finish(sv_event);
-            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            builder.Clear();
-            
-            return true;
-        }
-        if(m_pEarthElem->getBoundingBox().containsPoint(touch->getLocation()))
-        {
-            m_pReadyButton->setVisible(true);
-            
-            flatbuffers::FlatBufferBuilder builder;
-            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
-                                                       PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::HeroType_EARTH_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateMessage(builder,
-                                                     GameEvent::Events_CLHeroPick,
-                                                     sv_pick.Union());
-            builder.Finish(sv_event);
-            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            builder.Clear();
-            
-            return true;
-        }
-        if(m_pWaterElem->getBoundingBox().containsPoint(touch->getLocation()))
-        {
-            m_pReadyButton->setVisible(true);
-            
-            flatbuffers::FlatBufferBuilder builder;
-            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
-                                                       PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::HeroType_WATER_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateMessage(builder,
-                                                     GameEvent::Events_CLHeroPick,
-                                                     sv_pick.Union());
-            builder.Finish(sv_event);
-            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            builder.Clear();
-            
-            return true;
-        }
-        if(m_pFireElem->getBoundingBox().containsPoint(touch->getLocation()))
-        {
-            m_pReadyButton->setVisible(true);
-            
-            flatbuffers::FlatBufferBuilder builder;
-            auto sv_pick = GameEvent::CreateCLHeroPick(builder,
-                                                       PlayerInfo::Instance().GetUID(),
-                                                       GameEvent::HeroType_FIRE_ELEMENTALIST);
-            auto sv_event = GameEvent::CreateMessage(builder,
-                                                     GameEvent::Events_CLHeroPick,
-                                                     sv_pick.Union());
-            builder.Finish(sv_event);
-            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            builder.Clear();
-            
-            return true;
-        }
-        if(m_pReadyButton->getBoundingBox().containsPoint(touch->getLocation()))
-        {
-            flatbuffers::FlatBufferBuilder builder;
-            auto sv_ready = GameEvent::CreateCLReadyToStart(builder,
-                                                            PlayerInfo::Instance().GetUID());
-            auto sv_event = GameEvent::CreateMessage(builder,
-                                                     GameEvent::Events_CLReadyToStart,
-                                                     sv_ready.Union());
-            builder.Finish(sv_event);
-            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            builder.Clear();
-            
-            return true;
-        }
-        
-        return false;
-    };
-    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListenerTouch, this);
+
+    m_pUI = new UIPregameScene;
+    this->addChild(m_pUI);
     
     this->scheduleUpdate();
     return true;
@@ -175,7 +72,7 @@ PreGameScene::update(float delta)
         {
             auto& socket = NetSystem::Instance().GetChannel(0);
             auto req_lobby = MSNet::CreateCLFindGame(builder,
-                                                     PlayerInfo::Instance().GetUID(),
+                                                     AccountInfo::Instance().GetUID(),
                                                      GAMEVERSION_MAJOR,
                                                      GAMEVERSION_MINOR,
                                                      GAMEVERSION_BUILD);
@@ -207,7 +104,7 @@ PreGameScene::update(float delta)
                 }
                 else
                 {
-                    m_pStatusInfo->setString("SERVER REFUSED CONNECTION:\nINCOMPATIBLE VERSIONS");
+                    m_pUI->m_pStatusText->setString("SERVER REFUSED CONNECTION:\nINCOMPATIBLE VERSIONS");
                 }
             }
             break;
@@ -228,16 +125,16 @@ PreGameScene::update(float delta)
                 NetSystem::Instance().GetChannel(1).SetAddress(m_stGSAddr);
                 
                 m_eStatus = Status::CONNECTING_TO_GS;
-                m_pStatusInfo->setString("STATUS: CONNECTING TO LOBBY");
+                m_pUI->m_pStatusText->setString("STATUS: CONNECTING TO LOBBY");
             }
             break;
         }
         case CONNECTING_TO_GS:
         {
             auto& socket = NetSystem::Instance().GetChannel(1);
-            auto nickname = builder.CreateString(PlayerInfo::Instance().GetNickname());
+            auto nickname = builder.CreateString(AccountInfo::Instance().GetNickname());
             auto con_info = GameEvent::CreateCLConnection(builder,
-                                                          PlayerInfo::Instance().GetUID(),
+                                                          AccountInfo::Instance().GetUID(),
                                                           nickname);
             auto gs_event = GameEvent::CreateMessage(builder,
                                                      GameEvent::Events_CLConnection,
@@ -248,7 +145,7 @@ PreGameScene::update(float delta)
                              builder.GetSize());
             builder.Clear();
             
-            m_pStatusInfo->setString("STATUS: WAITING SERVER ACCEPTANCE");
+            m_pUI->m_pStatusText->setString("STATUS: WAITING SERVER ACCEPTANCE");
             m_eStatus = Status::WAITING_ACCEPT;
             break;
         }
@@ -264,8 +161,8 @@ PreGameScene::update(float delta)
             {
                     // TODO: add refuse possibility
                 m_eStatus = Status::WAITING_OTHERS;
-                m_pStatusInfo->setString("STATUS: WAITING OTHER PLAYERS");
-                m_pLobbyInfo->setVisible(true);
+                m_pUI->m_pStatusText->setString("STATUS: WAITING OTHER PLAYERS");
+//                m_pPlayersList->setVisible(true);
             }
             break;
         }
@@ -291,57 +188,21 @@ PreGameScene::update(float delta)
                         // player is not in-game already, add him
                     if(iter == m_aLobbyPlayers.end())
                     {
-                        PlayerConnectionInfo player_info;
+                        PlayerInfo player_info;
                         player_info.nUID = con_info->player_uid();
                         player_info.sNickname = con_info->nickname()->c_str();
                         m_aLobbyPlayers.push_back(player_info);
+                        
+                        m_pUI->m_pPlayersList->AddPlayer(player_info);
                     }
                 }
                 else if(gs_event->event_type() == GameEvent::Events_SVHeroPickStage)
                 {
                     m_eStatus = Status::HERO_PICK_STAGE;
-                    auto size = Director::getInstance()->getVisibleSize();
-                    m_pStatusInfo->setPosition(cocos2d::Vec2(size.width / 2,
-                                                             size.height * 0.8));
-                    m_pReadyButton = Sprite::create("res/ready_button.png");
-                    m_pReadyButton->setPosition(cocos2d::Vec2(size.width / 2,
-                                                              size.height * 0.3));
-                    m_pReadyButton->setVisible(false);
-                    this->addChild(m_pReadyButton);
-                    m_pStatusInfo->setString("STATUS: HERO PICKING");
-                    
-                    m_pAirElem = Sprite::create("res/air_elem.png");
-                    m_pAirElem->setPosition(cocos2d::Vec2(size.width * 0.20,
-                                                          size.height * 0.6));
-                    this->addChild(m_pAirElem);
-                    
-                    m_pFireElem = Sprite::create("res/fire_elem.png");
-                    m_pFireElem->setPosition(cocos2d::Vec2(size.width * 0.40,
-                                                           size.height * 0.6));
-                    this->addChild(m_pFireElem);
-                    
-                    m_pWaterElem = Sprite::create("res/water_elem.png");
-                    m_pWaterElem->setPosition(cocos2d::Vec2(size.width * 0.60,
-                                                            size.height * 0.6));
-                    this->addChild(m_pWaterElem);
-                    
-                    m_pEarthElem = Sprite::create("res/earth_elem.png");
-                    m_pEarthElem->setPosition(cocos2d::Vec2(size.width * 0.80,
-                                                            size.height * 0.6));
-                    this->addChild(m_pEarthElem);
+                    m_pUI->m_pStatusText->setString("STATUS: HERO PICK");
                 }
             }
             
-            std::string lobbyinfo = "Server port [" + to_string(m_stGSAddr.port());
-            lobbyinfo += "]\nPlayers list:\n";
-            for(auto& player : m_aLobbyPlayers)
-            {
-                lobbyinfo += player.sNickname;
-                lobbyinfo += " [UID";
-                lobbyinfo += to_string(player.nUID);
-                lobbyinfo += "]\n";
-            }
-            m_pLobbyInfo->setString(lobbyinfo);
             break;
         }
         case HERO_PICK_STAGE:
@@ -362,7 +223,12 @@ PreGameScene::update(float delta)
                                                  return pl.nUID == hero_pick->player_uid();
                                              });
                     
-                    iter->eHeroPicked = (Hero::Type)hero_pick->hero_type();
+                    iter->nHeroIndex = hero_pick->hero_type();
+                    
+                    if(iter->nUID == AccountInfo::Instance().GetUID())
+                    {
+//                        m_pReadyButton->setVisible(true);
+                    }
                 }
                 else if(gs_event->event_type() == GameEvent::Events_SVGenerateMap)
                 {
@@ -375,7 +241,7 @@ PreGameScene::update(float delta)
                     m_stMapConfig = sets;
                     
                     m_eStatus = Status::GENERATING_LEVEL;
-                    m_pStatusInfo->setString("STATUS: GENERATING WORLD");
+                    m_pUI->m_pStatusText->setString("STATUS: GENERATING WORLD");
                 }
             }
             break;
@@ -387,7 +253,7 @@ PreGameScene::update(float delta)
             
             for(auto& player : m_aLobbyPlayers)
             {
-                if(player.eHeroPicked == Hero::Type::AIR_ELEMENTALIST)
+                if(player.nHeroIndex == Hero::Type::AIR_ELEMENTALIST)
                 {
                     auto air = AirElementalist::create("res/units/player_down.png");
                     air->SetUID(player.nUID);
@@ -395,7 +261,7 @@ PreGameScene::update(float delta)
                     air->retain();
                     m_pGameScene->GetPlayersList().push_back(air);
                 }
-                else if(player.eHeroPicked == Hero::Type::EARTH_ELEMENTALIST)
+                else if(player.nHeroIndex == Hero::Type::EARTH_ELEMENTALIST)
                 {
                     auto earth = EarthElementalist::create("res/units/player_down.png");
                     earth->SetUID(player.nUID);
@@ -403,7 +269,7 @@ PreGameScene::update(float delta)
                     earth->retain();
                     m_pGameScene->GetPlayersList().push_back(earth);
                 }
-                else if(player.eHeroPicked == Hero::Type::FIRE_ELEMENTALIST)
+                else if(player.nHeroIndex == Hero::Type::FIRE_ELEMENTALIST)
                 {
                     auto fire = FireElementalist::create("res/units/player_down.png");
                     fire->SetUID(player.nUID);
@@ -411,7 +277,7 @@ PreGameScene::update(float delta)
                     fire->retain();
                     m_pGameScene->GetPlayersList().push_back(fire);
                 }
-                else if(player.eHeroPicked == Hero::Type::WATER_ELEMENTALIST)
+                else if(player.nHeroIndex == Hero::Type::WATER_ELEMENTALIST)
                 {
                     auto water = WaterElementalist::create("res/units/player_down.png");
                     water->SetUID(player.nUID);
@@ -423,7 +289,7 @@ PreGameScene::update(float delta)
             
                 // notify server that generating is done
             auto gen_ok = GameEvent::CreateCLMapGenerated(builder,
-                                                          PlayerInfo::Instance().GetUID());
+                                                          AccountInfo::Instance().GetUID());
             auto cl_event = GameEvent::CreateMessage(builder,
                                                      GameEvent::Events_CLMapGenerated,
                                                      gen_ok.Union());
@@ -434,7 +300,7 @@ PreGameScene::update(float delta)
             builder.Clear();
             
             m_eStatus = Status::WAITING_SERVER_START;
-            m_pStatusInfo->setString("STATUS: WORLD GENERATED, WAITING OTHERS");
+            m_pUI->m_pStatusText->setString("STATUS: WORLD GENERATED, WAITING OTHERS");
             break;
         }
         case WAITING_SERVER_START:

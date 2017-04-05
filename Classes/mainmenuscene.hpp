@@ -9,7 +9,8 @@
 #ifndef mainmenuscene_hpp
 #define mainmenuscene_hpp
 
-#include "cocos2d.h"
+#include <cocos2d.h>
+#include <UI/CocosGUI.h>
 
 class MainMenuScene : public cocos2d::Layer
 {
@@ -18,9 +19,10 @@ public:
     
     virtual bool init();
     
-    void enterGameCallback(cocos2d::Ref * pSender);
-    
     CREATE_FUNC(MainMenuScene);
+    
+protected:
+    cocos2d::ui::Layout * m_pLayout;
 };
 
 #endif /* mainmenuscene_hpp */

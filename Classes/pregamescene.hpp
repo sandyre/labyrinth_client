@@ -9,19 +9,15 @@
 #ifndef pregamescene_hpp
 #define pregamescene_hpp
 
+#include "globals.h"
 #include "gamescene.hpp"
+#include "ui/ui_pregamescene.hpp"
 #include <cocos2d.h>
+#include <UI/CocosGUI.h>
 #include <Poco/Net/SocketAddress.h>
 
 class PreGameScene : public cocos2d::Layer
 {
-public:
-    struct PlayerConnectionInfo
-    {
-        uint32_t    nUID;
-        std::string sNickname;
-        Hero::Type  eHeroPicked;
-    };
 public:
     enum Status
     {
@@ -42,19 +38,13 @@ public:
     
 protected:
     Status           m_eStatus;
-    cocos2d::Label * m_pLobbyInfo;
-    cocos2d::Label * m_pStatusInfo;
     Poco::Net::SocketAddress m_stGSAddr;
     
-    cocos2d::Sprite * m_pAirElem;
-    cocos2d::Sprite * m_pFireElem;
-    cocos2d::Sprite * m_pWaterElem;
-    cocos2d::Sprite * m_pEarthElem;
-    
-    cocos2d::Sprite * m_pReadyButton;
-    std::vector<PlayerConnectionInfo> m_aLobbyPlayers;
+    std::vector<PlayerInfo> m_aLobbyPlayers;
     GameMap::Configuration m_stMapConfig;
     GameScene * m_pGameScene; // building
+    
+    UIPregameScene * m_pUI;
     
     CREATE_FUNC(PreGameScene);
 };

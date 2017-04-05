@@ -18,13 +18,14 @@
 class Hero : public Unit
 {
 public:
-    enum class Type
+    enum Type : int
     {
-        AIR_ELEMENTALIST,
-        WATER_ELEMENTALIST,
-        FIRE_ELEMENTALIST,
-        EARTH_ELEMENTALIST,
-        UNDEFINED
+        NO_HERO = 0x00,
+        AIR_ELEMENTALIST = 0x01,
+        WATER_ELEMENTALIST = 0x02,
+        FIRE_ELEMENTALIST = 0x03,
+        EARTH_ELEMENTALIST = 0x04,
+        RANDOM  = 0x05
     };
 public:
     Hero::Type      GetHero() const;
