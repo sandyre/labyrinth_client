@@ -24,8 +24,8 @@ public:
     UIPregameScene();
     
     cocos2d::ui::Text * m_pStatusText;
-    UIPlayersList * m_pPlayersList;
     UIHeroPick * m_pHeroPick;
+    UIPlayersList * m_pPlayersList;
 };
 
 class UIHeroPick : public cocos2d::ui::Layout
@@ -33,7 +33,6 @@ class UIHeroPick : public cocos2d::ui::Layout
 public:
     UIHeroPick();
     
-protected:
     int                     m_nHeroIndex;
     cocos2d::ui::Text *     m_pSelectedHeroText;
     cocos2d::ui::ImageView * m_pSelectedHeroImage;
@@ -53,14 +52,15 @@ public:
     PlayerInfo  m_stPlayerInfo;
 };
 
-class UIPlayersList : public cocos2d::ui::Widget
+class UIPlayersList : public cocos2d::ui::Layout
 {
 public:
     UIPlayersList();
     
     void    AddPlayer(const PlayerInfo&);
     void    RemovePlayer(uint32_t uid);
-protected:
+
+    cocos2d::ui::Text *         m_pPlayersLabel;
     cocos2d::ui::ListView *     m_pListView;
     std::vector<UIPlayerInfo*>  m_aPlayers;
 };

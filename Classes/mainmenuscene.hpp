@@ -11,6 +11,7 @@
 
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
+#include "ui/ui_mainmenuscene.hpp"
 
 class MainMenuScene : public cocos2d::Layer
 {
@@ -22,7 +23,7 @@ public:
     CREATE_FUNC(MainMenuScene);
     
 protected:
-    cocos2d::ui::Layout * m_pLayout;
+    UIMainMenuScene * m_pUI;
 };
 
 #endif /* mainmenuscene_hpp */

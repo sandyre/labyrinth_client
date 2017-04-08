@@ -15,6 +15,7 @@
 #include "msnet_generated.h"
 #include "gsnet_generated.h"
 #include "resourcemanager.hpp"
+#include "resources.hpp"
 
 #include "gamelogic/units/units_inc.hpp"
 
@@ -51,10 +52,75 @@ PreGameScene::init()
     
     m_eStatus = Status::CONNECTING_TO_MS;
     
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-
     m_pUI = new UIPregameScene;
     this->addChild(m_pUI);
+    
+        // add listeners to hero pick platform
+    auto& left_hero_button = m_pUI->m_pHeroPick->m_pLeftChange;
+    left_hero_button->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
+                                            {
+                                                if(type == ui::Widget::TouchEventType::ENDED)
+                                                {
+                                                    auto player = std::find_if(m_aLobbyPlayers.begin(),
+                                                                               m_aLobbyPlayers.end(),
+                                                                               [this](PlayerInfo player)
+                                                                               {
+                                                                                   return player.nUID == AccountInfo::Instance().GetUID();
+                                                                               });
+                                                    if(player->nHeroIndex != Hero::NO_HERO)
+                                                    {
+                                                        player->nHeroIndex--;
+                                                        m_pUI->m_pHeroPick->m_pSelectedHeroImage->loadTexture(HeroIcons[player->nHeroIndex]);
+                                                        m_pUI->m_pHeroPick->m_pSelectedHeroText->setString(HeroNames[player->nHeroIndex]);
+                                                        
+                                                        flatbuffers::FlatBufferBuilder builder;
+                                                        
+                                                        auto heropick = GameEvent::CreateCLHeroPick(builder,
+                                                                                                    player->nUID,
+                                                                                                    (GameEvent::HeroType)player->nHeroIndex);
+                                                        auto msg = GameEvent::CreateMessage(builder,
+                                                                                            GameEvent::Events_CLHeroPick,
+                                                                                            heropick.Union());
+                                                        builder.Finish(msg);
+                                                        
+                                                        NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                                                                      builder.GetSize());
+                                                    }
+                                                }
+                                            });
+    auto& right_hero_button = m_pUI->m_pHeroPick->m_pRightChange;
+    right_hero_button->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
+                                             {
+                                                 if(type == ui::Widget::TouchEventType::ENDED)
+                                                 {
+                                                     auto player = std::find_if(m_aLobbyPlayers.begin(),
+                                                                                m_aLobbyPlayers.end(),
+                                                                                [this](PlayerInfo player)
+                                                                                {
+                                                                                    return player.nUID == AccountInfo::Instance().GetUID();
+                                                                                });
+                                                     if(player->nHeroIndex != Hero::RANDOM)
+                                                     {
+                                                         player->nHeroIndex++;
+                                                         m_pUI->m_pHeroPick->m_pSelectedHeroImage->loadTexture(HeroIcons[player->nHeroIndex]);
+                                                         m_pUI->m_pHeroPick->m_pSelectedHeroText->setString(HeroNames[player->nHeroIndex]);
+                                                         
+                                                         flatbuffers::FlatBufferBuilder builder;
+                                                         
+                                                         auto heropick = GameEvent::CreateCLHeroPick(builder,
+                                                                                                     player->nUID,
+                                                                                                     (GameEvent::HeroType)player->nHeroIndex);
+                                                         auto msg = GameEvent::CreateMessage(builder,
+                                                                                             GameEvent::Events_CLHeroPick,
+                                                                                             heropick.Union());
+                                                         builder.Finish(msg);
+                                                         
+                                                         NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                                                                       builder.GetSize());
+                                                     }
+                                                 }
+                                             });
+    
     
     this->scheduleUpdate();
     return true;
@@ -64,7 +130,6 @@ void
 PreGameScene::update(float delta)
 {
     flatbuffers::FlatBufferBuilder builder;
-    unsigned char buf[256];
     
     switch(m_eStatus)
     {
@@ -152,7 +217,6 @@ PreGameScene::update(float delta)
         case WAITING_ACCEPT:
         {
             auto& socket = NetSystem::Instance().GetChannel(1);
-            char buf[256];
             socket.ReceiveBytes();
             
             auto accept = GameEvent::GetMessage(socket.GetBuffer().data());
@@ -161,8 +225,7 @@ PreGameScene::update(float delta)
             {
                     // TODO: add refuse possibility
                 m_eStatus = Status::WAITING_OTHERS;
-                m_pUI->m_pStatusText->setString("STATUS: WAITING OTHER PLAYERS");
-//                m_pPlayersList->setVisible(true);
+                m_pUI->m_pStatusText->setString("WAITING OTHER PLAYERS");
             }
             break;
         }
@@ -191,15 +254,50 @@ PreGameScene::update(float delta)
                         PlayerInfo player_info;
                         player_info.nUID = con_info->player_uid();
                         player_info.sNickname = con_info->nickname()->c_str();
+                        player_info.nHeroIndex = 0;
                         m_aLobbyPlayers.push_back(player_info);
                         
                         m_pUI->m_pPlayersList->AddPlayer(player_info);
+                        
+                            // make checkbox selectable
+                        for(auto& player_inf : m_pUI->m_pPlayersList->m_aPlayers)
+                        {
+                            if(player_inf->m_stPlayerInfo.nUID == AccountInfo::Instance().GetUID())
+                            {
+                                    // TODO: i dont know why, but it works that way
+                                    // that 2 event listeners are triggered
+                                player_inf->m_pReadyStatus->setEnabled(true);
+                                player_inf->m_pReadyStatus->addTouchEventListener(
+                                [this, player_inf](Ref * pSender, ui::Widget::TouchEventType type)
+                                {
+                                    if(type == ui::Widget::TouchEventType::ENDED)
+                                    {
+                                        if(player_inf->m_pReadyStatus->isSelected())
+                                        {
+                                            player_inf->m_pReadyStatus->setSelected(true);
+                                            player_inf->m_pReadyStatus->setTouchEnabled(false);
+                                            
+                                            flatbuffers::FlatBufferBuilder builder;
+                                            auto ready_msg = GameEvent::CreateCLReadyToStart(builder,
+                                                                                             player_inf->m_stPlayerInfo.nUID);
+                                            auto msg = GameEvent::CreateMessage(builder,
+                                                                                GameEvent::Events_CLReadyToStart,
+                                                                                ready_msg.Union());
+                                            builder.Finish(msg);
+                                            
+                                            NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                                                          builder.GetSize());
+                                        }
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
                 else if(gs_event->event_type() == GameEvent::Events_SVHeroPickStage)
                 {
                     m_eStatus = Status::HERO_PICK_STAGE;
-                    m_pUI->m_pStatusText->setString("STATUS: HERO PICK");
+                    m_pUI->m_pStatusText->setString("HERO PICK STAGE");
                 }
             }
             
@@ -225,9 +323,24 @@ PreGameScene::update(float delta)
                     
                     iter->nHeroIndex = hero_pick->hero_type();
                     
-                    if(iter->nUID == AccountInfo::Instance().GetUID())
+                    for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
                     {
-//                        m_pReadyButton->setVisible(true);
+                        if(player_info->m_stPlayerInfo.nUID == hero_pick->player_uid())
+                        {
+                            player_info->m_pHeroImage->loadTexture(HeroIcons[iter->nHeroIndex]);
+                        }
+                    }
+                }
+                else if(gs_event->event_type() == GameEvent::Events_SVReadyToStart)
+                {
+                    auto player_ready = static_cast<const GameEvent::SVReadyToStart*>(gs_event->event());
+                    
+                    for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
+                    {
+                        if(player_info->m_stPlayerInfo.nUID == player_ready->player_uid())
+                        {
+                            player_info->m_pReadyStatus->setSelected(true);
+                        }
                     }
                 }
                 else if(gs_event->event_type() == GameEvent::Events_SVGenerateMap)
@@ -241,7 +354,7 @@ PreGameScene::update(float delta)
                     m_stMapConfig = sets;
                     
                     m_eStatus = Status::GENERATING_LEVEL;
-                    m_pUI->m_pStatusText->setString("STATUS: GENERATING WORLD");
+                    m_pUI->m_pStatusText->setString("GENERATING WORLD");
                 }
             }
             break;
@@ -300,7 +413,7 @@ PreGameScene::update(float delta)
             builder.Clear();
             
             m_eStatus = Status::WAITING_SERVER_START;
-            m_pUI->m_pStatusText->setString("STATUS: WORLD GENERATED, WAITING OTHERS");
+            m_pUI->m_pStatusText->setString("WORLD GENERATED, WAITING OTHERS");
             break;
         }
         case WAITING_SERVER_START:
