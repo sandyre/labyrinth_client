@@ -14,6 +14,93 @@ UIMainMenuScene::UIMainMenuScene()
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
+    m_pPageView = ui::PageView::create();
+    m_pPageView->setDirection(ui::ScrollView::Direction::HORIZONTAL);
+    m_pPageView->setTouchEnabled(false);
+    m_pPageView->setContentSize(visibleSize);
+    m_pPageView->setPosition(Vec2::ZERO);
+    this->addChild(m_pPageView);
+    
+    m_pStartPage = new UIStartPage();
+    m_pPageView->insertPage(m_pStartPage, 0);
+    
+    m_pLoginPage = new UILoginPage();
+    m_pPageView->insertPage(m_pLoginPage, 1);
+    
+    m_pMainPage = new UIMainMenuPage();
+    m_pPageView->insertPage(m_pMainPage, 2);
+}
+
+UIStartPage::UIStartPage()
+{
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
+    this->setContentSize(visibleSize);
+    this->setPosition(Vec2::ZERO);
+    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+    this->setBackGroundColor(Color3B(100, 68, 53));
+    
+        // init 'title' label
+    auto title_pos = ui::RelativeLayoutParameter::create();
+    title_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    
+    m_pGameTitle = ui::Text::create("Labyrinth",
+                                    "fonts/jigsaw trouserdrop.ttf",
+                                    40);
+    m_pGameTitle->setLayoutParameter(title_pos);
+    this->addChild(m_pGameTitle);
+    
+        // init 'start' button
+    auto start_button_pos = ui::RelativeLayoutParameter::create();
+    start_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pStartButton = ui::Button::create("res/button_normal.png",
+                                        "res/button_pressed.png");
+    m_pStartButton->setLayoutParameter(start_button_pos);
+    m_pStartButton->setTitleText("Begin");
+    m_pStartButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pStartButton->setTitleFontSize(24);
+    this->addChild(m_pStartButton);
+}
+
+UILoginPage::UILoginPage()
+{
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
+    this->setContentSize(visibleSize);
+    this->setPosition(Vec2::ZERO);
+    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+    this->setBackGroundColor(Color3B(100, 68, 53));
+    
+        // init 'login page title' label
+    auto page_label_pos = ui::RelativeLayoutParameter::create();
+    page_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    
+    m_pLoginPageLabel = ui::Text::create("Authorization",
+                                         "fonts/jigsaw trouserdrop.ttf",
+                                         40);
+    m_pLoginPageLabel->setLayoutParameter(page_label_pos);
+    this->addChild(m_pLoginPageLabel);
+    
+        // init 'log in' button
+    auto login_button_pos = ui::RelativeLayoutParameter::create();
+    login_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pLogInButton = ui::Button::create("res/button_normal.png",
+                                        "res/button_pressed.png");
+    m_pLogInButton->setLayoutParameter(login_button_pos);
+    m_pLogInButton->setTitleText("Log me in");
+    m_pLogInButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pLogInButton->setTitleFontSize(24);
+    this->addChild(m_pLogInButton);
+}
+
+UIMainMenuPage::UIMainMenuPage()
+{
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);

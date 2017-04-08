@@ -14,11 +14,43 @@
 #include <UI/CocosGUI.h>
 
 class UINewsLayout;
+class UIStartPage;
+class UILoginPage;
+class UIMainMenuPage;
 
-class UIMainMenuScene : public cocos2d::ui::Layout
+class UIMainMenuScene : public cocos2d::ui::Widget
 {
 public:
     UIMainMenuScene();
+    
+    cocos2d::ui::PageView * m_pPageView;
+    UIStartPage * m_pStartPage;
+    UILoginPage * m_pLoginPage;
+    UIMainMenuPage * m_pMainPage;
+};
+
+class UIStartPage : public cocos2d::ui::Layout
+{
+public:
+    UIStartPage();
+    
+    cocos2d::ui::Text * m_pGameTitle;
+    cocos2d::ui::Button * m_pStartButton;
+};
+
+class UILoginPage : public cocos2d::ui::Layout
+{
+public:
+    UILoginPage();
+    
+    cocos2d::ui::Text * m_pLoginPageLabel;
+    cocos2d::ui::Button * m_pLogInButton;
+};
+
+class UIMainMenuPage : public cocos2d::ui::Layout
+{
+public:
+    UIMainMenuPage();
     
     cocos2d::ui::Text * m_pGameInfo;
     
