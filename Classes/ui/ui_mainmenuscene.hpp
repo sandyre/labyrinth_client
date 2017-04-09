@@ -44,7 +44,16 @@ public:
     UILoginPage();
     
     cocos2d::ui::Text * m_pLoginPageLabel;
+    
+    cocos2d::ui::Button * m_pRegButton;
     cocos2d::ui::Button * m_pLogInButton;
+    
+    cocos2d::ui::Layout * m_pFormLayout;
+    cocos2d::ui::Text * m_pMailLabel;
+    cocos2d::ui::TextField * m_pMailField;
+    
+    cocos2d::ui::Text * m_pPasswordLabel;
+    cocos2d::ui::TextField * m_pPasswordField;
 };
 
 class UIMainMenuPage : public cocos2d::ui::Layout

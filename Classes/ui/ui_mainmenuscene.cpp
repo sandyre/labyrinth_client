@@ -84,9 +84,61 @@ UILoginPage::UILoginPage()
     m_pLoginPageLabel->setLayoutParameter(page_label_pos);
     this->addChild(m_pLoginPageLabel);
     
+        // init form
+    auto form_pos = ui::RelativeLayoutParameter::create();
+    form_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pFormLayout = ui::Layout::create();
+    m_pFormLayout->setLayoutType(ui::Layout::Type::VERTICAL);
+    m_pFormLayout->setLayoutParameter(form_pos);
+    this->addChild(m_pFormLayout);
+    
+        // init 'mail' label
+    auto mail_label_pos = ui::LinearLayoutParameter::create();
+    mail_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    
+    m_pMailLabel = ui::Text::create("Enter mail",
+                                    "fonts/kenvector_future.ttf",
+                                    24);
+    m_pMailLabel->setLayoutParameter(mail_label_pos);
+    m_pFormLayout->addChild(m_pMailLabel);
+    
+        // init 'mail' field
+    auto mail_field_pos = ui::LinearLayoutParameter::create();
+    mail_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    
+    m_pMailField = ui::TextField::create("mail",
+                                         "fonts/kenvector_future.ttf",
+                                         24);
+    m_pMailField->setMaxLength(30);
+    m_pMailField->setLayoutParameter(mail_field_pos);
+    m_pFormLayout->addChild(m_pMailField);
+    
+        // init 'password' label
+    auto password_label_pos = ui::LinearLayoutParameter::create();
+    password_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    
+    m_pPasswordLabel = ui::Text::create("Enter password",
+                                        "fonts/kenvector_future.ttf",
+                                        24);
+    m_pPasswordLabel->setLayoutParameter(password_label_pos);
+    m_pFormLayout->addChild(m_pPasswordLabel);
+    
+        // init 'password' field
+    auto password_field_pos = ui::LinearLayoutParameter::create();
+    password_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    
+    m_pPasswordField = ui::TextField::create("password",
+                                             "fonts/kenvector_future.ttf",
+                                             24);
+    m_pPasswordField->setMaxLength(30);
+    m_pPasswordField->setPasswordEnabled(true);
+    m_pPasswordField->setLayoutParameter(mail_field_pos);
+    m_pFormLayout->addChild(m_pPasswordField);
+    
         // init 'log in' button
     auto login_button_pos = ui::RelativeLayoutParameter::create();
-    login_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    login_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
     
     m_pLogInButton = ui::Button::create("res/button_normal.png",
                                         "res/button_pressed.png");
@@ -95,6 +147,18 @@ UILoginPage::UILoginPage()
     m_pLogInButton->setTitleFontName("fonts/kenvector_future.ttf");
     m_pLogInButton->setTitleFontSize(24);
     this->addChild(m_pLogInButton);
+    
+        // init 'reg me' button
+    auto reg_button_pos = ui::RelativeLayoutParameter::create();
+    reg_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    
+    m_pRegButton = ui::Button::create("res/button_normal.png",
+                                      "res/button_pressed.png");
+    m_pRegButton->setLayoutParameter(reg_button_pos);
+    m_pRegButton->setTitleText("Register");
+    m_pRegButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pRegButton->setTitleFontSize(24);
+    this->addChild(m_pRegButton);
 }
 
 UIMainMenuPage::UIMainMenuPage()
