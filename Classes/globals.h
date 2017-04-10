@@ -9,6 +9,7 @@
 #ifndef globals_h
 #define globals_h
 
+#include <cocos2d.h>
 #include <array>
 #include <string>
 

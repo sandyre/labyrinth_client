@@ -11,7 +11,7 @@
 
 #include "cocos2d.h"
 #include "globals.h"
-#include "item.hpp"
+#include "../item.hpp"
 
 #include "unit.hpp"
 
