@@ -33,9 +33,7 @@ class UIHeroPick : public cocos2d::ui::Layout
 public:
     UIHeroPick();
     
-    int                     m_nHeroIndex;
-    cocos2d::ui::Text *     m_pSelectedHeroText;
-    cocos2d::ui::ImageView * m_pSelectedHeroImage;
+    cocos2d::ui::PageView * m_pHeroPageView;
     cocos2d::ui::Button *   m_pRightChange;
     cocos2d::ui::Button *   m_pLeftChange;
 };

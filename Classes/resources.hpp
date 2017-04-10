@@ -11,9 +11,8 @@
 
 #include <array>
 
-static const std::array<std::string, 6> HeroIcons
+static const std::array<std::string, 5> HeroIcons
 {
-    "res/no_hero.png",
     "res/air_elem.png",
     "res/water_elem.png",
     "res/fire_elem.png",

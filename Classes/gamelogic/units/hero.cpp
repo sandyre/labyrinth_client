@@ -10,7 +10,7 @@
 #include "gsnet_generated.h"
 
 Hero::Hero() :
-m_eHero(Hero::Type::NO_HERO),
+m_eHero(Hero::Type::RANDOM),
 m_nSpell1CD(0.0),
 m_nSpell1ACD(0.0)
 {

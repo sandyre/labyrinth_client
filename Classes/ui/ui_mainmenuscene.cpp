@@ -58,9 +58,10 @@ UIStartPage::UIStartPage()
     m_pStartButton = ui::Button::create("res/button_normal.png",
                                         "res/button_pressed.png");
     m_pStartButton->setLayoutParameter(start_button_pos);
-    m_pStartButton->setTitleText("Begin");
+    m_pStartButton->setTitleText("Offline");
     m_pStartButton->setTitleFontName("fonts/kenvector_future.ttf");
     m_pStartButton->setTitleFontSize(24);
+    m_pStartButton->setEnabled(false);
     this->addChild(m_pStartButton);
 }
 
@@ -110,7 +111,10 @@ UILoginPage::UILoginPage()
     m_pMailField = ui::TextField::create("mail",
                                          "fonts/kenvector_future.ttf",
                                          24);
+    m_pMailField->setMaxLengthEnabled(true);
     m_pMailField->setMaxLength(30);
+    m_pMailField->setCursorChar('_');
+    m_pMailField->setCursorEnabled(true);
     m_pMailField->setLayoutParameter(mail_field_pos);
     m_pFormLayout->addChild(m_pMailField);
     
@@ -131,8 +135,12 @@ UILoginPage::UILoginPage()
     m_pPasswordField = ui::TextField::create("password",
                                              "fonts/kenvector_future.ttf",
                                              24);
-    m_pPasswordField->setMaxLength(30);
+    m_pPasswordField->setMaxLengthEnabled(true);
+    m_pPasswordField->setMaxLength(12);
+    m_pPasswordField->setCursorChar('_');
+    m_pPasswordField->setCursorEnabled(true);
     m_pPasswordField->setPasswordEnabled(true);
+    m_pPasswordField->setPasswordStyleText("*");
     m_pPasswordField->setLayoutParameter(mail_field_pos);
     m_pFormLayout->addChild(m_pPasswordField);
     
@@ -146,6 +154,7 @@ UILoginPage::UILoginPage()
     m_pLogInButton->setTitleText("Log me in");
     m_pLogInButton->setTitleFontName("fonts/kenvector_future.ttf");
     m_pLogInButton->setTitleFontSize(24);
+    m_pLogInButton->setEnabled(false);
     this->addChild(m_pLogInButton);
     
         // init 'reg me' button
@@ -158,6 +167,7 @@ UILoginPage::UILoginPage()
     m_pRegButton->setTitleText("Register");
     m_pRegButton->setTitleFontName("fonts/kenvector_future.ttf");
     m_pRegButton->setTitleFontSize(24);
+    m_pRegButton->setEnabled(false);
     this->addChild(m_pRegButton);
 }
 

@@ -59,23 +59,44 @@ UIHeroPick::UIHeroPick()
     vis_size.height *= 0.45;
     this->setContentSize(vis_size);
     
-        // selected hero text
-    auto sel_hero_text = ui::RelativeLayoutParameter::create();
-    sel_hero_text->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+        // init hero page view
+    auto hero_view_pos = ui::RelativeLayoutParameter::create();
+    hero_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
-    m_pSelectedHeroText = ui::Text::create("No hero selected",
-                                           "fonts/kenvector_future.ttf",
-                                           16);
-    m_pSelectedHeroText->setLayoutParameter(sel_hero_text);
-    this->addChild(m_pSelectedHeroText);
+    m_pHeroPageView = ui::PageView::create();
+    m_pHeroPageView->setDirection(ui::ScrollView::Direction::HORIZONTAL);
+    m_pHeroPageView->setLayoutParameter(hero_view_pos);
+    m_pHeroPageView->setContentSize(vis_size);
+    m_pHeroPageView->setTouchEnabled(false);
+    this->addChild(m_pHeroPageView);
     
-        // selected hero image
-    auto sel_hero_image = ui::RelativeLayoutParameter::create();
-    sel_hero_image->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
-    
-    m_pSelectedHeroImage = ui::ImageView::create("res/no_hero.png");
-    m_pSelectedHeroImage->setLayoutParameter(sel_hero_image);
-    this->addChild(m_pSelectedHeroImage);
+        // init heros
+    {
+        for(int i = Hero::FIRST_HERO; i <= Hero::RANDOM; ++i)
+        {
+            auto hero_layout = ui::Layout::create();
+            hero_layout->setLayoutType(ui::Layout::Type::RELATIVE);
+            
+            auto hero_img_pos = ui::RelativeLayoutParameter::create();
+            hero_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+            
+            auto hero_img = ui::ImageView::create(HeroIcons[i]);
+            hero_img->setLayoutParameter(hero_img_pos);
+            hero_layout->addChild(hero_img);
+            
+            auto hero_name_pos = ui::RelativeLayoutParameter::create();
+            hero_name_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+            
+            auto hero_name = ui::Text::create(HeroNames[i],
+                                              "fonts/jigsaw trouserdrop.ttf",
+                                              24);
+            hero_name->setLayoutParameter(hero_name_pos);
+            
+            hero_layout->addChild(hero_name);
+            
+            m_pHeroPageView->insertPage(hero_layout, i);
+        }
+    }
     
         // right button herochange init
     auto right_button_pos = ui::RelativeLayoutParameter::create();
@@ -96,7 +117,7 @@ UIHeroPick::UIHeroPick()
 
 UIPlayerInfo::UIPlayerInfo()
 {
-    this->setLayoutType(ui::Layout::Type::HORIZONTAL);
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setPosition(Vec2::ZERO);
     
     auto vis_size = Director::getInstance()->getVisibleSize();
@@ -104,26 +125,26 @@ UIPlayerInfo::UIPlayerInfo()
     this->setContentSize(vis_size);
     
         // init hero icon
-    auto image_param = ui::LinearLayoutParameter::create();
-    image_param->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+    auto image_param = ui::RelativeLayoutParameter::create();
+    image_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pHeroImage = ui::ImageView::create("res/no_hero.png");
+    m_pHeroImage = ui::ImageView::create(HeroIcons[0]);
     m_pHeroImage->setLayoutParameter(image_param);
     this->addChild(m_pHeroImage);
     
         // init players name
-    auto text_param = ui::LinearLayoutParameter::create();
-    text_param->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+    auto text_param = ui::RelativeLayoutParameter::create();
+    text_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
     m_pPlayerName = ui::Text::create("unknown",
                                      "fonts/kenvector_future.ttf",
-                                     16);
+                                     22);
     m_pPlayerName->setLayoutParameter(text_param);
     this->addChild(m_pPlayerName);
     
         // init 'ready' checkbox
-    auto ready_param = ui::LinearLayoutParameter::create();
-    ready_param->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
+    auto ready_param = ui::RelativeLayoutParameter::create();
+    ready_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
     m_pReadyStatus = ui::CheckBox::create("res/frame.png",
                                           "res/ready.png");
@@ -136,7 +157,7 @@ UIPlayersList::UIPlayersList()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B::GREEN);
+    this->setBackGroundColor(Color3B::BLUE);
     
     auto vis_size = Director::getInstance()->getVisibleSize();
     vis_size.height *= 0.45;

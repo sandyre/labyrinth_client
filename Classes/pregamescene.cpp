@@ -26,6 +26,7 @@ template < typename T > std::string to_string( const T& n )
     return stm.str() ;
 }
 
+using namespace MasterEvent;
 USING_NS_CC;
 
 Scene *
@@ -67,11 +68,10 @@ PreGameScene::init()
                                                                                {
                                                                                    return player.nUID == AccountInfo::Instance().GetUID();
                                                                                });
-                                                    if(player->nHeroIndex != Hero::NO_HERO)
+                                                    if(player->nHeroIndex != Hero::AIR_ELEMENTALIST)
                                                     {
                                                         player->nHeroIndex--;
-                                                        m_pUI->m_pHeroPick->m_pSelectedHeroImage->loadTexture(HeroIcons[player->nHeroIndex]);
-                                                        m_pUI->m_pHeroPick->m_pSelectedHeroText->setString(HeroNames[player->nHeroIndex]);
+                                                        m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
                                                         
                                                         flatbuffers::FlatBufferBuilder builder;
                                                         
@@ -102,9 +102,8 @@ PreGameScene::init()
                                                      if(player->nHeroIndex != Hero::RANDOM)
                                                      {
                                                          player->nHeroIndex++;
-                                                         m_pUI->m_pHeroPick->m_pSelectedHeroImage->loadTexture(HeroIcons[player->nHeroIndex]);
-                                                         m_pUI->m_pHeroPick->m_pSelectedHeroText->setString(HeroNames[player->nHeroIndex]);
-                                                         
+                                                         m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
+                                                        
                                                          flatbuffers::FlatBufferBuilder builder;
                                                          
                                                          auto heropick = GameEvent::CreateCLHeroPick(builder,
@@ -136,13 +135,14 @@ PreGameScene::update(float delta)
         case CONNECTING_TO_MS:
         {
             auto& socket = NetSystem::Instance().GetChannel(0);
-            auto req_lobby = MSNet::CreateCLFindGame(builder,
+            auto req_lobby = CreateCLFindGame(builder,
                                                      AccountInfo::Instance().GetUID(),
                                                      GAMEVERSION_MAJOR,
                                                      GAMEVERSION_MINOR,
                                                      GAMEVERSION_BUILD);
-            auto ms_event = MSNet::CreateMSEvent(builder,
-                                                 MSNet::MSEvents_CLFindGame,
+            auto ms_event = CreateMessage(builder,
+                                          Messages_CLFindGame
+                                                 ,
                                                  req_lobby.Union());
             builder.Finish(ms_event);
             
@@ -158,12 +158,12 @@ PreGameScene::update(float delta)
                 Director::getInstance()->popScene();
             }
             
-            auto event = MSNet::GetMSEvent(socket.GetBuffer().data());
-            if(event->event_type() == MSNet::MSEvents_SVFindGame)
+            auto msg = GetMessage(socket.GetBuffer().data());
+            if(msg->message_type() == Messages_SVFindGame)
             {
-                auto con_resp = static_cast<const MSNet::SVFindGame*>(event->event());
+                auto con_resp = static_cast<const SVFindGame*>(msg->message());
                 
-                if(con_resp->response() == MSNet::ConnectionResponse_ACCEPTED)
+                if(con_resp->response() == ConnectionResponse_ACCEPTED)
                 {
                     m_eStatus = REQUESTING_LOBBY;
                 }
@@ -180,10 +180,10 @@ PreGameScene::update(float delta)
             
             socket.ReceiveBytes();
             
-            auto lobby_info = MSNet::GetMSEvent(socket.GetBuffer().data());
-            if(lobby_info->event_type() == MSNet::MSEvents_MSGameFound)
+            auto lobby_info = GetMessage(socket.GetBuffer().data());
+            if(lobby_info->message_type() == Messages_SVGameFound)
             {
-                auto gs_info = static_cast<const MSNet::MSGameFound*>(lobby_info->event());
+                auto gs_info = static_cast<const SVGameFound*>(lobby_info->message());
                 
                 m_stGSAddr = Poco::Net::SocketAddress(socket.GetAddress().host(),
                                                       gs_info->gs_port());

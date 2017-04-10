@@ -20,12 +20,12 @@ class Hero : public Unit
 public:
     enum Type : int
     {
-        NO_HERO = 0x00,
-        AIR_ELEMENTALIST = 0x01,
-        WATER_ELEMENTALIST = 0x02,
-        FIRE_ELEMENTALIST = 0x03,
-        EARTH_ELEMENTALIST = 0x04,
-        RANDOM  = 0x05
+        FIRST_HERO = 0x00,
+        AIR_ELEMENTALIST = 0x00,
+        WATER_ELEMENTALIST = 0x01,
+        FIRE_ELEMENTALIST = 0x02,
+        EARTH_ELEMENTALIST = 0x03,
+        RANDOM  = 0x04
     };
 public:
     Hero::Type      GetHero() const;

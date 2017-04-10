@@ -17,7 +17,7 @@ const int PACKET_MAX_SIZE = 128;
 
 const int GAMEVERSION_MAJOR = 0;
 const int GAMEVERSION_MINOR = 5;
-const int GAMEVERSION_BUILD = 0;
+const int GAMEVERSION_BUILD = 1;
 
 enum class InputMove : int
 {
@@ -37,9 +37,8 @@ const std::array<std::string, 4> SpritesPath
     "res/arrow_right.png"
 };
     
-const std::array<std::string, 6> HeroNames
+const std::array<std::string, 5> HeroNames
 {
-    "No hero selected",
     "Air elementalist",
     "Water elementalist",
     "Fire elementalist",
