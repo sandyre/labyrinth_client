@@ -1,10 +1,10 @@
-    //
-    //  mainmenuscene.cpp
-    //  labyrinth
-    //
-    //  Created by Aleksandr Borzikh on 20.01.17.
-    //
-    //
+//
+//  mainmenuscene.cpp
+//  labyrinth
+//
+//  Created by Aleksandr Borzikh on 20.01.17.
+//
+//
 
 #include "mainmenuscene.hpp"
 
@@ -68,6 +68,8 @@ MainMenuScene::init()
                                                                });
     
         // listener which validates email and password on change
+    m_pUI->m_pLoginPage->m_pLogInButton->setEnabled(false);
+    m_pUI->m_pLoginPage->m_pRegButton->setEnabled(false);
     auto input_validation_callback = [this](Ref * pSender, ui::TextField::EventType type)
     {
         if(type == ui::TextField::EventType::INSERT_TEXT ||

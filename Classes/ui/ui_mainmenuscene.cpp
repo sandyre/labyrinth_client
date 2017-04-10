@@ -8,6 +8,8 @@
 
 #include "ui_mainmenuscene.hpp"
 
+#include "resources.hpp"
+
 USING_NS_CC;
 
 UIMainMenuScene::UIMainMenuScene()
@@ -59,7 +61,7 @@ UIStartPage::UIStartPage()
                                         "res/button_pressed.png");
     m_pStartButton->setLayoutParameter(start_button_pos);
     m_pStartButton->setTitleText("Offline");
-    m_pStartButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pStartButton->setTitleFontName(TitleFont);
     m_pStartButton->setTitleFontSize(24);
     m_pStartButton->setEnabled(false);
     this->addChild(m_pStartButton);
@@ -80,8 +82,8 @@ UILoginPage::UILoginPage()
     page_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
     
     m_pLoginPageLabel = ui::Text::create("Authorization",
-                                         "fonts/jigsaw trouserdrop.ttf",
-                                         40);
+                                         TitleFont,
+                                         50);
     m_pLoginPageLabel->setLayoutParameter(page_label_pos);
     this->addChild(m_pLoginPageLabel);
     
@@ -99,8 +101,8 @@ UILoginPage::UILoginPage()
     mail_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
     m_pMailLabel = ui::Text::create("Enter mail",
-                                    "fonts/kenvector_future.ttf",
-                                    24);
+                                    TitleFont,
+                                    30);
     m_pMailLabel->setLayoutParameter(mail_label_pos);
     m_pFormLayout->addChild(m_pMailLabel);
     
@@ -109,8 +111,8 @@ UILoginPage::UILoginPage()
     mail_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
     m_pMailField = ui::TextField::create("mail",
-                                         "fonts/kenvector_future.ttf",
-                                         24);
+                                         TitleFont,
+                                         30);
     m_pMailField->setMaxLengthEnabled(true);
     m_pMailField->setMaxLength(30);
     m_pMailField->setCursorChar('_');
@@ -123,8 +125,8 @@ UILoginPage::UILoginPage()
     password_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
     m_pPasswordLabel = ui::Text::create("Enter password",
-                                        "fonts/kenvector_future.ttf",
-                                        24);
+                                        TitleFont,
+                                        30);
     m_pPasswordLabel->setLayoutParameter(password_label_pos);
     m_pFormLayout->addChild(m_pPasswordLabel);
     
@@ -133,8 +135,8 @@ UILoginPage::UILoginPage()
     password_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
     m_pPasswordField = ui::TextField::create("password",
-                                             "fonts/kenvector_future.ttf",
-                                             24);
+                                             TitleFont,
+                                             30);
     m_pPasswordField->setMaxLengthEnabled(true);
     m_pPasswordField->setMaxLength(12);
     m_pPasswordField->setCursorChar('_');
@@ -152,9 +154,8 @@ UILoginPage::UILoginPage()
                                         "res/button_pressed.png");
     m_pLogInButton->setLayoutParameter(login_button_pos);
     m_pLogInButton->setTitleText("Log me in");
-    m_pLogInButton->setTitleFontName("fonts/kenvector_future.ttf");
-    m_pLogInButton->setTitleFontSize(24);
-    m_pLogInButton->setEnabled(false);
+    m_pLogInButton->setTitleFontName(TitleFont);
+    m_pLogInButton->setTitleFontSize(32);
     this->addChild(m_pLogInButton);
     
         // init 'reg me' button
@@ -165,9 +166,8 @@ UILoginPage::UILoginPage()
                                       "res/button_pressed.png");
     m_pRegButton->setLayoutParameter(reg_button_pos);
     m_pRegButton->setTitleText("Register");
-    m_pRegButton->setTitleFontName("fonts/kenvector_future.ttf");
-    m_pRegButton->setTitleFontSize(24);
-    m_pRegButton->setEnabled(false);
+    m_pRegButton->setTitleFontName(TitleFont);
+    m_pRegButton->setTitleFontSize(32);
     this->addChild(m_pRegButton);
 }
 
@@ -224,7 +224,7 @@ UIMainMenuPage::UIMainMenuPage()
     m_pPlayButton = ui::Button::create("res/button_normal.png",
                                        "res/button_pressed.png");
     m_pPlayButton->setTitleText("Play");
-    m_pPlayButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pPlayButton->setTitleFontName(TitleFont);
     m_pPlayButton->setTitleFontSize(16);
     m_pPlayButton->setLayoutParameter(play_but_pos);
     m_pButtonsLayout->addChild(m_pPlayButton);
@@ -236,7 +236,7 @@ UIMainMenuPage::UIMainMenuPage()
     m_pCollectionButton = ui::Button::create("res/button_normal.png",
                                              "res/button_pressed.png");
     m_pCollectionButton->setTitleText("Collection");
-    m_pCollectionButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pCollectionButton->setTitleFontName(TitleFont);
     m_pCollectionButton->setTitleFontSize(16);
     m_pCollectionButton->setLayoutParameter(collection_but_pos);
     m_pButtonsLayout->addChild(m_pCollectionButton);
@@ -247,7 +247,7 @@ UIMainMenuPage::UIMainMenuPage()
     
     m_pSettingsButton = ui::Button::create("res/settings.png");
     m_pSettingsButton->setTitleText("Settings");
-    m_pSettingsButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pSettingsButton->setTitleFontName(TitleFont);
     m_pSettingsButton->setTitleFontSize(16);
     m_pSettingsButton->setLayoutParameter(sett_but_pos);
     this->addChild(m_pSettingsButton);
@@ -258,7 +258,7 @@ UIMainMenuPage::UIMainMenuPage()
     
     m_pShopButton = ui::Button::create("res/donate.png");
     m_pShopButton->setTitleText("Donate");
-    m_pShopButton->setTitleFontName("fonts/kenvector_future.ttf");
+    m_pShopButton->setTitleFontName(TitleFont);
     m_pShopButton->setTitleFontSize(16);
     m_pShopButton->setLayoutParameter(shop_but_pos);
     this->addChild(m_pShopButton);
@@ -285,8 +285,8 @@ UINewsLayout::UINewsLayout()
                                                         GAMEVERSION_MAJOR,
                                                         GAMEVERSION_MINOR,
                                                         GAMEVERSION_BUILD),
-                                    "fonts/kenvector_future.ttf",
-                                    16);
+                                    TitleFont,
+                                    20);
     m_pNewsLabel->setLayoutParameter(news_label_pos);
     this->addChild(m_pNewsLabel);
     
@@ -320,7 +320,7 @@ UINewsLayout::UINewsLayout()
         auto sample_text = ui::Text::create(StringUtils::format("Sample text #%d\n"
                                                                 "A lot of news over here, with some dates, etc\n"
                                                                 "Sometimes maybe pictures?", i),
-                                            "fonts/kenvector_future.ttf",
+                                            TitleFont,
                                             16);
         m_pNewsListView->pushBackCustomItem(sample_text);
         m_pNewsArray.push_back(sample_text);

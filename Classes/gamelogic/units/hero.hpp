@@ -25,7 +25,7 @@ public:
         WATER_ELEMENTALIST = 0x01,
         FIRE_ELEMENTALIST = 0x02,
         EARTH_ELEMENTALIST = 0x03,
-        RANDOM  = 0x04
+        LAST_HERO = 0x03
     };
 public:
     Hero::Type      GetHero() const;

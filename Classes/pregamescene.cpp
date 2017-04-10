@@ -58,67 +58,70 @@ PreGameScene::init()
     
         // add listeners to hero pick platform
     auto& left_hero_button = m_pUI->m_pHeroPick->m_pLeftChange;
-    left_hero_button->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
-                                            {
-                                                if(type == ui::Widget::TouchEventType::ENDED)
-                                                {
-                                                    auto player = std::find_if(m_aLobbyPlayers.begin(),
-                                                                               m_aLobbyPlayers.end(),
-                                                                               [this](PlayerInfo player)
-                                                                               {
-                                                                                   return player.nUID == AccountInfo::Instance().GetUID();
-                                                                               });
-                                                    if(player->nHeroIndex != Hero::AIR_ELEMENTALIST)
-                                                    {
-                                                        player->nHeroIndex--;
-                                                        m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
-                                                        
-                                                        flatbuffers::FlatBufferBuilder builder;
-                                                        
-                                                        auto heropick = GameEvent::CreateCLHeroPick(builder,
-                                                                                                    player->nUID,
-                                                                                                    (GameEvent::HeroType)player->nHeroIndex);
-                                                        auto msg = GameEvent::CreateMessage(builder,
-                                                                                            GameEvent::Events_CLHeroPick,
-                                                                                            heropick.Union());
-                                                        builder.Finish(msg);
-                                                        
-                                                        NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                                                                      builder.GetSize());
-                                                    }
-                                                }
-                                            });
+    auto left_button_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
+    {
+        if(type == ui::Widget::TouchEventType::ENDED)
+        {
+            auto player = std::find_if(m_aLobbyPlayers.begin(),
+                                       m_aLobbyPlayers.end(),
+                                       [this](PlayerInfo player)
+                                       {
+                                           return player.nUID == AccountInfo::Instance().GetUID();
+                                       });
+            if(player->nHeroIndex != Hero::FIRST_HERO)
+            {
+                player->nHeroIndex--;
+                m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
+                
+                flatbuffers::FlatBufferBuilder builder;
+                
+                auto heropick = GameEvent::CreateCLHeroPick(builder,
+                                                            player->nUID,
+                                                            (GameEvent::HeroType)player->nHeroIndex);
+                auto msg = GameEvent::CreateMessage(builder,
+                                                    GameEvent::Events_CLHeroPick,
+                                                    heropick.Union());
+                builder.Finish(msg);
+                
+                NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                              builder.GetSize());
+            }
+        }
+    };
+    left_hero_button->addTouchEventListener(left_button_callback);
+    
     auto& right_hero_button = m_pUI->m_pHeroPick->m_pRightChange;
-    right_hero_button->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
-                                             {
-                                                 if(type == ui::Widget::TouchEventType::ENDED)
-                                                 {
-                                                     auto player = std::find_if(m_aLobbyPlayers.begin(),
-                                                                                m_aLobbyPlayers.end(),
-                                                                                [this](PlayerInfo player)
-                                                                                {
-                                                                                    return player.nUID == AccountInfo::Instance().GetUID();
-                                                                                });
-                                                     if(player->nHeroIndex != Hero::RANDOM)
-                                                     {
-                                                         player->nHeroIndex++;
-                                                         m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
-                                                        
-                                                         flatbuffers::FlatBufferBuilder builder;
-                                                         
-                                                         auto heropick = GameEvent::CreateCLHeroPick(builder,
-                                                                                                     player->nUID,
-                                                                                                     (GameEvent::HeroType)player->nHeroIndex);
-                                                         auto msg = GameEvent::CreateMessage(builder,
-                                                                                             GameEvent::Events_CLHeroPick,
-                                                                                             heropick.Union());
-                                                         builder.Finish(msg);
-                                                         
-                                                         NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
-                                                                                                       builder.GetSize());
-                                                     }
-                                                 }
-                                             });
+    auto right_button_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
+    {
+        if(type == ui::Widget::TouchEventType::ENDED)
+        {
+            auto player = std::find_if(m_aLobbyPlayers.begin(),
+                                       m_aLobbyPlayers.end(),
+                                       [this](PlayerInfo player)
+                                       {
+                                           return player.nUID == AccountInfo::Instance().GetUID();
+                                       });
+            if(player->nHeroIndex != Hero::LAST_HERO)
+            {
+                player->nHeroIndex++;
+                m_pUI->m_pHeroPick->m_pHeroPageView->scrollToPage(player->nHeroIndex);
+                
+                flatbuffers::FlatBufferBuilder builder;
+                
+                auto heropick = GameEvent::CreateCLHeroPick(builder,
+                                                            player->nUID,
+                                                            (GameEvent::HeroType)player->nHeroIndex);
+                auto msg = GameEvent::CreateMessage(builder,
+                                                    GameEvent::Events_CLHeroPick,
+                                                    heropick.Union());
+                builder.Finish(msg);
+                
+                NetSystem::Instance().GetChannel(1).SendBytes(builder.GetBufferPointer(),
+                                                              builder.GetSize());
+            }
+        }
+    };
+    right_hero_button->addTouchEventListener(right_button_callback);
     
     
     this->scheduleUpdate();

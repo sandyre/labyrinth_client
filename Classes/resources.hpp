@@ -11,6 +11,9 @@
 
 #include <array>
 
+static const std::string TitleFont = "fonts/alagard.ttf";
+static const std::string TextFont = "fonts/pw_extended.ttf";
+
 static const std::array<std::string, 5> HeroIcons
 {
     "res/air_elem.png",

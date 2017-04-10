@@ -25,8 +25,8 @@ UIPregameScene::UIPregameScene()
     status_position->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
     
     m_pStatusText = ui::Text::create("Default status",
-                                     "fonts/kenvector_future.ttf",
-                                     24);
+                                     TitleFont,
+                                     32);
     m_pStatusText->setLayoutParameter(status_position);
     this->addChild(m_pStatusText);
     
@@ -72,7 +72,7 @@ UIHeroPick::UIHeroPick()
     
         // init heros
     {
-        for(int i = Hero::FIRST_HERO; i <= Hero::RANDOM; ++i)
+        for(int i = Hero::FIRST_HERO; i <= Hero::LAST_HERO; ++i)
         {
             auto hero_layout = ui::Layout::create();
             hero_layout->setLayoutType(ui::Layout::Type::RELATIVE);
@@ -85,7 +85,7 @@ UIHeroPick::UIHeroPick()
             hero_layout->addChild(hero_img);
             
             auto hero_name_pos = ui::RelativeLayoutParameter::create();
-            hero_name_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+            hero_name_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
             
             auto hero_name = ui::Text::create(HeroNames[i],
                                               "fonts/jigsaw trouserdrop.ttf",
@@ -137,8 +137,8 @@ UIPlayerInfo::UIPlayerInfo()
     text_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
     m_pPlayerName = ui::Text::create("unknown",
-                                     "fonts/kenvector_future.ttf",
-                                     22);
+                                     TitleFont,
+                                     30);
     m_pPlayerName->setLayoutParameter(text_param);
     this->addChild(m_pPlayerName);
     
@@ -169,8 +169,8 @@ UIPlayersList::UIPlayersList()
     players_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
     
     m_pPlayersLabel = ui::Text::create("Players list",
-                                       "fonts/kenvector_future.ttf",
-                                       26);
+                                       TitleFont,
+                                       30);
     m_pPlayersLabel->setLayoutParameter(players_label_pos);
     this->addChild(m_pPlayersLabel);
     
