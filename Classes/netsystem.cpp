@@ -9,8 +9,10 @@
 #include "netsystem.hpp"
 
 #include <fstream>
+#include "gameconfig.hpp"
 
-NetSystem::NetChannel::NetChannel()
+NetSystem::NetChannel::NetChannel() :
+m_eCState(ChannelState::DR_DONE)
 {
     m_oDSocket.setReceiveTimeout(Poco::Timespan(1, 0));
 }
@@ -72,12 +74,7 @@ NetSystem::NetSystem()
     m_aChannels.push_back(NetChannel());
     
         // read MS addr and setup channel
-    std::string ms_addr_t;
-    std::ifstream net_file("res/net_info.txt");
-    std::getline(net_file,ms_addr_t);
-    net_file.close();
-    
-    Poco::Net::SocketAddress ms_addr(ms_addr_t);
+    Poco::Net::SocketAddress ms_addr(GameConfiguraton::Instance().GetServerAddress());
     m_aChannels.front().SetAddress(ms_addr);
     
     m_aChannels.push_back(NetChannel());

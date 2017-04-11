@@ -88,8 +88,8 @@ UIHeroPick::UIHeroPick()
             hero_name_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
             
             auto hero_name = ui::Text::create(HeroNames[i],
-                                              "fonts/jigsaw trouserdrop.ttf",
-                                              24);
+                                              TitleFont,
+                                              30);
             hero_name->setLayoutParameter(hero_name_pos);
             
             hero_layout->addChild(hero_name);

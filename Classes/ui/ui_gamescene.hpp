@@ -22,11 +22,12 @@ public:
     cocos2d::ui::Text * m_pHP;
     cocos2d::ui::Text * m_pDamage;
     
-        // right bottom
-    cocos2d::ui::ImageView * m_pTakeItem;
-    cocos2d::ui::Text * m_pStats;
+        // left bottom (selected item)
+    cocos2d::ui::ImageView * m_pItemFrame;
+    cocos2d::ui::ImageView * m_pSelectedItem;
     
-        // bottom
+        // right bottom (take item, active button)
+    cocos2d::ui::Button * m_pTakeItemButton;
 };
 
 #endif /* ui_gamescene_hpp */

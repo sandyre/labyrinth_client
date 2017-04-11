@@ -88,17 +88,27 @@ UILoginPage::UILoginPage()
     this->addChild(m_pLoginPageLabel);
     
         // init form
+    auto form_size = visibleSize;
+    form_size.height *= 0.3;
+    form_size.width *= 0.5;
+    
+    auto field_size = form_size;
+    field_size.height *= 0.2;
+    
     auto form_pos = ui::RelativeLayoutParameter::create();
     form_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
     m_pFormLayout = ui::Layout::create();
     m_pFormLayout->setLayoutType(ui::Layout::Type::VERTICAL);
     m_pFormLayout->setLayoutParameter(form_pos);
+    m_pFormLayout->setContentSize(form_size);
+    m_pFormLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+    m_pFormLayout->setBackGroundColor(Color3B(50, 50, 50));
     this->addChild(m_pFormLayout);
     
         // init 'mail' label
     auto mail_label_pos = ui::LinearLayoutParameter::create();
-    mail_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    mail_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
     
     m_pMailLabel = ui::Text::create("Enter mail",
                                     TitleFont,
@@ -108,9 +118,9 @@ UILoginPage::UILoginPage()
     
         // init 'mail' field
     auto mail_field_pos = ui::LinearLayoutParameter::create();
-    mail_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    mail_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
     
-    m_pMailField = ui::TextField::create("mail",
+    m_pMailField = ui::TextField::create(" ",
                                          TitleFont,
                                          30);
     m_pMailField->setMaxLengthEnabled(true);
@@ -118,11 +128,13 @@ UILoginPage::UILoginPage()
     m_pMailField->setCursorChar('_');
     m_pMailField->setCursorEnabled(true);
     m_pMailField->setLayoutParameter(mail_field_pos);
+    m_pMailField->setAnchorPoint(Vec2::ZERO);
+    m_pMailField->setTextAreaSize(field_size);
     m_pFormLayout->addChild(m_pMailField);
     
         // init 'password' label
     auto password_label_pos = ui::LinearLayoutParameter::create();
-    password_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    password_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
     
     m_pPasswordLabel = ui::Text::create("Enter password",
                                         TitleFont,
@@ -132,9 +144,9 @@ UILoginPage::UILoginPage()
     
         // init 'password' field
     auto password_field_pos = ui::LinearLayoutParameter::create();
-    password_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    password_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
     
-    m_pPasswordField = ui::TextField::create("password",
+    m_pPasswordField = ui::TextField::create(" ",
                                              TitleFont,
                                              30);
     m_pPasswordField->setMaxLengthEnabled(true);
@@ -143,6 +155,8 @@ UILoginPage::UILoginPage()
     m_pPasswordField->setCursorEnabled(true);
     m_pPasswordField->setPasswordEnabled(true);
     m_pPasswordField->setPasswordStyleText("*");
+    m_pPasswordField->setAnchorPoint(Vec2::ZERO);
+    m_pPasswordField->setTextAreaSize(field_size);
     m_pPasswordField->setLayoutParameter(mail_field_pos);
     m_pFormLayout->addChild(m_pPasswordField);
     

@@ -1,15 +1,15 @@
-    //
-    //  gamescene.cpp
-    //  labyrinth
-    //
-    //  Created by Aleksandr Borzikh on 12.01.17.
-    //
-    //
+//
+//  gamescene.cpp
+//  labyrinth
+//
+//  Created by Aleksandr Borzikh on 12.01.17.
+//
+//
 
 #include "gamescene.hpp"
 
 #include "globals.h"
-#include "accountinfo.hpp"
+#include "gameconfig.hpp"
 
 #include <memory>
 #include <SimpleAudioEngine.h>
@@ -22,7 +22,6 @@
 USING_NS_CC;
 
 GameScene::GameScene() :
-m_pGameHUD(new GameHUD()),
 m_pPlayersLayer(new Layer()),
 m_pItemsLayer(new Layer()),
 m_pSwampCombo(new SwampCombo()),
@@ -68,7 +67,7 @@ GameScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
         // set local player
-    m_pLocalPlayer = GetPlayerByUID(AccountInfo::Instance().GetUID());
+    m_pLocalPlayer = GetPlayerByUID(GameConfiguraton::Instance().GetUID());
     
         // order matters!
     m_oGameMap.GetFloorLayer()->setPosition(Vec2::ZERO);
@@ -82,25 +81,14 @@ GameScene::init()
     m_pPlayersLayer->setPosition(Vec2::ZERO);
     this->addChild(m_pPlayersLayer);
     
-    m_pGameHUD->setCameraMask((unsigned short)CameraFlag::USER1);
-    m_pGameHUD->setPosition(Vec2::ZERO);
-    this->addChild(m_pGameHUD);
+        // init UI (aka HUD)
+    m_pUI = new UIGameScene();
+    m_pUI->setCameraMask((unsigned short)CameraFlag::USER1);
+    this->addChild(m_pUI);
     
     auto hud_camera = Camera::create();
     hud_camera->setCameraFlag(CameraFlag::USER1);
     this->addChild(hud_camera);
-    
-        // prepare SwampCombo action
-    m_pSwampCombo->setCameraMask((unsigned short)CameraFlag::USER1);
-    m_pSwampCombo->setPosition(Vec2::ZERO);
-    m_pSwampCombo->Show(false);
-    m_pGameHUD->addChild(m_pSwampCombo);
-    
-        // prepare duelmode action
-    m_pDuelMode->setCameraMask((unsigned short)CameraFlag::USER1);
-    m_pDuelMode->setPosition(Vec2::ZERO);
-    m_pDuelMode->Show(false);
-    m_pGameHUD->addChild(m_pDuelMode);
     
     auto eventListener = EventListenerKeyboard::create();
     eventListener->onKeyPressed = [this](EventKeyboard::KeyCode keyCode, Event * event)
@@ -231,32 +219,23 @@ GameScene::init()
     };
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListener, this);
     
-    auto eventListenerTouch = EventListenerTouchOneByOne::create();
-    eventListenerTouch->onTouchBegan = [this](Touch * touch, Event * event)
+    auto take_button_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
     {
-        if(m_pGameHUD->m_pTakeItem->getBoundingBox().containsPoint(touch->getLocation()))
+        if(type == ui::Widget::TouchEventType::ENDED)
         {
-            if(!m_pGameHUD->m_pTakeItem->isVisible())
-            {
-                return false;
-            }
-            
             auto item = std::find_if(m_aItems.begin(),
                                      m_aItems.end(),
                                      [this](Item * item)
                                      {
                                          return item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition() &&
-                                         item->GetCarrierID() == 0;
+                                                item->GetCarrierID() == 0;
                                      });
+            
             auto event = m_pLocalPlayer->EventItemTake((*item)->GetUID());
             m_aOutEvents.push(event);
-            
-            return true;
         }
-        
-        return false;
     };
-    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListenerTouch, this);
+    m_pUI->m_pTakeItemButton->addTouchEventListener(take_button_callback);
     
     this->scheduleUpdate();
     return true;
@@ -338,10 +317,10 @@ GameScene::UpdateView(float delta)
             if(item->GetCarrierID() == 0 &&
                item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition())
             {
-                m_pGameHUD->m_pTakeItem->setVisible(true);
+                m_pUI->m_pTakeItemButton->setEnabled(true);
                 break;
             }
-            m_pGameHUD->m_pTakeItem->setVisible(false);
+            m_pUI->m_pTakeItemButton->setEnabled(false);
         }
         
         auto pCam = Camera::getDefaultCamera();
@@ -395,18 +374,12 @@ void
 GameScene::UpdateHUD(float delta)
 {
         // update hud
-    m_pGameHUD->m_pHP->setString(StringUtils::format("Health: %d/%d",
-                                                     m_pLocalPlayer->GetHealth(),
-                                                     m_pLocalPlayer->GetMaxHealth()));
-    m_pGameHUD->m_pDMG->setString(StringUtils::format("DMG: %d",
-                                                      m_pLocalPlayer->GetDamage()));
-    
-    m_pGameHUD->m_pSpell1CD->setString(StringUtils::format("Spell 1 CD: %.2f",
-                                                           m_pLocalPlayer->GetSpell1ACD()));
-    
-//    m_pGameHUD->m_pNetStatus->setString(StringUtils::format("Ping: %lldms",
-//                                                            NetSystem::Instance().GetTimeSinceLastReceive().count()));
-    
+    m_pUI->m_pHP->setString(StringUtils::format("Health: %d / %d",
+                                                m_pLocalPlayer->GetHealth(),
+                                                m_pLocalPlayer->GetMaxHealth()));
+    m_pUI->m_pDamage->setString(StringUtils::format("Damage: %d",
+                                                    m_pLocalPlayer->GetDamage()));
+
     std::string inventory = "Inventory:\n";
     for(auto item : m_pLocalPlayer->GetInventory())
     {
@@ -415,7 +388,7 @@ GameScene::UpdateHUD(float delta)
         else if(item->GetType() == Item::Type::SWORD)
             inventory += "Sword\n";
     }
-    m_pGameHUD->m_pInventory->setString(inventory);
+//    m_pGameHUD->m_pInventory->setString(inventory);
 }
 
 void
@@ -924,7 +897,7 @@ GameScene::ApplyInputEvents()
             {
                 auto gs_go = static_cast<const GameEvent::SVGameEnd*>(gs_event->event());
                 this->release();
-                Director::getInstance()->replaceScene(MainMenuScene::createScene());
+                Director::getInstance()->popScene();
                 
                 break;
             }

@@ -15,6 +15,7 @@
 #include "gamelogic/item.hpp"
 #include "gamelogic/construction.hpp"
 #include "gamehud.hpp"
+#include "ui/ui_gamescene.hpp"
 #include "swamp_combo.hpp"
 #include "duel_mode.hpp"
 
@@ -45,7 +46,7 @@ protected:
     void    UpdateHUD(float);
 private:
     GameMap                     m_oGameMap;
-    GameHUD *                   m_pGameHUD;
+    UIGameScene *               m_pUI;
     cocos2d::Layer *            m_pPlayersLayer;
     cocos2d::Layer *            m_pItemsLayer;
     

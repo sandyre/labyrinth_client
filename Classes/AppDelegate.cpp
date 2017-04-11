@@ -2,6 +2,7 @@
 #include "gamescene.hpp"
 #include "mainmenuscene.hpp"
 
+#include "gameconfig.hpp"
 
 USING_NS_CC;
 
@@ -75,6 +76,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 //    }
 
     register_all_packages();
+    
+    GameConfiguraton::Instance().Load();
+    GameConfiguraton::Instance().Save();
     
     // create a scene. it's an autorelease object
     auto scene = MainMenuScene::createScene();

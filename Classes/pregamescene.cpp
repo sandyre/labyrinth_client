@@ -9,7 +9,7 @@
 #include "pregamescene.hpp"
 
 #include <sstream>
-#include "accountinfo.hpp"
+#include "gameconfig.hpp"
 #include "gamescene.hpp"
 #include <netsystem.hpp>
 #include "msnet_generated.h"
@@ -66,7 +66,7 @@ PreGameScene::init()
                                        m_aLobbyPlayers.end(),
                                        [this](PlayerInfo player)
                                        {
-                                           return player.nUID == AccountInfo::Instance().GetUID();
+                                           return player.nUID == GameConfiguraton::Instance().GetUID();
                                        });
             if(player->nHeroIndex != Hero::FIRST_HERO)
             {
@@ -99,7 +99,7 @@ PreGameScene::init()
                                        m_aLobbyPlayers.end(),
                                        [this](PlayerInfo player)
                                        {
-                                           return player.nUID == AccountInfo::Instance().GetUID();
+                                           return player.nUID == GameConfiguraton::Instance().GetUID();
                                        });
             if(player->nHeroIndex != Hero::LAST_HERO)
             {
@@ -123,7 +123,6 @@ PreGameScene::init()
     };
     right_hero_button->addTouchEventListener(right_button_callback);
     
-    
     this->scheduleUpdate();
     return true;
 }
@@ -139,7 +138,7 @@ PreGameScene::update(float delta)
         {
             auto& socket = NetSystem::Instance().GetChannel(0);
             auto req_lobby = CreateCLFindGame(builder,
-                                                     AccountInfo::Instance().GetUID(),
+                                                     GameConfiguraton::Instance().GetUID(),
                                                      GAMEVERSION_MAJOR,
                                                      GAMEVERSION_MINOR,
                                                      GAMEVERSION_BUILD);
@@ -200,9 +199,9 @@ PreGameScene::update(float delta)
         case CONNECTING_TO_GS:
         {
             auto& socket = NetSystem::Instance().GetChannel(1);
-            auto nickname = builder.CreateString(AccountInfo::Instance().GetNickname());
+            auto nickname = builder.CreateString(GameConfiguraton::Instance().GetPlayerName());
             auto con_info = GameEvent::CreateCLConnection(builder,
-                                                          AccountInfo::Instance().GetUID(),
+                                                          GameConfiguraton::Instance().GetUID(),
                                                           nickname);
             auto gs_event = GameEvent::CreateMessage(builder,
                                                      GameEvent::Events_CLConnection,
@@ -265,7 +264,7 @@ PreGameScene::update(float delta)
                             // make checkbox selectable
                         for(auto& player_inf : m_pUI->m_pPlayersList->m_aPlayers)
                         {
-                            if(player_inf->m_stPlayerInfo.nUID == AccountInfo::Instance().GetUID())
+                            if(player_inf->m_stPlayerInfo.nUID == GameConfiguraton::Instance().GetUID())
                             {
                                     // TODO: i dont know why, but it works that way
                                     // that 2 event listeners are triggered
@@ -405,7 +404,7 @@ PreGameScene::update(float delta)
             
                 // notify server that generating is done
             auto gen_ok = GameEvent::CreateCLMapGenerated(builder,
-                                                          AccountInfo::Instance().GetUID());
+                                                          GameConfiguraton::Instance().GetUID());
             auto cl_event = GameEvent::CreateMessage(builder,
                                                      GameEvent::Events_CLMapGenerated,
                                                      gen_ok.Union());

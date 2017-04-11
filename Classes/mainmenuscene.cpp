@@ -9,8 +9,9 @@
 #include "mainmenuscene.hpp"
 
 #include "pregamescene.hpp"
+#include "settingsscene.hpp"
 
-#include "accountinfo.hpp"
+#include "gameconfig.hpp"
 #include "netsystem.hpp"
 #include "msnet_generated.h"
 #include <regex>
@@ -39,30 +40,18 @@ MainMenuScene::init()
         return false;
     }
     
+    m_fTimer = 5.0f;
+    m_eSceneState = SceneState::START_PAGE;
+    
     m_pUI = new UIMainMenuScene();
     this->addChild(m_pUI);
-    
-        // ping MS to ensure that server is online
-    flatbuffers::FlatBufferBuilder builder;
-    auto ping = CreateCLPing(builder);
-    auto msg = CreateMessage(builder,
-                                    Messages_CLPing,
-                                    ping.Union());
-    builder.Finish(msg);
-    NetSystem::Instance().GetChannel(0).SendBytes(builder.GetBufferPointer(),
-                                                  builder.GetSize());
-    NetSystem::Instance().GetChannel(0).ReceiveBytes();
-    if(NetSystem::Instance().GetChannel(0).GetState() == NetSystem::ChannelState::DR_DONE)
-    {
-        m_pUI->m_pStartPage->m_pStartButton->setEnabled(true);
-        m_pUI->m_pStartPage->m_pStartButton->setTitleText("Begin");
-    }
     
         // listener to get into login page
     m_pUI->m_pStartPage->m_pStartButton->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
                                                                {
                                                                    if(type == ui::Widget::TouchEventType::ENDED)
                                                                    {
+                                                                       m_eSceneState = SceneState::LOGIN_PAGE;
                                                                        m_pUI->m_pPageView->scrollToPage(1);
                                                                    }
                                                                });
@@ -122,6 +111,7 @@ MainMenuScene::init()
                 
                 if(response->response() == LoginStatus_SUCCESS)
                 {
+                    m_eSceneState = SceneState::MAIN_PAGE;
                     m_pUI->m_pPageView->scrollToPage(2);
                 }
                 else
@@ -183,5 +173,54 @@ MainMenuScene::init()
     };
     m_pUI->m_pLoginPage->m_pRegButton->addTouchEventListener(reg_button_callback);
     
+        // if autologin is set, fill login page with data from config file
+    auto& config = GameConfiguraton::Instance();
+    if(config.GetPlayerAutologin())
+    {
+        m_pUI->m_pLoginPage->m_pMailField->setString(config.GetPlayerEmail());
+        m_pUI->m_pLoginPage->m_pPasswordField->setString(config.GetPlayerPassword());
+        m_pUI->m_pLoginPage->m_pLogInButton->setEnabled(true);
+    }
+    
+    auto settings_button_callback = [this](Ref * pSender, ui::Button::TouchEventType type)
+    {
+        if(type == ui::Button::TouchEventType::ENDED)
+        {
+            Director::getInstance()->pushScene(SettingsScene::createScene());
+        }
+    };
+    m_pUI->m_pMainPage->m_pSettingsButton->addTouchEventListener(settings_button_callback);
+    
+    this->scheduleUpdate();
+    
     return true;
+}
+
+void
+MainMenuScene::update(float delta)
+{
+    if(m_eSceneState == SceneState::START_PAGE)
+    {
+        m_fTimer += delta;
+        
+        if(m_fTimer >= 5.0f)
+        {
+            m_fTimer = 0.0f;
+            
+            flatbuffers::FlatBufferBuilder builder;
+            auto ping = CreateCLPing(builder);
+            auto msg = CreateMessage(builder,
+                                     Messages_CLPing,
+                                     ping.Union());
+            builder.Finish(msg);
+            NetSystem::Instance().GetChannel(0).SendBytes(builder.GetBufferPointer(),
+                                                          builder.GetSize());
+            NetSystem::Instance().GetChannel(0).ReceiveBytes();
+            if(NetSystem::Instance().GetChannel(0).GetState() == NetSystem::ChannelState::DR_DONE)
+            {
+                m_pUI->m_pStartPage->m_pStartButton->setEnabled(true);
+                m_pUI->m_pStartPage->m_pStartButton->setTitleText("Begin");
+            }
+        }
+    }
 }

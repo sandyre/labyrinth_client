@@ -8,6 +8,7 @@
 
 #include "gameconfig.hpp"
 
+#include <cocos2d.h>
 #include <fstream>
 #include <iostream>
 #include <Poco/XML/XMLWriter.h>
@@ -20,6 +21,7 @@
 #include <Poco/DOM/NamedNodeMap.h>
 #include <Poco/DOM/NodeFilter.h>
 #include <Poco/DOM/AutoPtr.h>
+#include <Poco/DOM/DOMWriter.h>
 #include <Poco/SAX/InputSource.h>
 
 GameConfiguraton&
@@ -46,24 +48,106 @@ GameConfiguraton::Load()
     InputSource source(conf_file);
     
     DOMParser parser;
-    AutoPtr<Document> pDoc = parser.parse(&source);
+    m_pConfDoc = parser.parse(&source);
     
-    NodeIterator it(pDoc, NodeFilter::SHOW_ELEMENT);
-    Node * pNode = it.nextNode();
+    NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
+    Node * pRootNode = it.nextNode();
     
-    while(pNode)
+        // network parsing
     {
-        if(pNode->nodeName() == "masterserver")
-        {
-            auto attrs = pNode->attributes();
-            
-            auto s = attrs->getNamedItem("host");
-            int a = 0;
-        }
-        std::cout<<pNode->nodeName()<<":"<< pNode->getNodeValue()<<std::endl;
-        auto kik = pNode->attributes();
-        pNode = it.nextNode();
+        auto network_node = pRootNode->getNodeByPath("network");
+        auto masterserver_node = network_node->getNodeByPath("masterserver");
+        
+        auto masterserver_elem = static_cast<Element*>(masterserver_node);
+        m_sServerAddress += masterserver_elem->getAttribute("host");
+        m_sServerAddress += ":";
+        m_sServerAddress += masterserver_elem->getAttribute("port");
     }
+    
+        // player profile parsing
+    {
+        auto player_node = pRootNode->getNodeByPath("player");
+        auto player_elem = static_cast<Element*>(player_node);
+        
+        m_sPlayerName = player_elem->getAttribute("nickname");
+        m_sPlayerPassword = player_elem->getAttribute("password");
+        m_sPlayerEmail = player_elem->getAttribute("email");
+        m_bPlayerAutologin = player_elem->getAttribute("autologin") == "yes" ? true : false;
+        
+        m_nUID = cocos2d::RandomHelper::random_int(0, 666666);
+    }
+}
+
+void
+GameConfiguraton::SetPlayerAutologin(bool value)
+{
+    using namespace Poco::XML;
+    
+    NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
+    Node * pRootNode = it.nextNode();
+    
+    auto player_node = pRootNode->getNodeByPath("player");
+    auto player_elem = static_cast<Element*>(player_node);
+    
+    player_elem->setAttribute("autologin",
+                              value ? "yes" : "no");
+}
+
+void
+GameConfiguraton::SetPlayerEmail(const std::string& email)
+{
+    using namespace Poco::XML;
+    
+        // save to internal data
+    m_sPlayerEmail = email;
+    
+        // save to DOM
+    NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
+    Node * pRootNode = it.nextNode();
+    
+    auto player_node = pRootNode->getNodeByPath("player");
+    auto player_elem = static_cast<Element*>(player_node);
+    
+    player_elem->setAttribute("email",
+                              email);
+}
+
+void
+GameConfiguraton::SetPlayerPassword(const std::string& password)
+{
+    using namespace Poco::XML;
+    
+        // save to internal data
+    m_sPlayerPassword = password;
+    
+        // save to DOM
+    NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
+    Node * pRootNode = it.nextNode();
+    
+    auto player_node = pRootNode->getNodeByPath("player");
+    auto player_elem = static_cast<Element*>(player_node);
+    
+    player_elem->setAttribute("password",
+                              password);
+}
+
+void
+GameConfiguraton::SetPlayerName(const std::string& nickname)
+{
+    using namespace Poco::XML;
+    
+        // save to internal data
+    m_sPlayerName = nickname;
+    
+        // save to DOM
+    NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
+    Node * pRootNode = it.nextNode();
+    
+    auto player_node = pRootNode->getNodeByPath("player");
+    auto player_elem = static_cast<Element*>(player_node);
+    
+    player_elem->setAttribute("nickname",
+                              nickname);
 }
 
 void
@@ -72,44 +156,8 @@ GameConfiguraton::Save()
     using namespace Poco::XML;
     
     std::ofstream conf_file(m_sConfigFilepath);
-    XMLWriter conf_file_writer(conf_file,
-                               XMLWriter::WRITE_XML_DECLARATION |
-                               XMLWriter::PRETTY_PRINT);
-    
-    conf_file_writer.setNewLine("\n");
-    conf_file_writer.startDocument();
-    
-        // start root
-    conf_file_writer.startElement("", "settings", "");
-    
-        // start network
-    conf_file_writer.startElement("", "network", "");
-    
-        // start masterserver addr
-    AttributesImpl ms_attr;
-    ms_attr.addAttribute("", "", "host", "", m_sServerAddress);
-    ms_attr.addAttribute("", "", "port", "", "1930");
-    conf_file_writer.startElement("", "masterserver", "", ms_attr);
-    
-        // end masterserver addr
-    conf_file_writer.endElement("", "masterserver", "");
-    
-        // end network
-    conf_file_writer.endElement("", "network", "");
-    
-        // start player info
-    AttributesImpl player_attr;
-    player_attr.addAttribute("", "", "email", "", m_sPlayerEmail);
-    player_attr.addAttribute("", "", "password", "", m_sPlayerPassword);
-    player_attr.addAttribute("", "", "autologin", "", m_bPlayerAutologin ? "yes" : "no");
-    player_attr.addAttribute("", "", "nickname", "", m_sPlayerName);
-    conf_file_writer.startElement("", "player", "", player_attr);
-    
-        // end player info
-    conf_file_writer.endElement("", "player", "");
-    
-        // end root
-    conf_file_writer.endElement("", "settings", "");
-    
-    conf_file_writer.endDocument();
+    Poco::XML::DOMWriter writer;
+    writer.setNewLine("\n");
+    writer.setOptions(XMLWriter::PRETTY_PRINT);
+    writer.writeNode(conf_file, m_pConfDoc);
 }
