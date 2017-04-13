@@ -32,7 +32,7 @@ GameConfiguraton::Instance()
 }
 
 GameConfiguraton::GameConfiguraton() :
-m_sConfigFilepath("gameconfig.xml"),
+m_sConfigFilepath("res/gameconfig.xml"),
 m_bPlayerAutologin(false)
 {
     

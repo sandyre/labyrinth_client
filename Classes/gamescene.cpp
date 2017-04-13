@@ -317,10 +317,11 @@ GameScene::UpdateView(float delta)
             if(item->GetCarrierID() == 0 &&
                item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition())
             {
-                m_pUI->m_pTakeItemButton->setEnabled(true);
+//                m_pUI->m_pTakeItemButton->setEnabled(true);
+                m_pUI->m_pTakeItemButton->setVisible(true);
                 break;
             }
-            m_pUI->m_pTakeItemButton->setEnabled(false);
+            m_pUI->m_pTakeItemButton->setVisible(false);
         }
         
         auto pCam = Camera::getDefaultCamera();
@@ -629,6 +630,11 @@ GameScene::ApplyInputEvents()
                         item->SetCarrierID(gs_item->player_uid());
                         player->TakeItem(item);
                         player->UpdateStats();
+                        
+                        if(player == m_pLocalPlayer)
+                        {
+                            m_pUI->m_pSelectedItem->loadTexture("res/sword.png");
+                        }
                         break;
                     }
                         

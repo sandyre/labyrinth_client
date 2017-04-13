@@ -64,6 +64,10 @@ UIGameScene::UIGameScene()
     m_pItemFrame->setLayoutParameter(frame_pos);
     this->addChild(m_pItemFrame);
     
+    m_pSelectedItem = ui::ImageView::create();
+    m_pSelectedItem->setLayoutParameter(frame_pos);
+    this->addChild(m_pSelectedItem);
+    
         // init take item button
     auto take_item_pos = ui::RelativeLayoutParameter::create();
     take_item_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
