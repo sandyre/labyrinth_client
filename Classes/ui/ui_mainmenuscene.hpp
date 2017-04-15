@@ -62,6 +62,7 @@ public:
     UIMainMenuPage();
     
     cocos2d::ui::Text * m_pGameInfo;
+    cocos2d::ui::ImageView * m_pBackgroundImg;
     
     UINewsLayout * m_pNewsLayout;
     

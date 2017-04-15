@@ -192,12 +192,20 @@ UIMainMenuPage::UIMainMenuPage()
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);
-    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B(37, 68, 53));
+//    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+//    this->setBackGroundColor(Color3B(37, 68, 53));
+    
+        // init 'background' image
+    auto backgrnd_pos = ui::RelativeLayoutParameter::create();
+    backgrnd_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    
+    m_pBackgroundImg = ui::ImageView::create("res/background.png");
+    m_pBackgroundImg->setLayoutParameter(backgrnd_pos);
+    this->addChild(m_pBackgroundImg);
     
         // init gameinfo label
     auto gameinfo_pos = ui::RelativeLayoutParameter::create();
-    gameinfo_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_RIGHT);
+    gameinfo_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
     
     m_pGameInfo = ui::Text::create(StringUtils::format("%d.%d.%d\n",
                                                        GAMEVERSION_MAJOR,
@@ -227,8 +235,8 @@ UIMainMenuPage::UIMainMenuPage()
     m_pButtonsLayout->setLayoutType(ui::Layout::Type::VERTICAL);
     m_pButtonsLayout->setContentSize(centr_layout_size);
     m_pButtonsLayout->setLayoutParameter(centr_layout_pos);
-    m_pButtonsLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    m_pButtonsLayout->setBackGroundColor(Color3B(100, 100, 150));
+//    m_pButtonsLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+//    m_pButtonsLayout->setBackGroundColor(Color3B(100, 100, 150));
     this->addChild(m_pButtonsLayout);
     
         // init 'play' button
@@ -288,19 +296,16 @@ UINewsLayout::UINewsLayout()
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(layout_size);
     this->setPosition(Vec2::ZERO);
-    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B(125, 40, 50));
+//    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+//    this->setBackGroundColor(Color3B(125, 40, 50));
     
         // init News label
     auto news_label_pos = ui::RelativeLayoutParameter::create();
     news_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
     
-    m_pNewsLabel = ui::Text::create(StringUtils::format("News feed (gamever. %d.%d.%d)",
-                                                        GAMEVERSION_MAJOR,
-                                                        GAMEVERSION_MINOR,
-                                                        GAMEVERSION_BUILD),
+    m_pNewsLabel = ui::Text::create("News",
                                     TitleFont,
-                                    20);
+                                    24);
     m_pNewsLabel->setLayoutParameter(news_label_pos);
     this->addChild(m_pNewsLabel);
     
@@ -324,8 +329,8 @@ UINewsLayout::UINewsLayout()
     m_pNewsListView->setPosition(Vec2::ZERO);
     m_pNewsListView->setContentSize(listview_size);
     m_pNewsListView->setLayoutParameter(news_list_pos);
-    m_pNewsListView->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    m_pNewsListView->setBackGroundColor(Color3B(170, 100, 50));
+//    m_pNewsListView->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+//    m_pNewsListView->setBackGroundColor(Color3B(170, 100, 50));
     this->addChild(m_pNewsListView);
     
         // init sample news

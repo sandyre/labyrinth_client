@@ -24,7 +24,6 @@ USING_NS_CC;
 GameScene::GameScene() :
 m_pPlayersLayer(new Layer()),
 m_pItemsLayer(new Layer()),
-m_pSwampCombo(new SwampCombo()),
 m_pDuelMode(new DuelMode())
 {
     this->autorelease();
@@ -83,6 +82,7 @@ GameScene::init()
     
         // init UI (aka HUD)
     m_pUI = new UIGameScene();
+    m_pUI->m_poBattleView->setActive(false);
     m_pUI->setCameraMask((unsigned short)CameraFlag::USER1);
     this->addChild(m_pUI);
     
@@ -180,24 +180,6 @@ GameScene::init()
                 m_aOutEvents.push(event);
             }
         }
-        else if(m_pLocalPlayer->GetState() == Unit::State::SWAMP)
-        {
-            switch(keyCode)
-            {
-                case EventKeyboard::KeyCode::KEY_UP_ARROW:
-                    m_pSwampCombo->TakeInput(InputMove::UP);
-                    break;
-                case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
-                    m_pSwampCombo->TakeInput(InputMove::DOWN);
-                    break;
-                case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
-                    m_pSwampCombo->TakeInput(InputMove::LEFT);
-                    break;
-                case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
-                    m_pSwampCombo->TakeInput(InputMove::RIGHT);
-                    break;
-            }
-        }
         else if(m_pLocalPlayer->GetState() == Unit::State::DUEL)
         {
             switch(keyCode)
@@ -237,6 +219,19 @@ GameScene::init()
     };
     m_pUI->m_pTakeItemButton->addTouchEventListener(take_button_callback);
     
+        // FIXME: would be nicer in a loop
+    auto skill_1_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
+    {
+        if(type == ui::Widget::TouchEventType::ENDED)
+        {
+            if(m_pLocalPlayer->isSpellCast1Ready())
+            {
+                m_aOutEvents.push(m_pLocalPlayer->EventSpellCast1());
+            }
+        }
+    };
+    m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->addTouchEventListener(skill_1_callback);
+    
     this->scheduleUpdate();
     return true;
 }
@@ -246,21 +241,8 @@ GameScene::update(float delta)
 {
     SendOutputEvents();
     ApplyInputEvents();
+    UpdateWorld(delta);
     UpdateView(delta);
-    
-        // check that player can enter duel
-    for(auto player : m_aPlayers)
-    {
-        auto pos1 = player->GetLogicalPosition();
-        auto pos2 = m_pLocalPlayer->GetLogicalPosition();
-        if((m_pLocalPlayer->GetStatus() & Hero::Status::DUELABLE) &&
-           (player->GetStatus() & Hero::Status::DUELABLE) &&
-           ((std::abs(pos1.x - pos2.x) + std::abs(pos1.y - pos2.y)) == 1))
-        {
-            auto event = m_pLocalPlayer->EventDuelStart(player->GetUID());
-            m_aOutEvents.push(event);
-        }
-    }
 }
 
 Item *
@@ -306,6 +288,24 @@ GameScene::GetMonsterByUID(uint16_t uid)
 }
 
 void
+GameScene::UpdateWorld(float delta)
+{
+        // check that player can enter duel
+    for(auto player : m_aPlayers)
+    {
+        auto pos1 = player->GetLogicalPosition();
+        auto pos2 = m_pLocalPlayer->GetLogicalPosition();
+        if((m_pLocalPlayer->GetStatus() & Hero::Status::DUELABLE) &&
+           (player->GetStatus() & Hero::Status::DUELABLE) &&
+           ((std::abs(pos1.x - pos2.x) + std::abs(pos1.y - pos2.y)) == 1))
+        {
+            auto event = m_pLocalPlayer->EventDuelStart(player->GetUID());
+            m_aOutEvents.push(event);
+        }
+    }
+}
+
+void
 GameScene::UpdateView(float delta)
 {
         // representation is based on state
@@ -317,7 +317,7 @@ GameScene::UpdateView(float delta)
             if(item->GetCarrierID() == 0 &&
                item->GetLogicalPosition() == m_pLocalPlayer->GetLogicalPosition())
             {
-//                m_pUI->m_pTakeItemButton->setEnabled(true);
+                m_pUI->m_pTakeItemButton->setEnabled(true);
                 m_pUI->m_pTakeItemButton->setVisible(true);
                 break;
             }
@@ -333,35 +333,9 @@ GameScene::UpdateView(float delta)
                                  cur_pos.y,
                                  800));
     }
-    else if(m_pLocalPlayer->GetState() == Hero::State::SWAMP)
-    {
-        if(m_pSwampCombo->ComboDone())
-        {
-            m_pSwampCombo->Reset();
-            
-            auto cl_escape = GameEvent::CreateCLActionSwamp(builder,
-                                                            m_pLocalPlayer->GetUID(),
-                                                            GameEvent::ActionSwampStatus_ESCAPED);
-            auto gs_event = GameEvent::CreateMessage(builder,
-                                                   GameEvent::Events_CLActionSwamp,
-                                                   cl_escape.Union());
-            builder.Finish(gs_event);
-            m_aOutEvents.push(std::vector<char>(builder.GetBufferPointer(),
-                                                builder.GetBufferPointer() + builder.GetSize()));
-        }
-    }
     else if(m_pLocalPlayer->GetState() == Unit::State::DUEL)
     {
-        if(m_pDuelMode->ComboDone())
-        {
-            m_pDuelMode->Reset();
-            auto event = m_pLocalPlayer->EventDuelAttack();
-            m_aOutEvents.push(event);
-        }
         
-        auto enemy = m_pLocalPlayer->GetDuelTarget();
-        m_pDuelMode->SetEnemyInfo(enemy->GetName(),
-                                  enemy->GetHealth());
     }
     else if(m_pLocalPlayer->GetState() == Hero::State::DEAD)
     {
@@ -380,16 +354,12 @@ GameScene::UpdateHUD(float delta)
                                                 m_pLocalPlayer->GetMaxHealth()));
     m_pUI->m_pDamage->setString(StringUtils::format("Damage: %d",
                                                     m_pLocalPlayer->GetDamage()));
-
-    std::string inventory = "Inventory:\n";
-    for(auto item : m_pLocalPlayer->GetInventory())
-    {
-        if(item->GetType() == Item::Type::KEY)
-            inventory += "Key\n";
-        else if(item->GetType() == Item::Type::SWORD)
-            inventory += "Sword\n";
-    }
-//    m_pGameHUD->m_pInventory->setString(inventory);
+    
+        // update CDS
+    if(m_pLocalPlayer->isSpellCast1Ready())
+        m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);
+    else
+        m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(false);
 }
 
 void
@@ -671,81 +641,6 @@ GameScene::ApplyInputEvents()
                 break;
             }
                 
-            case GameEvent::Events_SVActionSwamp:
-            {
-//                auto gs_swamp = static_cast<const GameEvent::SVActionSwamp*>(gs_event->event());
-//                
-//                switch(gs_swamp->status())
-//                {
-//                    case GameEvent::ActionSwampStatus_STARTED:
-//                    {
-//                        for(auto player : m_aPlayers)
-//                        {
-//                            if(player->GetUID() == gs_swamp->player_uid())
-//                            {
-//                                player->SetState(Hero::State::SWAMP);
-//                                
-//                                if(player->GetUID() == m_pLocalPlayer->GetUID())
-//                                {
-//                                    m_pSwampCombo->Show(true);
-//                                }
-//                                break;
-//                            }
-//                        }
-//                        
-//                        break;
-//                    }
-//                        
-//                    case GameEvent::ActionSwampStatus_DIED:
-//                    {
-//                        for(auto player : m_aPlayers)
-//                        {
-//                            if(player->GetUID() == gs_swamp->player_uid())
-//                            {
-//                                player->SetState(Hero::State::DEAD);
-//                                player->AnimationDeath();
-//                                
-//                                if(player->GetUID() == gs_swamp->player_uid())
-//                                {
-//                                    m_pSwampCombo->Show(false);
-//                                    m_pSwampCombo->Reset();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                        
-//                        break;
-//                    }
-//                        
-//                    case GameEvent::ActionSwampStatus_ESCAPED:
-//                    {
-//                        for(auto player : m_aPlayers)
-//                        {
-//                            if(player->GetUID() == gs_swamp->player_uid())
-//                            {
-//                                player->SetState(Hero::State::WALKING);
-//                                
-//                                if(player->GetUID() == m_pLocalPlayer->GetUID())
-//                                {
-//                                    m_pSwampCombo->Show(false);
-//                                    m_pSwampCombo->Reset();
-//                                }
-//                                
-//                                break;
-//                            }
-//                        }
-//                        
-//                        break;
-//                    }
-//                        
-//                    default:
-//                        assert(false);
-//                        break;
-//                }
-//                
-//                break;
-            }
-                
             case GameEvent::Events_SVActionDuel:
             {
                 auto sv_duel = static_cast<const GameEvent::SVActionDuel*>(gs_event->event());
@@ -765,12 +660,12 @@ GameScene::ApplyInputEvents()
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                m_pDuelMode->Show(true);
+                                m_pUI->m_poBattleView->setActive(true);
                             }
                             
                             if(m_pLocalPlayer->GetUID() == player2->GetUID())
                             {
-                                m_pDuelMode->Show(true);
+                                m_pUI->m_poBattleView->setActive(true);
                             }
                         }
                             // p v m
@@ -784,7 +679,7 @@ GameScene::ApplyInputEvents()
                             
                             if(m_pLocalPlayer->GetUID() == player1->GetUID())
                             {
-                                m_pDuelMode->Show(true);
+                                m_pUI->m_poBattleView->setActive(true);
                             }
                         }
                         
@@ -823,8 +718,7 @@ GameScene::ApplyInputEvents()
                                 
                                 if(m_pLocalPlayer->GetUID() == player1->GetUID())
                                 {
-                                    m_pDuelMode->Show(false);
-                                    m_pDuelMode->Reset();
+                                    m_pUI->m_poBattleView->setActive(false);
                                 }
                                 
                                 player2->EndDuel();
@@ -832,8 +726,7 @@ GameScene::ApplyInputEvents()
                                 
                                 if(m_pLocalPlayer->GetUID() == player2->GetUID())
                                 {
-                                    m_pDuelMode->Show(false);
-                                    m_pDuelMode->Reset();
+                                    m_pUI->m_poBattleView->setActive(false);
                                 }
                             }
                             else if(sv_duel->target2_type() == GameEvent::ActionDuelTarget_MONSTER)
@@ -844,8 +737,7 @@ GameScene::ApplyInputEvents()
                                 player->EndDuel();
                                 if(m_pLocalPlayer->GetUID() == player->GetUID())
                                 {
-                                    m_pDuelMode->Show(false);
-                                    m_pDuelMode->Reset();
+                                    m_pUI->m_poBattleView->setActive(false);
                                 }
                                 
                                 monster->EndDuel();
@@ -865,8 +757,7 @@ GameScene::ApplyInputEvents()
                             
                             if(m_pLocalPlayer->GetUID() == player->GetUID())
                             {
-                                m_pDuelMode->Show(false);
-                                m_pDuelMode->Reset();
+                                m_pUI->m_poBattleView->setActive(false);
                             }
                         }
                         

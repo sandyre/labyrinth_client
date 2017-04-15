@@ -12,6 +12,9 @@
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
 
+class UIBattleView;
+class UISkillsPanel;
+
 class UIGameScene : public cocos2d::ui::Layout
 {
 public:
@@ -28,6 +31,54 @@ public:
     
         // right bottom (take item, active button)
     cocos2d::ui::Button * m_pTakeItemButton;
+    
+        // right center - skills panel
+    UISkillsPanel * m_poSkillsPanel;
+    
+        // right top - battle logs
+    cocos2d::ui::Text * m_pBattleLogs;
+    
+        // Battle view
+    UIBattleView * m_poBattleView;
+};
+
+class UISkillsPanel : public cocos2d::ui::Layout
+{
+public:
+    UISkillsPanel();
+    
+    std::vector<cocos2d::ui::Button*> m_aSkillsButtons;
+};
+
+class UIActionsView;
+
+class UIBattleView : public cocos2d::ui::Layout
+{
+public:
+    UIBattleView();
+    
+    void    setActive(bool);
+    
+    UIActionsView * m_poActionsView;
+};
+
+class UIAction;
+
+class UIActionsView : public cocos2d::ui::Layout
+{
+public:
+    UIActionsView();
+    
+    std::vector<UIAction*>   m_apActions;
+};
+
+class UIAction : public cocos2d::ui::Layout
+{
+public:
+    UIAction();
+    
+        // action icon
+    cocos2d::ui::ImageView *    m_pIcon;
 };
 
 #endif /* ui_gamescene_hpp */
