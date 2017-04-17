@@ -19,7 +19,8 @@ class FireElementalist : public Hero
 public:
     static FireElementalist* create(const std::string&);
     
-    virtual std::vector<char>   EventSpellCast1() override;
+    virtual void                RequestSpellCast1() override {}
+    virtual void                SpellCast1() override {}
 protected:
     FireElementalist();
 };

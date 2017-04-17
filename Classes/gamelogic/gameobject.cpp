@@ -32,6 +32,18 @@ GameObject::GetObjType() const
 }
 
 uint32_t
+GameObject::GetAttributes() const
+{
+    return m_nAttributes;
+}
+
+void
+GameObject::SetGameWorld(GameWorld * _gameworld)
+{
+    m_poGameWorld = _gameworld;
+}
+
+uint32_t
 GameObject::GetUID() const
 {
     return m_nUID;

@@ -19,10 +19,9 @@ class AirElementalist : public Hero
 public:
     static AirElementalist* create(const std::string&);
     
-    virtual std::vector<char>   EventSpellCast1() override;
-    virtual void                SpellCast1();
-    bool                        isInvisible() const;
-    
+    virtual void                RequestSpellCast1() override;
+    virtual void                SpellCast1() override;
+
     virtual void                TakeItem(Item*) override;
 protected:
     AirElementalist();

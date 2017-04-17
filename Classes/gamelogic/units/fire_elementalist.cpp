@@ -35,23 +35,3 @@ FireElementalist::create(const std::string& filename)
     CC_SAFE_DELETE(pAir);
     return nullptr;
 }
-
-std::vector<char>
-FireElementalist::EventSpellCast1()
-{
-    m_nSpell1ACD = m_nSpell1CD;
-    
-    flatbuffers::FlatBufferBuilder builder;
-    auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                 this->GetUID(),
-                                                 1,
-                                                 GameEvent::ActionSpellTarget_TARGET_PLAYER,
-                                                 this->GetUID());
-    auto event = GameEvent::CreateMessage(builder,
-                                          GameEvent::Events_CLActionSpell,
-                                          spell1.Union());
-    builder.Finish(event);
-    
-    return std::vector<char>(builder.GetBufferPointer(),
-                             builder.GetBufferPointer() + builder.GetSize());
-}

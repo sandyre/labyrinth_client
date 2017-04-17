@@ -10,6 +10,7 @@
 #define unit_hpp
 
 #include "../gameobject.hpp"
+#include "../item.hpp"
 
 #include <string>
 
@@ -56,24 +57,36 @@ public:
     int16_t             GetHealth() const;
     int16_t             GetMaxHealth() const;
     
+    std::vector<Item*>& GetInventory();
     Unit * const        GetDuelTarget() const;
     
+        // Only server actions
     virtual void    Spawn(cocos2d::Vec2);
     virtual void    Respawn(cocos2d::Vec2);
+    virtual void    EndDuel();
+    virtual void    Die();
+    
+        // Able to do
+    virtual void    RequestMove(cocos2d::Vec2);
     virtual void    Move(cocos2d::Vec2);
     
+    virtual void    RequestTakeItem(Item*) {}
+    virtual void    TakeItem(Item*);
+    
+    virtual void    RequestStartDuel(cocos2d::Vec2) {}
     virtual void    StartDuel(Unit*);
+    
+    virtual void    RequestAttack() {}
     virtual void    Attack();
     virtual void    TakeDamage(int16_t);
-    virtual void    EndDuel();
     
-    virtual void    Die();
-    virtual void    Turn(Unit::Orientation) = 0;
-    
+        // Received from scenes event listeners
+    virtual void    AddInputEvent(InputEvent);
 protected:
     Unit();
     
     virtual void        update(float) = 0;
+    virtual void        process_input_events() = 0;
 protected:
     Unit::Type          m_eUnitType;
     Unit::State         m_eState;
@@ -88,6 +101,9 @@ protected:
     
     float   m_nMoveSpeed;
     
+    std::vector<Item*>  m_aInventory;
+    
+    std::queue<InputEvent>  m_aInputEvents;
         // Duel-data
     Unit *              m_pDuelTarget;
 };

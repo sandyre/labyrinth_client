@@ -19,8 +19,8 @@ class EarthElementalist : public Hero
 public:
     static EarthElementalist*   create(const std::string&);
     
-    virtual std::vector<char>   EventSpellCast1() override;
-    virtual void                SpellCast1();
+    virtual void                RequestSpellCast1() override {}
+    virtual void                SpellCast1() override;
 protected:
     EarthElementalist();
     

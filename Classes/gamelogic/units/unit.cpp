@@ -8,6 +8,9 @@
 
 #include "unit.hpp"
 
+#include "../gameworld.hpp"
+#include "../../gsnet_generated.h"
+
 Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),
 m_eState(Unit::State::UNDEFINED),
@@ -22,7 +25,8 @@ m_nMoveSpeed(0.5),
 m_pDuelTarget(nullptr)
 {
     m_eObjType = GameObject::Type::UNIT;
-    this->scheduleUpdate();
+    m_nAttributes |= GameObject::Attributes::MOVABLE;
+    m_nAttributes |= GameObject::Attributes::DUELABLE;
 }
 
 Unit::Type
@@ -85,6 +89,51 @@ Unit::GetDuelTarget() const
     return m_pDuelTarget;
 }
 
+std::vector<Item*>&
+Unit::GetInventory()
+{
+    return m_aInventory;
+}
+
+void
+Unit::AddInputEvent(InputEvent event)
+{
+    m_aInputEvents.push(event);
+}
+
+/*
+ *
+ * Actions request
+ *
+ */
+void
+Unit::RequestMove(cocos2d::Vec2 pos)
+{
+        // check that path is clear
+    for(auto object : m_poGameWorld->m_apoObjects)
+    {
+        if(object->GetLogicalPosition() == pos &&
+           !(object->GetAttributes() & GameObject::Attributes::PASSABLE))
+        {
+                // unpassable object
+            return;
+        }
+    }
+    
+    flatbuffers::FlatBufferBuilder builder;
+    auto move = GameEvent::CreateCLActionMove(builder,
+                                              this->GetUID(),
+                                              pos.x,
+                                              pos.y);
+    auto event = GameEvent::CreateMessage(builder,
+                                          GameEvent::Events_CLActionMove,
+                                          move.Union());
+    builder.Finish(event);
+    
+    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                        builder.GetBufferPointer() + builder.GetSize());
+}
+
 /*
  *
  * Animations
@@ -134,6 +183,12 @@ Unit::Move(cocos2d::Vec2 log_pos)
     auto moveTo = cocos2d::MoveTo::create(m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(log_pos, this->getContentSize()));
     this->runAction(moveTo);
+}
+
+void
+Unit::TakeItem(Item * item)
+{
+    m_aInventory.push_back(item);
 }
 
 void

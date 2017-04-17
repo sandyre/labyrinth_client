@@ -8,6 +8,7 @@
 
 #include "air_elementalist.hpp"
 
+#include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
 AirElementalist::AirElementalist()
@@ -40,8 +41,8 @@ AirElementalist::create(const std::string& filename)
     return nullptr;
 }
 
-std::vector<char>
-AirElementalist::EventSpellCast1()
+void
+AirElementalist::RequestSpellCast1()
 {
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
@@ -54,8 +55,8 @@ AirElementalist::EventSpellCast1()
                                           spell1.Union());
     builder.Finish(event);
     
-    return std::vector<char>(builder.GetBufferPointer(),
-                             builder.GetBufferPointer() + builder.GetSize());
+    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                        builder.GetBufferPointer() + builder.GetSize());
 }
 
 void
@@ -86,15 +87,10 @@ AirElementalist::TakeItem(Item * item)
     }
 }
 
-bool
-AirElementalist::isInvisible() const
-{
-    return m_bInvisible;
-}
-
 void
 AirElementalist::update(float delta)
 {
+    Hero::process_input_events();
     Hero::UpdateCDs(delta);
     
     if(m_bInvisible &&

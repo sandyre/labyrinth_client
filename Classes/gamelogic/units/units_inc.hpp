@@ -9,8 +9,6 @@
 #ifndef units_inc_h
 #define units_inc_h
 
-#include "unit.hpp"
-#include "hero.hpp"
 #include "monster.hpp"
 #include "air_elementalist.hpp"
 #include "fire_elementalist.hpp"

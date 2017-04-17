@@ -16,9 +16,9 @@ class Monster : public Unit
 public:
     static Monster* create(const std::string&);
     
-    virtual void    Turn(Unit::Orientation orient) override {}
 protected:
     virtual void    update(float) override {}
+    virtual void    process_input_events() override {}
     
     Monster();
 };

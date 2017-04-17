@@ -19,8 +19,8 @@ class WaterElementalist : public Hero
 public:
     static WaterElementalist* create(const std::string&);
     
-    virtual std::vector<char>   EventSpellCast1() override;
-    virtual void                SpellCast1();
+    virtual void                RequestSpellCast1() override;
+    virtual void                SpellCast1() override;
 protected:
     WaterElementalist();
     

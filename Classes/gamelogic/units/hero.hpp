@@ -30,35 +30,21 @@ public:
 public:
     Hero::Type      GetHero() const;
     
-    virtual void    Turn(Unit::Orientation) override;
-    
-    std::vector<Item*>& GetInventory();
-    
-    virtual void    UpdateStats(); // based on inventory
- 
-    virtual void    TakeItem(Item*);
-    virtual void    AnimationSpell1();
-    
-    std::vector<char>   EventMove(cocos2d::Vec2);
-    std::vector<char>   EventItemTake(uint32_t /*item id*/);
-    std::vector<char>   EventDuelStart(uint32_t /*enemy id*/);
-    std::vector<char>   EventDuelAttack();
-    
+    virtual void                RequestSpellCast1() = 0;
+    virtual void                SpellCast1() = 0;
     float                       GetSpell1ACD() const;
     bool                        isSpellCast1Ready() const;
-    virtual std::vector<char>   EventSpellCast1() = 0;
 protected:
     Hero();
     
     virtual void        UpdateCDs(float);
     virtual void        update(float) override;
+    virtual void        process_input_events() override;
     
     Hero::Type          m_eHero;
     
     float               m_nSpell1CD;
     float               m_nSpell1ACD;
-    
-    std::vector<Item*>  m_aInventory;
 };
 
 #endif /* player_hpp */

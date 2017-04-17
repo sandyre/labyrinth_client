@@ -11,7 +11,6 @@
 
 #include "gameobject.hpp"
 #include "globals.h"
-#include "mapblock.hpp"
 #include <stack>
 #include <vector>
 
@@ -34,27 +33,7 @@ public:
     GameMap();
     ~GameMap();
     
-    void    GenerateMap(const Configuration&);
-    
-    std::vector<std::vector<MapBlock*>>& GetMatrix()
-    {
-        return m_oMap;
-    }
-    
-    std::vector<MapBlock*>& operator[](int i)
-    {
-        return m_oMap[i];
-    }
-    
-    cocos2d::Layer *    GetFloorLayer();
-    cocos2d::Layer *    GetWallsLayer();
-    
-    cocos2d::Vec2       GetRandomPosition() const;
-private:
-    Configuration                       m_stSettings;
-    cocos2d::Layer *                    m_pFloorLayer;
-    cocos2d::Layer *                    m_pWallsLayer;
-    std::vector<std::vector<MapBlock*>> m_oMap;
+    void    GenerateMap(const Configuration&, GameWorld*);
 };
 
 #endif /* gamemap_hpp */

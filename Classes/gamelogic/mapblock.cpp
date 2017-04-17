@@ -22,6 +22,7 @@ MapBlock::GetType() const
 NoBlock::NoBlock()
 {
     m_eType = MapBlock::Type::NOBLOCK;
+    m_nAttributes |= GameObject::Attributes::PASSABLE;
 }
 
 NoBlock *

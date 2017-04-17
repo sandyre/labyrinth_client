@@ -9,52 +9,30 @@
 #include "gamemap.hpp"
 
 #include <random>
+#include "mapblock.hpp"
 #include "globals.h"
+#include "gameworld.hpp"
 #include "cocos2d.h"
 
-GameMap::GameMap() :
-m_pFloorLayer(new cocos2d::Layer()),
-m_pWallsLayer(new cocos2d::Layer())
+GameMap::GameMap()
 {
     
 }
 
 GameMap::~GameMap()
 {
-    for(auto i = 0; i < m_oMap.size(); ++i)
-    {
-        for(auto j = 0; j < m_oMap[i].size(); ++j)
-        {
-            delete m_oMap[i][j];
-        }
-    }
-}
-
-cocos2d::Layer *
-GameMap::GetFloorLayer()
-{
-    return m_pFloorLayer;
-}
-
-cocos2d::Layer *
-GameMap::GetWallsLayer()
-{
-    return m_pWallsLayer;
+    
 }
 
 void
-GameMap::GenerateMap(const Configuration& settings)
+GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 {
-    m_stSettings = settings;
-    
-    auto m_oRandGen = std::mt19937(m_stSettings.nSeed);
+    auto m_oRandGen = std::mt19937(settings.nSeed);
     auto m_oRandDistr = std::uniform_real_distribution<float>(0, 1000);
     
-    std::vector<std::vector<MapBlockType>> tmp_map(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2,
-                                                   std::vector<MapBlockType>(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2,
+    std::vector<std::vector<MapBlockType>> tmp_map(settings.nMapSize * settings.nRoomSize + 2,
+                                                   std::vector<MapBlockType>(settings.nMapSize * settings.nRoomSize + 2,
                                                                              MapBlockType::NOBLOCK));
-    m_oMap = std::vector<std::vector<MapBlock*>>(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2,
-                                                 std::vector<MapBlock*>(m_stSettings.nMapSize * m_stSettings.nRoomSize + 2, nullptr));
     
     struct Cell {
         Cell(uint16_t _x, uint16_t _y, MapBlockType _type) {
@@ -73,18 +51,18 @@ GameMap::GenerateMap(const Configuration& settings)
         std::vector<std::vector<MapBlockType>> cells;
     };
     
-    std::vector<std::vector<Room>> rooms(m_stSettings.nMapSize, std::vector<Room>(m_stSettings.nMapSize));
+    std::vector<std::vector<Room>> rooms(settings.nMapSize, std::vector<Room>(settings.nMapSize));
     
     bool red = false;
-    int n = m_stSettings.nRoomSize;
+    int n = settings.nRoomSize;
     
-    for (size_t i = 0; i < m_stSettings.nMapSize; i++)
+    for (size_t i = 0; i < settings.nMapSize; i++)
     {
-        if (m_stSettings.nMapSize % 2 != 1) {
+        if (settings.nMapSize % 2 != 1) {
             red = !red;
         }
         
-        for (size_t j = 0; j < m_stSettings.nMapSize; j++)
+        for (size_t j = 0; j < settings.nMapSize; j++)
         {
             rooms[i][j].cells.resize(n, std::vector<MapBlockType>(n, MapBlockType::WALL));
             
@@ -219,7 +197,7 @@ GameMap::GenerateMap(const Configuration& settings)
             }
         }
     }
-    int size = m_stSettings.nMapSize * m_stSettings.nRoomSize + 2;
+    int size = settings.nMapSize * settings.nRoomSize + 2;
     for (size_t i = 0; i < size; i++)
     {
         tmp_map[i][0] = MapBlockType::BORDER;
@@ -228,79 +206,65 @@ GameMap::GenerateMap(const Configuration& settings)
         tmp_map[size - 1][i] = MapBlockType::BORDER;
     }
     
+        // create floor
+    uint32_t current_block_uid = 0;
     for(auto i = size-1; i >= 0; --i)
     {
         for(auto j = size-1; j >= 0; --j)
         {
-            auto& block = m_oMap[i][j];
-            if(tmp_map[i][j] == MapBlockType::NOBLOCK)
+            auto block = NoBlock::create("res/floor.png");
+            
+            cocos2d::Vec2 log_coords(i,j);
+            cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
+                                                        block->getContentSize());
+            
+            block->SetUID(current_block_uid);
+            block->SetLogicalPosition(log_coords);
+            block->setPosition(spritePos);
+            
+            world->m_apoObjects.emplace_back(block);
+            world->addChild(block, 0);
+            
+            ++current_block_uid;
+        }
+    }
+    
+    for(auto i = size-1; i >= 0; --i)
+    {
+        for(auto j = size-1; j >= 0; --j)
+        {
+            if(tmp_map[i][j] == MapBlockType::WALL)
             {
-                block = NoBlock::create("res/floor.png");
+                auto block = WallBlock::create("res/wall_1.png");
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                             block->getContentSize());
                 
+                block->SetUID(current_block_uid);
                 block->SetLogicalPosition(log_coords);
                 block->setPosition(spritePos);
                 
-                m_pFloorLayer->addChild(block);
-            }
-            else if(tmp_map[i][j] == MapBlockType::WALL)
-            {
-                auto rand = cocos2d::RandomHelper::random_int(0, 2);
-                if(rand == 0)
-                {
-                    block = WallBlock::create("res/wall_1.png");
-                }
-                if(rand == 1)
-                {
-                    block = WallBlock::create("res/wall_2.png");
-                }
-                if(rand == 2)
-                {
-                    block = WallBlock::create("res/wall_3.png");
-                }
-                
-                cocos2d::Vec2 log_coords(i,j);
-                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            block->getContentSize());
-                
-                block->SetLogicalPosition(log_coords);
-                block->setPosition(spritePos);
-                
-                m_pWallsLayer->addChild(block);
+                world->m_apoObjects.emplace_back(block);
+                world->addChild(block, 1);
+                ++current_block_uid;
             }
             else if(tmp_map[i][j] == MapBlockType::BORDER)
             {
-                block = BorderBlock::create("res/wall_1.png");
+                auto block = BorderBlock::create("res/wall_1.png");
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                             block->getContentSize());
                 
+                block->SetUID(current_block_uid);
                 block->SetLogicalPosition(log_coords);
                 block->setPosition(spritePos);
                 
-                m_pWallsLayer->addChild(block);
-            }
-            else
-            {
-                assert(0);
+                world->m_apoObjects.emplace_back(block);
+                world->addChild(block, 1);
+                ++current_block_uid;
             }
         }
     }
-}
-
-cocos2d::Vec2
-GameMap::GetRandomPosition() const
-{
-    cocos2d::Vec2 position;
-    do
-    {
-        position.x = cocos2d::RandomHelper::random_int(size_t(0), m_oMap.size()-1);
-        position.y = cocos2d::RandomHelper::random_int(size_t(0), m_oMap[position.x].size()-1);
-    } while(m_oMap[position.x][position.y]->GetType() != MapBlock::Type::NOBLOCK);
-    
-    return position;
 }

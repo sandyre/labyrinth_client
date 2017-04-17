@@ -30,6 +30,16 @@ enum class InputMove : int
     _MAX = 0x03,
 };
     
+enum class InputEvent
+{
+    SWIPE_UP = 0x00,
+    SWIPE_DOWN = 0x01,
+    SWIPE_LEFT = 0x02,
+    SWIPE_RIGHT = 0x03,
+    TAKE_ITEM_BUTTON_CLICK = 0x04,
+    SPELL_CAST_1_CLICK = 0x05
+};
+    
 const std::array<std::string, 4> SpritesPath
 {
     "res/arrow_up.png",

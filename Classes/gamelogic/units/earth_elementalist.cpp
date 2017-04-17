@@ -36,43 +36,6 @@ EarthElementalist::create(const std::string& filename)
     return nullptr;
 }
 
-std::vector<char>
-EarthElementalist::EventSpellCast1()
-{
-    cocos2d::Vec2 demo_block = this->GetLogicalPosition();
-    if(this->GetOrientation() == Orientation::DOWN)
-    {
-        --demo_block.y;
-    }
-    else if(this->GetOrientation() == Orientation::UP)
-    {
-        ++demo_block.y;
-    }
-    else if(this->GetOrientation() == Orientation::LEFT)
-    {
-        --demo_block.x;
-    }
-    else if(this->GetOrientation() == Orientation::RIGHT)
-    {
-        ++demo_block.x;
-    }
-    
-    flatbuffers::FlatBufferBuilder builder;
-    auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                 this->GetUID(),
-                                                 1,
-                                                 GameEvent::ActionSpellTarget_TARGET_POINT,
-                                                 demo_block.x,
-                                                 demo_block.y);
-    auto event = GameEvent::CreateMessage(builder,
-                                          GameEvent::Events_CLActionSpell,
-                                          spell1.Union());
-    builder.Finish(event);
-    
-    return std::vector<char>(builder.GetBufferPointer(),
-                             builder.GetBufferPointer() + builder.GetSize());
-}
-
 void
 EarthElementalist::SpellCast1()
 {

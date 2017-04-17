@@ -8,6 +8,7 @@
 
 #include "water_elementalist.hpp"
 
+#include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
 WaterElementalist::WaterElementalist()
@@ -40,8 +41,8 @@ WaterElementalist::create(const std::string& filename)
     return nullptr;
 }
 
-std::vector<char>
-WaterElementalist::EventSpellCast1()
+void
+WaterElementalist::RequestSpellCast1()
 {
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
@@ -54,8 +55,8 @@ WaterElementalist::EventSpellCast1()
                                           spell1.Union());
     builder.Finish(event);
     
-    return std::vector<char>(builder.GetBufferPointer(),
-                             builder.GetBufferPointer() + builder.GetSize());
+    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                        builder.GetBufferPointer() + builder.GetSize());
 }
 
 void

@@ -364,42 +364,11 @@ PreGameScene::update(float delta)
         case GENERATING_LEVEL:
         {
             auto& socket = NetSystem::Instance().GetChannel(1);
-            m_pGameScene->GenerateMap(m_stMapConfig);
+            m_pGameScene->GetGameWorld()->CreateGameMap(m_stMapConfig);
             
             for(auto& player : m_aLobbyPlayers)
             {
-                if(player.nHeroIndex == Hero::Type::AIR_ELEMENTALIST)
-                {
-                    auto air = AirElementalist::create("res/units/player_down.png");
-                    air->SetUID(player.nUID);
-                    air->SetName(player.sNickname);
-                    air->retain();
-                    m_pGameScene->GetPlayersList().push_back(air);
-                }
-                else if(player.nHeroIndex == Hero::Type::EARTH_ELEMENTALIST)
-                {
-                    auto earth = EarthElementalist::create("res/units/player_down.png");
-                    earth->SetUID(player.nUID);
-                    earth->SetName(player.sNickname);
-                    earth->retain();
-                    m_pGameScene->GetPlayersList().push_back(earth);
-                }
-                else if(player.nHeroIndex == Hero::Type::FIRE_ELEMENTALIST)
-                {
-                    auto fire = FireElementalist::create("res/units/player_down.png");
-                    fire->SetUID(player.nUID);
-                    fire->SetName(player.sNickname);
-                    fire->retain();
-                    m_pGameScene->GetPlayersList().push_back(fire);
-                }
-                else if(player.nHeroIndex == Hero::Type::WATER_ELEMENTALIST)
-                {
-                    auto water = WaterElementalist::create("res/units/player_down.png");
-                    water->SetUID(player.nUID);
-                    water->SetName(player.sNickname);
-                    water->retain();
-                    m_pGameScene->GetPlayersList().push_back(water);
-                }
+                m_pGameScene->GetGameWorld()->AddPlayer(player);
             }
             
                 // notify server that generating is done
