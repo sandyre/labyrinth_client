@@ -70,13 +70,18 @@ public:
     virtual void    RequestMove(cocos2d::Vec2);
     virtual void    Move(cocos2d::Vec2);
     
-    virtual void    RequestTakeItem(Item*) {}
+        // Items manip
+    virtual void    RequestTakeItem(Item*);
     virtual void    TakeItem(Item*);
+    virtual void    RequestDropItem(Item*) {}
+    virtual void    DropItem(int32_t index);
+    virtual void    RequestUseItem(Item*) {}
+    virtual void    UseItem(Item*) {}
     
-    virtual void    RequestStartDuel(cocos2d::Vec2) {}
+    virtual void    RequestStartDuel(Unit*);
     virtual void    StartDuel(Unit*);
     
-    virtual void    RequestAttack() {}
+    virtual void    RequestAttack();
     virtual void    Attack();
     virtual void    TakeDamage(int16_t);
     
@@ -91,7 +96,6 @@ protected:
     Unit::Type          m_eUnitType;
     Unit::State         m_eState;
     Unit::Orientation   m_eOrientation;
-    uint32_t            m_nStatus;
     
     std::string         m_sName;
     

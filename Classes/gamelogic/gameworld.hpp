@@ -30,12 +30,18 @@ public:
     void    AddPlayer(PlayerInfo);
     void    CreateGameMap(const GameMap::Configuration&);
     
+    std::queue<std::string>&    GetBattleLogs() {
+        return m_qBattleLogs;
+    }
+    
     Hero *  GetLocalPlayer();
 protected:
     void    ReceiveInputNetEvents();
     void    SendOutgoingNetEvents();
 protected:
     GameMap::Configuration  m_stMapConf;
+    
+    std::queue<std::string> m_qBattleLogs;
     
         // contains outgoing events
     std::queue<std::vector<char>> m_aOutEvents;

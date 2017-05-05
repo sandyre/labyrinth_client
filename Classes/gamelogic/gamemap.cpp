@@ -207,7 +207,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
     }
     
         // create floor
-    uint32_t current_block_uid = 0;
+    uint32_t current_block_uid = 1;
     for(auto i = size-1; i >= 0; --i)
     {
         for(auto j = size-1; j >= 0; --j)

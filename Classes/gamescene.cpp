@@ -89,6 +89,10 @@ GameScene::init()
         {
             m_pGWorld->GetLocalPlayer()->AddInputEvent(InputEvent::SWIPE_DOWN);
         }
+        else if(keyCode == EventKeyboard::KeyCode::KEY_Q)
+        {
+            m_pGWorld->GetLocalPlayer()->AddInputEvent(InputEvent::SPELL_CAST_1_CLICK);
+        }
     };
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListener, this);
     
@@ -120,8 +124,6 @@ GameScene::update(float delta)
 {
     m_pGWorld->update(delta);
     UpdateView(delta);
-    
-//    m_pGWorld->GetLocalPlayer()->Move(Vec2::ZERO);
 }
 
 void
@@ -137,7 +139,6 @@ GameScene::UpdateView(float delta)
                              cur_pos.x,
                              cur_pos.y,
                              800));
-    
     UpdateHUD(delta);
 }
 
@@ -152,6 +153,19 @@ GameScene::UpdateHUD(float delta)
     m_pUI->m_pDamage->setString(StringUtils::format("Damage: %d",
                                                     player->GetDamage()));
 
+        // update HUD based on state
+    if(player->GetState() == Unit::State::DUEL)
+    {
+        m_pUI->m_poBattleView->setActive(true);
+    }
+    
+        // update battle logs
+    while(!m_pGWorld->GetBattleLogs().empty())
+    {
+        m_pUI->m_pBattleLogs->AddLogMessage(m_pGWorld->GetBattleLogs().front());
+        m_pGWorld->GetBattleLogs().pop();
+    }
+    
         // update CDS
     if(player->isSpellCast1Ready())
         m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);

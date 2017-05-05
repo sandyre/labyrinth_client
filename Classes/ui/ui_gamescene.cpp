@@ -80,9 +80,7 @@ UIGameScene::UIGameScene()
     auto battle_logs_pos = ui::RelativeLayoutParameter::create();
     battle_logs_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_RIGHT);
     
-    m_pBattleLogs = ui::Text::create("battle logs will be here",
-                                     TitleFont,
-                                     20);
+    m_pBattleLogs = new UIBattleLogs();
     m_pBattleLogs->setLayoutParameter(battle_logs_pos);
     this->addChild(m_pBattleLogs);
     
@@ -126,6 +124,38 @@ UISkillsPanel::UISkillsPanel()
         this->addChild(skill_button);
         m_aSkillsButtons.push_back(skill_button);
     }
+}
+
+UIBattleLogs::UIBattleLogs()
+{
+    auto visible_size = Director::getInstance()->getVisibleSize();
+    
+        // layout init
+    auto layout_size = visible_size;
+    layout_size.width *= 0.5;
+    layout_size.height *= 0.4;
+    
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
+    this->setContentSize(layout_size);
+
+        // init textfield
+    auto textf_pos = ui::RelativeLayoutParameter::create();
+    textf_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pListView = ui::ListView::create();
+    m_pListView->setContentSize(layout_size);
+    m_pListView->setLayoutParameter(textf_pos);
+    this->addChild(m_pListView);
+}
+
+    // FIXME: seems legit, but doesnt work.
+void
+UIBattleLogs::AddLogMessage(const std::string& msg)
+{
+    auto dummy_text = ui::Text::create(msg,
+                                       "fonts/pw_extended.ttf",
+                                       24);
+    m_pListView->pushBackCustomItem(dummy_text);
 }
 
 UIBattleView::UIBattleView()

@@ -14,6 +14,7 @@
 
 class UIBattleView;
 class UISkillsPanel;
+class UIBattleLogs;
 
 class UIGameScene : public cocos2d::ui::Layout
 {
@@ -36,10 +37,21 @@ public:
     UISkillsPanel * m_poSkillsPanel;
     
         // right top - battle logs
-    cocos2d::ui::Text * m_pBattleLogs;
+    UIBattleLogs * m_pBattleLogs;
     
         // Battle view
     UIBattleView * m_poBattleView;
+};
+
+class UIBattleLogs : public cocos2d::ui::Layout
+{
+public:
+    UIBattleLogs();
+    
+    void    AddLogMessage(const std::string&);
+
+protected:
+    cocos2d::ui::ListView * m_pListView;
 };
 
 class UISkillsPanel : public cocos2d::ui::Layout

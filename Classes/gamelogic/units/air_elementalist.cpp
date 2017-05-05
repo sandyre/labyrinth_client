@@ -64,7 +64,7 @@ AirElementalist::SpellCast1()
 {
     m_nSpell1ACD = m_nSpell1CD;
     m_bInvisible = true;
-    m_nStatus ^= Hero::Status::DUELABLE;
+    m_nAttributes ^= GameObject::Attributes::DUELABLE;
     
     m_nInvisADuration = m_nInvisDuration;
     
@@ -75,13 +75,13 @@ AirElementalist::SpellCast1()
 void
 AirElementalist::TakeItem(Item * item)
 {
-    m_aInventory.push_back(item);
+    Unit::TakeItem(item);
     
     if(m_bInvisible)
     {
         m_bInvisible = false;
         m_nInvisADuration = 0.0;
-        m_nStatus |= Hero::Status::DUELABLE;
+        m_nAttributes |= GameObject::Attributes::DUELABLE;
         auto fadeIn = cocos2d::FadeIn::create(0.5);
         this->runAction(fadeIn);
     }
@@ -90,8 +90,7 @@ AirElementalist::TakeItem(Item * item)
 void
 AirElementalist::update(float delta)
 {
-    Hero::process_input_events();
-    Hero::UpdateCDs(delta);
+    Hero::update(delta);
     
     if(m_bInvisible &&
        m_nInvisADuration > 0.0)
@@ -104,7 +103,7 @@ AirElementalist::update(float delta)
             // make visible & duelable
         m_nInvisADuration = 0.0;
         m_bInvisible = false;
-        m_nStatus |= Hero::Status::DUELABLE;
+        m_nAttributes |= GameObject::Attributes::DUELABLE;
         
         auto fadeIn = cocos2d::FadeIn::create(0.5);
         this->runAction(fadeIn);

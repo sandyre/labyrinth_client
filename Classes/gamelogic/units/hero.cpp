@@ -30,6 +30,23 @@ Hero::update(float delta)
 {
     process_input_events();
     UpdateCDs(delta);
+    
+        // check that player can enter duel, and there is an opponent ^_-!
+    if(this->GetState() == Unit::State::WALKING &&
+       (this->GetAttributes() & GameObject::Attributes::DUELABLE))
+    {
+        for(auto object : m_poGameWorld->m_apoObjects)
+        {
+            if(object->GetObjType() == GameObject::Type::UNIT &&
+               (this->GetLogicalPosition().distance(object->GetLogicalPosition()) == 1.0) &&
+               (object->GetAttributes() & GameObject::Attributes::DUELABLE) &&
+               object->GetUID() != this->GetUID())
+            {
+                RequestStartDuel(static_cast<Unit*>(object));
+                break;
+            }
+        }
+    }
 }
 
 void
@@ -42,6 +59,31 @@ Hero::process_input_events()
         {
             case Unit::State::WALKING:
             {
+                if(event == InputEvent::TAKE_ITEM_BUTTON_CLICK)
+                {
+                        // find item
+                    for(auto object : m_poGameWorld->m_apoObjects)
+                    {
+                        if(object->GetObjType() == GameObject::Type::ITEM &&
+                           object->GetLogicalPosition() == m_stLogPosition)
+                        {
+                            auto item = static_cast<Item*>(object);
+                            if(item->GetCarrierID() == 0)
+                            {
+                                RequestTakeItem(item);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    break;
+                }
+                else if(event == InputEvent::SPELL_CAST_1_CLICK)
+                {
+                    if(this->isSpellCast1Ready())
+                        this->RequestSpellCast1();
+                    break;
+                }
                 auto next_pos = m_stLogPosition;
                 if(event == InputEvent::SWIPE_DOWN)
                     --next_pos.y;
@@ -53,6 +95,13 @@ Hero::process_input_events()
                     ++next_pos.x;
                 
                 RequestMove(next_pos);
+                break;
+            }
+            case Unit::State::DUEL:
+            {
+                if(event == InputEvent::SWIPE_UP)
+                    this->RequestAttack();
+                
                 break;
             }
         }

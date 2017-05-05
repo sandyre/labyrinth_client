@@ -17,7 +17,7 @@ m_eObjType(GameObject::Type::UNDEFINED),
 m_nUID(0),
 m_stLogPosition(Vec2::ZERO)
 {
-    
+    m_nAttributes |= GameObject::Attributes::VISIBLE;
 }
 
 GameObject::~GameObject()

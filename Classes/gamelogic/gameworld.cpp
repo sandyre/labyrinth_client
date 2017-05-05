@@ -137,6 +137,7 @@ GameWorld::ReceiveInputNetEvents()
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
                 
                 auto monster = Monster::create("res/units/monster.png");
+                monster->SetGameWorld(this);
                 monster->SetUID(gs_spawn->monster_uid());
                 monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
                                              gs_spawn->y()));
@@ -162,6 +163,7 @@ GameWorld::ReceiveInputNetEvents()
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                                     key->getContentSize());
                         
+                        key->SetGameWorld(this);
                         key->SetLogicalPosition(log_coords);
                         key->setPosition(spritePos);
                         m_apoObjects.push_back(key);
@@ -182,6 +184,7 @@ GameWorld::ReceiveInputNetEvents()
                         cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
                                                                     sword->getContentSize());
                         
+                        sword->SetGameWorld(this);
                         sword->SetLogicalPosition(log_coords);
                         sword->setPosition(spritePos);
                         m_apoObjects.push_back(sword);
@@ -305,7 +308,6 @@ GameWorld::ReceiveInputNetEvents()
                     case GameEvent::ActionItemType_TAKE:
                     {
                         item->AnimationTaken();
-                        item->SetCarrierID(gs_item->player_uid());
                         player->TakeItem(item);
                         break;
                     }
@@ -365,8 +367,12 @@ GameWorld::ReceiveInputNetEvents()
                             }
                         }
                         
-                        first->StartDuel(second);
-                        second->StartDuel(first);
+                        if(first->GetDuelTarget() != second &&
+                           second->GetDuelTarget() != first)
+                        {
+                            first->StartDuel(second);
+                            second->StartDuel(first);
+                        }
                         break;
                     }
                         
@@ -407,6 +413,10 @@ GameWorld::ReceiveInputNetEvents()
                         first->EndDuel();
                         second->EndDuel();
                         second->Die();
+                        
+                        m_qBattleLogs.push(cocos2d::StringUtils::format("%s killed %s",
+                                                                        first->GetName().c_str(),
+                                                                        second->GetName().c_str()));
                         break;
                     }
                         
@@ -456,7 +466,14 @@ GameWorld::ReceiveInputNetEvents()
                     if(object->GetUID() == gs_spell->player_uid())
                     {
                         player = static_cast<Hero*>(object);
-//                        player->CastSpell
+                        if(gs_spell->spell_id() == 1)
+                        {
+                            player->SpellCast1();
+                        }
+                        else
+                        {
+                            assert(false);
+                        }
                     }
                 }
                 

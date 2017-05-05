@@ -15,7 +15,6 @@ Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),
 m_eState(Unit::State::UNDEFINED),
 m_eOrientation(Unit::Orientation::DOWN),
-m_nStatus(0),
 m_sName("Unit"),
 m_nBaseDamage(0),
 m_nActualDamage(0),
@@ -25,8 +24,10 @@ m_nMoveSpeed(0.5),
 m_pDuelTarget(nullptr)
 {
     m_eObjType = GameObject::Type::UNIT;
+    m_eState = Unit::State::WALKING;
     m_nAttributes |= GameObject::Attributes::MOVABLE;
     m_nAttributes |= GameObject::Attributes::DUELABLE;
+    m_nAttributes |= GameObject::Attributes::DAMAGABLE;
 }
 
 Unit::Type
@@ -45,12 +46,6 @@ Unit::Orientation
 Unit::GetOrientation() const
 {
     return m_eOrientation;
-}
-
-uint32_t
-Unit::GetStatus() const
-{
-    return m_nStatus;
 }
 
 std::string
@@ -134,6 +129,61 @@ Unit::RequestMove(cocos2d::Vec2 pos)
                                         builder.GetBufferPointer() + builder.GetSize());
 }
 
+void
+Unit::RequestTakeItem(Item * item)
+{
+        // check that item can be taken
+    if(item->GetCarrierID() == 0)
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        auto take = GameEvent::CreateCLActionItem(builder,
+                                                  this->GetUID(),
+                                                  item->GetUID(),
+                                                  GameEvent::ActionItemType_TAKE);
+        auto event = GameEvent::CreateMessage(builder,
+                                              GameEvent::Events_CLActionItem,
+                                              take.Union());
+        builder.Finish(event);
+        
+        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                            builder.GetBufferPointer() + builder.GetSize());
+    }
+}
+
+void
+Unit::RequestStartDuel(Unit * enemy)
+{
+    flatbuffers::FlatBufferBuilder builder;
+    auto take = GameEvent::CreateCLActionDuel(builder,
+                                              this->GetUID(),
+                                              enemy->GetUID(),
+                                              GameEvent::ActionDuelType_STARTED);
+    auto event = GameEvent::CreateMessage(builder,
+                                          GameEvent::Events_CLActionDuel,
+                                          take.Union());
+    builder.Finish(event);
+    
+    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                        builder.GetBufferPointer() + builder.GetSize());
+}
+
+void
+Unit::RequestAttack()
+{
+    flatbuffers::FlatBufferBuilder builder;
+    auto atk = GameEvent::CreateCLActionDuel(builder,
+                                             this->GetUID(),
+                                             m_pDuelTarget->GetUID(),
+                                             GameEvent::ActionDuelType_ATTACK);
+    auto msg = GameEvent::CreateMessage(builder,
+                                        GameEvent::Events_CLActionDuel,
+                                        atk.Union());
+    builder.Finish(msg);
+    
+    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                        builder.GetBufferPointer() + builder.GetSize());
+}
+
 /*
  *
  * Animations
@@ -143,9 +193,12 @@ Unit::RequestMove(cocos2d::Vec2 pos)
 void
 Unit::Spawn(cocos2d::Vec2 log_pos)
 {
+    using Attributes = GameObject::Attributes;
     m_eState = Unit::State::WALKING;
-    m_nStatus = Unit::Status::MOVABLE |
-                Unit::Status::DUELABLE;
+    m_nAttributes = Attributes::DAMAGABLE |
+                    Attributes::DUELABLE |
+                    Attributes::VISIBLE |
+                    Attributes::MOVABLE;
     m_nHealth = m_nMHealth;
     
     m_stLogPosition = log_pos;
@@ -163,12 +216,35 @@ Unit::Respawn(cocos2d::Vec2 log_pos)
     this->Spawn(log_pos);
 }
 
+    // TODO: seems like it doesn't work
+void
+Unit::DropItem(int32_t index)
+{
+    auto item_iter = m_aInventory.begin() + index;
+
+        // make item visible and set its coords
+    (*item_iter)->SetCarrierID(0);
+    (*item_iter)->SetLogicalPosition(this->GetLogicalPosition());
+    (*item_iter)->setPosition(LOG_TO_PHYS_COORD((*item_iter)->GetLogicalPosition(),
+                                                (*item_iter)->getContentSize()));
+    (*item_iter)->setVisible(true);
+    
+    // delete item from inventory
+    m_aInventory.erase(item_iter);
+}
+
 void
 Unit::Die()
 {
     m_eState = Unit::State::DEAD;
-    m_nStatus = 0;
     m_nHealth = 0;
+    m_nAttributes = 0;
+    
+        // drop items
+    while(!m_aInventory.empty())
+    {
+        this->DropItem(0);
+    }
     
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);
@@ -188,6 +264,8 @@ Unit::Move(cocos2d::Vec2 log_pos)
 void
 Unit::TakeItem(Item * item)
 {
+    item->SetCarrierID(this->GetUID());
+    item->setVisible(false);
     m_aInventory.push_back(item);
 }
 
@@ -207,7 +285,7 @@ void
 Unit::StartDuel(Unit * enemy)
 {
     m_eState = Unit::State::DUEL;
-    m_nStatus ^= Unit::Status::DUELABLE;
+    m_nAttributes ^= GameObject::Attributes::DUELABLE;
     
     m_pDuelTarget = enemy;
 }
@@ -216,7 +294,7 @@ void
 Unit::EndDuel()
 {
     m_eState = Unit::State::WALKING;
-    m_nStatus ^= Unit::Status::DUELABLE;
+    m_nAttributes ^= GameObject::Attributes::DUELABLE;
     
     m_pDuelTarget = nullptr;
 }

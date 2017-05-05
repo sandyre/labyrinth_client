@@ -21,19 +21,28 @@ UIPregameScene::UIPregameScene()
     this->setPosition(Vec2::ZERO);
     
         // status bar init
-    auto status_position = ui::RelativeLayoutParameter::create();
-    status_position->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    auto status_bar_pos = ui::RelativeLayoutParameter::create();
+    status_bar_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    
+    auto status_bar = ui::ImageView::create("res/ui/plates/p_lobbyHeader.png");
+    status_bar->setLayoutParameter(status_bar_pos);
+    this->addChild(status_bar);
+    
+        // status text init
+    auto status_text_pos = ui::RelativeLayoutParameter::create();
+    status_text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    status_text_pos->setMargin(ui::Margin(0, 30, 0, 0)); // FIXME: remove hardcode
     
     m_pStatusText = ui::Text::create("Default status",
                                      TitleFont,
-                                     32);
-    m_pStatusText->setLayoutParameter(status_position);
+                                     38);
+    m_pStatusText->setLayoutParameter(status_text_pos);
     this->addChild(m_pStatusText);
     
         // hero pick init
     auto hero_pick_pos = ui::RelativeLayoutParameter::create();
     hero_pick_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
-    hero_pick_pos->setMargin(ui::Margin(0, m_pStatusText->getContentSize().height, 0, 0));
+    hero_pick_pos->setMargin(ui::Margin(0, status_bar->getContentSize().height, 0, 0));
     
     m_pHeroPick = new UIHeroPick();
     m_pHeroPick->setLayoutParameter(hero_pick_pos);
@@ -52,11 +61,9 @@ UIHeroPick::UIHeroPick()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setPosition(Vec2::ZERO);
-    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B::GRAY);
     
     auto vis_size = Director::getInstance()->getVisibleSize();
-    vis_size.height *= 0.45;
+    vis_size.height *= 0.4375;
     this->setContentSize(vis_size);
     
         // init hero page view
@@ -102,7 +109,8 @@ UIHeroPick::UIHeroPick()
     auto right_button_pos = ui::RelativeLayoutParameter::create();
     right_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
-    m_pRightChange = ui::Button::create("res/arrow_right.png");
+    m_pRightChange = ui::Button::create("res/ui/buttons/b_vert_m_2.png",
+                                        "res/ui/buttons/b_vert_m_2_press.png");
     m_pRightChange->setLayoutParameter(right_button_pos);
     this->addChild(m_pRightChange);
     
@@ -110,7 +118,8 @@ UIHeroPick::UIHeroPick()
     auto left_button_pos = ui::RelativeLayoutParameter::create();
     left_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pLeftChange = ui::Button::create("res/arrow_left.png");
+    m_pLeftChange = ui::Button::create("res/ui/buttons/b_vert_m_1.png",
+                                       "res/ui/buttons/b_vert_m_1_press.png");
     m_pLeftChange->setLayoutParameter(left_button_pos);
     this->addChild(m_pLeftChange);
 }
@@ -119,9 +128,10 @@ UIPlayerInfo::UIPlayerInfo()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setPosition(Vec2::ZERO);
+    this->setBackGroundImage("res/ui/plates/p_playerItem.png");
     
     auto vis_size = Director::getInstance()->getVisibleSize();
-    vis_size.height *= 0.125;
+    vis_size.height *= 0.094;
     this->setContentSize(vis_size);
     
         // init hero icon
@@ -146,8 +156,8 @@ UIPlayerInfo::UIPlayerInfo()
     auto ready_param = ui::RelativeLayoutParameter::create();
     ready_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
-    m_pReadyStatus = ui::CheckBox::create("res/frame.png",
-                                          "res/ready.png");
+    m_pReadyStatus = ui::CheckBox::create("res/ui/buttons/b_rect_m_3.png",
+                                          "res/ui/buttons/b_rect_m_1.png");
     m_pReadyStatus->setLayoutParameter(ready_param);
     m_pReadyStatus->setEnabled(false);
     this->addChild(m_pReadyStatus);
@@ -156,30 +166,29 @@ UIPlayerInfo::UIPlayerInfo()
 UIPlayersList::UIPlayersList()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
-    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B::BLUE);
+    this->setBackGroundImage("res/ui/plates/p_playersList.png");
     
     auto vis_size = Director::getInstance()->getVisibleSize();
-    vis_size.height *= 0.45;
-    
+    vis_size.height *= 0.46875;
     this->setContentSize(vis_size);
     
         // init 'players' label
     auto players_label_pos = ui::RelativeLayoutParameter::create();
     players_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    players_label_pos->setMargin(ui::Margin(0, 30, 0, 0));
     
     m_pPlayersLabel = ui::Text::create("Players list",
                                        TitleFont,
-                                       30);
+                                       38);
     m_pPlayersLabel->setLayoutParameter(players_label_pos);
     this->addChild(m_pPlayersLabel);
     
         // init players list view
     auto list_size = vis_size;
-    list_size.height -= m_pPlayersLabel->getContentSize().height;
+    list_size.height -= (Director::getInstance()->getVisibleSize().height * 0.094);
     
     auto players_list_pos = ui::RelativeLayoutParameter::create();
-    players_list_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    players_list_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
     
     m_pListView = ui::ListView::create();
     m_pListView->setLayoutParameter(players_list_pos);

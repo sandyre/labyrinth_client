@@ -49,7 +49,7 @@ UIStartPage::UIStartPage()
     
     m_pGameTitle = ui::Text::create("Labyrinth",
                                     "fonts/jigsaw trouserdrop.ttf",
-                                    40);
+                                    56);
     m_pGameTitle->setLayoutParameter(title_pos);
     this->addChild(m_pGameTitle);
     
@@ -57,8 +57,8 @@ UIStartPage::UIStartPage()
     auto start_button_pos = ui::RelativeLayoutParameter::create();
     start_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
-    m_pStartButton = ui::Button::create("res/button_normal.png",
-                                        "res/button_pressed.png");
+    m_pStartButton = ui::Button::create("res/ui/buttons/b_big_1.png",
+                                        "res/ui/buttons/b_big_1_press.png");
     m_pStartButton->setLayoutParameter(start_button_pos);
     m_pStartButton->setTitleText("Offline");
     m_pStartButton->setTitleFontName(TitleFont);
@@ -89,8 +89,8 @@ UILoginPage::UILoginPage()
     
         // init form
     auto form_size = visibleSize;
-    form_size.height *= 0.3;
-    form_size.width *= 0.5;
+    form_size.width *= 0.777;
+    form_size.height *= 0.304;
     
     auto field_size = form_size;
     field_size.height *= 0.2;
@@ -102,8 +102,7 @@ UILoginPage::UILoginPage()
     m_pFormLayout->setLayoutType(ui::Layout::Type::VERTICAL);
     m_pFormLayout->setLayoutParameter(form_pos);
     m_pFormLayout->setContentSize(form_size);
-    m_pFormLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    m_pFormLayout->setBackGroundColor(Color3B(50, 50, 50));
+    m_pFormLayout->setBackGroundImage("res/ui/plates/p_login.png");
     this->addChild(m_pFormLayout);
     
         // init 'mail' label
@@ -164,8 +163,8 @@ UILoginPage::UILoginPage()
     auto login_button_pos = ui::RelativeLayoutParameter::create();
     login_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
     
-    m_pLogInButton = ui::Button::create("res/button_normal.png",
-                                        "res/button_pressed.png");
+    m_pLogInButton = ui::Button::create("res/ui/buttons/b_small_1.png",
+                                        "res/ui/buttons/b_small_1_press.png");
     m_pLogInButton->setLayoutParameter(login_button_pos);
     m_pLogInButton->setTitleText("Log me in");
     m_pLogInButton->setTitleFontName(TitleFont);
@@ -176,8 +175,8 @@ UILoginPage::UILoginPage()
     auto reg_button_pos = ui::RelativeLayoutParameter::create();
     reg_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
     
-    m_pRegButton = ui::Button::create("res/button_normal.png",
-                                      "res/button_pressed.png");
+    m_pRegButton = ui::Button::create("res/ui/buttons/b_small_2.png",
+                                      "res/ui/buttons/b_small_2.png");
     m_pRegButton->setLayoutParameter(reg_button_pos);
     m_pRegButton->setTitleText("Register");
     m_pRegButton->setTitleFontName(TitleFont);
@@ -192,16 +191,14 @@ UIMainMenuPage::UIMainMenuPage()
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);
-//    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-//    this->setBackGroundColor(Color3B(37, 68, 53));
     
-        // init 'background' image
-    auto backgrnd_pos = ui::RelativeLayoutParameter::create();
-    backgrnd_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
-    
-    m_pBackgroundImg = ui::ImageView::create("res/background.png");
-    m_pBackgroundImg->setLayoutParameter(backgrnd_pos);
-    this->addChild(m_pBackgroundImg);
+//        // init 'background' image
+//    auto backgrnd_pos = ui::RelativeLayoutParameter::create();
+//    backgrnd_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+//    
+//    m_pBackgroundImg = ui::ImageView::create("res/background.png");
+//    m_pBackgroundImg->setLayoutParameter(backgrnd_pos);
+//    this->addChild(m_pBackgroundImg);
     
         // init gameinfo label
     auto gameinfo_pos = ui::RelativeLayoutParameter::create();
@@ -235,16 +232,14 @@ UIMainMenuPage::UIMainMenuPage()
     m_pButtonsLayout->setLayoutType(ui::Layout::Type::VERTICAL);
     m_pButtonsLayout->setContentSize(centr_layout_size);
     m_pButtonsLayout->setLayoutParameter(centr_layout_pos);
-//    m_pButtonsLayout->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-//    m_pButtonsLayout->setBackGroundColor(Color3B(100, 100, 150));
     this->addChild(m_pButtonsLayout);
     
         // init 'play' button
     auto play_but_pos = ui::LinearLayoutParameter::create();
     play_but_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
-    m_pPlayButton = ui::Button::create("res/button_normal.png",
-                                       "res/button_pressed.png");
+    m_pPlayButton = ui::Button::create("res/ui/buttons/b_mid_1.png",
+                                       "res/ui/buttons/b_mid_1_press.png");
     m_pPlayButton->setTitleText("Play");
     m_pPlayButton->setTitleFontName(TitleFont);
     m_pPlayButton->setTitleFontSize(16);
@@ -255,8 +250,8 @@ UIMainMenuPage::UIMainMenuPage()
     auto collection_but_pos = ui::LinearLayoutParameter::create();
     collection_but_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
-    m_pCollectionButton = ui::Button::create("res/button_normal.png",
-                                             "res/button_pressed.png");
+    m_pCollectionButton = ui::Button::create("res/ui/buttons/b_mid_1.png",
+                                             "res/ui/buttons/b_mid_1_press.png");
     m_pCollectionButton->setTitleText("Collection");
     m_pCollectionButton->setTitleFontName(TitleFont);
     m_pCollectionButton->setTitleFontSize(16);
@@ -267,10 +262,8 @@ UIMainMenuPage::UIMainMenuPage()
     auto sett_but_pos = ui::RelativeLayoutParameter::create();
     sett_but_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
     
-    m_pSettingsButton = ui::Button::create("res/settings.png");
-    m_pSettingsButton->setTitleText("Settings");
-    m_pSettingsButton->setTitleFontName(TitleFont);
-    m_pSettingsButton->setTitleFontSize(16);
+    m_pSettingsButton = ui::Button::create("res/ui/buttons/b_rect_b_2.png",
+                                           "res/ui/buttons/b_rect_b_2_press.png");
     m_pSettingsButton->setLayoutParameter(sett_but_pos);
     this->addChild(m_pSettingsButton);
     
@@ -278,10 +271,8 @@ UIMainMenuPage::UIMainMenuPage()
     auto shop_but_pos = ui::RelativeLayoutParameter::create();
     shop_but_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
     
-    m_pShopButton = ui::Button::create("res/donate.png");
-    m_pShopButton->setTitleText("Donate");
-    m_pShopButton->setTitleFontName(TitleFont);
-    m_pShopButton->setTitleFontSize(16);
+    m_pShopButton = ui::Button::create("res/ui/buttons/b_rect_b_1.png",
+                                       "res/ui/buttons/b_rect_b_1_press.png");
     m_pShopButton->setLayoutParameter(shop_but_pos);
     this->addChild(m_pShopButton);
 }
@@ -291,13 +282,12 @@ UINewsLayout::UINewsLayout()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
     auto layout_size = visibleSize;
-    layout_size.height *= 0.33;
+    layout_size.height *= 0.375;
     
     this->setLayoutType(ui::Layout::Type::RELATIVE);
+    this->setBackGroundImage("res/ui/plates/p_news.png");
     this->setContentSize(layout_size);
     this->setPosition(Vec2::ZERO);
-//    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-//    this->setBackGroundColor(Color3B(125, 40, 50));
     
         // init News label
     auto news_label_pos = ui::RelativeLayoutParameter::create();
@@ -313,7 +303,8 @@ UINewsLayout::UINewsLayout()
     auto reload_button_pos = ui::RelativeLayoutParameter::create();
     reload_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_RIGHT);
     
-    m_pReloadButton = ui::Button::create("res/reload_button.png");
+    m_pReloadButton = ui::Button::create("res/ui/buttons/b_rect_s_1.png",
+                                         "res/ui/buttons/b_rect_s_1_press.png");
     m_pReloadButton->setLayoutParameter(reload_button_pos);
     this->addChild(m_pReloadButton);
     
@@ -329,19 +320,5 @@ UINewsLayout::UINewsLayout()
     m_pNewsListView->setPosition(Vec2::ZERO);
     m_pNewsListView->setContentSize(listview_size);
     m_pNewsListView->setLayoutParameter(news_list_pos);
-//    m_pNewsListView->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-//    m_pNewsListView->setBackGroundColor(Color3B(170, 100, 50));
     this->addChild(m_pNewsListView);
-    
-        // init sample news
-    for(int i = 0; i < 5; ++i)
-    {
-        auto sample_text = ui::Text::create(StringUtils::format("Sample text #%d\n"
-                                                                "A lot of news over here, with some dates, etc\n"
-                                                                "Sometimes maybe pictures?", i),
-                                            TitleFont,
-                                            16);
-        m_pNewsListView->pushBackCustomItem(sample_text);
-        m_pNewsArray.push_back(sample_text);
-    }
 }
