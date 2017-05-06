@@ -16,11 +16,37 @@
 #include "msnet_generated.h"
 #include <regex>
 #include <fstream>
+#include <iostream>
+#include <istream>
+#include <streambuf>
 #include <string>
 #include <Poco/Net/DatagramSocket.h>
+#include <network/HttpRequest.h>
+#include <network/HttpResponse.h>
+#include <network/HttpClient.h>
+
+#include <Poco/XML/XMLWriter.h>
+#include <Poco/SAX/AttributesImpl.h>
+#include <Poco/SAX/SAXParser.h>
+
+#include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/Document.h>
+#include <Poco/DOM/NodeIterator.h>
+#include <Poco/DOM/NamedNodeMap.h>
+#include <Poco/DOM/NodeFilter.h>
+#include <Poco/DOM/AutoPtr.h>
+#include <Poco/DOM/DOMWriter.h>
+#include <Poco/SAX/InputSource.h>
 
 using namespace MasterEvent;
 USING_NS_CC;
+
+struct membuf : std::streambuf
+{
+    membuf(char* begin, char* end) {
+        this->setg(begin, begin, end);
+    }
+};
 
 Scene *
 MainMenuScene::createScene()
@@ -30,6 +56,72 @@ MainMenuScene::createScene()
     scene->addChild(layer);
     
     return scene;
+}
+
+void
+MainMenuScene::UpdateNewsWidget()
+{
+    m_pUI->m_pMainPage->m_pNewsLayout->m_pNewsListView->removeAllChildrenWithCleanup(true);
+    m_pUI->m_pMainPage->m_pNewsLayout->m_pNewsArray.clear();
+    
+    network::HttpRequest * news_req = new network::HttpRequest();
+    news_req->setUrl("https://www.hate-red.com/newsfeed.xml");
+    news_req->setRequestType(network::HttpRequest::Type::GET);
+    news_req->setResponseCallback([=](network::HttpClient * pClient, network::HttpResponse * pResp)
+                                  {
+                                      if(pResp == nullptr)
+                                          return;
+                                      
+                                      if(pResp->getResponseCode() == 200 && pResp->getResponseData() != nullptr)
+                                      {
+                                          using namespace Poco::XML;
+                                          using Poco::AutoPtr;
+                                          
+                                          membuf data_buf(pResp->getResponseData()->data(),
+                                                          pResp->getResponseData()->data() + pResp->getResponseData()->size());
+                                          std::istream is(&data_buf);
+                                          InputSource source(is);
+                                          
+                                          Poco::XML::DOMParser parser;
+                                          Poco::XML::Document * xmldoc = parser.parse(&source);
+                                          
+                                          NodeIterator it(xmldoc, NodeFilter::SHOW_ELEMENT);
+                                          Poco::XML::Node * pRootNode = it.nextNode();
+                                          
+                                          while(pRootNode)
+                                          {
+                                              if(pRootNode->nodeName() == "root")
+                                              {
+                                                  auto item_ptr = pRootNode->firstChild();
+                                                  while(item_ptr = item_ptr->nextSibling())
+                                                  {
+                                                      auto news_item = static_cast<Element*>(item_ptr);
+                                                      if(news_item->attributes() == nullptr)
+                                                          continue;
+                                                      auto date = news_item->getAttribute("date");
+                                                      auto text = news_item->getAttribute("text");
+                                                      auto ui_news_item = cocos2d::ui::Text::create(StringUtils::format("<%s> %s",
+                                                                                                                        news_item->getAttribute("date").c_str(),
+                                                                                                                        news_item->getAttribute("text").c_str()),
+                                                                                                    "fonts/alagard.ttf",
+                                                                                                    30);
+                                                      ui_news_item->setTextHorizontalAlignment(TextHAlignment::LEFT);
+                                                      ui_news_item->ignoreContentAdaptWithSize(false);
+                                                      auto visibleSize = Director::getInstance()->getVisibleSize();
+                                                      visibleSize.width *= 0.94;
+                                                      visibleSize.height *= 0.05;
+                                                      ui_news_item->setContentSize(visibleSize);
+                                                      m_pUI->m_pMainPage->m_pNewsLayout->m_pNewsListView->pushBackCustomItem(ui_news_item);
+                                                      m_pUI->m_pMainPage->m_pNewsLayout->m_pNewsArray.push_back(ui_news_item);
+                                                  }
+                                              }
+                                              pRootNode = it.nextNode();
+                                          }
+                                      }
+                                  });
+    news_req->setTag("GET test1");
+    network::HttpClient::getInstance()->send(news_req);
+    news_req->release();
 }
 
 bool
@@ -190,6 +282,18 @@ MainMenuScene::init()
         }
     };
     m_pUI->m_pMainPage->m_pSettingsButton->addTouchEventListener(settings_button_callback);
+    
+    auto reload_news_callback = [this](Ref * pSender, ui::Button::TouchEventType type)
+    {
+        if(type == ui::Button::TouchEventType::ENDED)
+        {
+            this->UpdateNewsWidget();
+        }
+    };
+    m_pUI->m_pMainPage->m_pNewsLayout->m_pReloadButton->addTouchEventListener(reload_news_callback);
+    
+        // preload newsfeed
+    UpdateNewsWidget();
     
     this->scheduleUpdate();
     

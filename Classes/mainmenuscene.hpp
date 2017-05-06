@@ -31,6 +31,8 @@ public:
     CREATE_FUNC(MainMenuScene);
     
 protected:
+    void    UpdateNewsWidget();
+protected:
     SceneState m_eSceneState;
     float      m_fTimer;
     UIMainMenuScene * m_pUI;

@@ -6,7 +6,7 @@
 
 USING_NS_CC;
 
-static cocos2d::Size iphone5Resolution = cocos2d::Size(640, 1136);
+static cocos2d::Size iphone5Resolution = cocos2d::Size(540, 960);
 static cocos2d::Size iphone7Resolution = cocos2d::Size(750, 1334);
 static cocos2d::Size iphone7PResolution = cocos2d::Size(1242, 2208);
 

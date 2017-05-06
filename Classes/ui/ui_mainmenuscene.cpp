@@ -41,28 +41,36 @@ UIStartPage::UIStartPage()
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);
     this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B(100, 68, 53));
+    this->setBackGroundColor(Color3B(14, 50, 4));
     
         // init 'title' label
     auto title_pos = ui::RelativeLayoutParameter::create();
     title_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    title_pos->setMargin(ui::Margin(0,
+                                    visibleSize.height * 0.1,
+                                    0,
+                                    0));
     
     m_pGameTitle = ui::Text::create("Labyrinth",
-                                    "fonts/jigsaw trouserdrop.ttf",
-                                    56);
+                                    TitleFont,
+                                    70);
     m_pGameTitle->setLayoutParameter(title_pos);
     this->addChild(m_pGameTitle);
     
         // init 'start' button
     auto start_button_pos = ui::RelativeLayoutParameter::create();
-    start_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    start_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+    start_button_pos->setMargin(ui::Margin(0,
+                                           0,
+                                           0,
+                                           visibleSize.height * 0.3125));
     
     m_pStartButton = ui::Button::create("res/ui/buttons/b_big_1.png",
                                         "res/ui/buttons/b_big_1_press.png");
     m_pStartButton->setLayoutParameter(start_button_pos);
     m_pStartButton->setTitleText("Offline");
     m_pStartButton->setTitleFontName(TitleFont);
-    m_pStartButton->setTitleFontSize(24);
+    m_pStartButton->setTitleFontSize(50);
     m_pStartButton->setEnabled(false);
     this->addChild(m_pStartButton);
 }
@@ -75,15 +83,19 @@ UILoginPage::UILoginPage()
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);
     this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B(100, 68, 53));
+    this->setBackGroundColor(Color3B(14, 50, 4));
     
         // init 'login page title' label
     auto page_label_pos = ui::RelativeLayoutParameter::create();
     page_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    page_label_pos->setMargin(ui::Margin(0,
+                                         visibleSize.height * 0.1,
+                                         0,
+                                         0));
     
     m_pLoginPageLabel = ui::Text::create("Authorization",
                                          TitleFont,
-                                         50);
+                                         70);
     m_pLoginPageLabel->setLayoutParameter(page_label_pos);
     this->addChild(m_pLoginPageLabel);
     
@@ -93,21 +105,26 @@ UILoginPage::UILoginPage()
     form_size.height *= 0.304;
     
     auto field_size = form_size;
-    field_size.height *= 0.2;
+    field_size.height *= 0.1282;
+    field_size.width *= 0.8928;
     
     auto form_pos = ui::RelativeLayoutParameter::create();
     form_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
     
     m_pFormLayout = ui::Layout::create();
-    m_pFormLayout->setLayoutType(ui::Layout::Type::VERTICAL);
+    m_pFormLayout->setLayoutType(ui::Layout::Type::RELATIVE);
     m_pFormLayout->setLayoutParameter(form_pos);
     m_pFormLayout->setContentSize(form_size);
     m_pFormLayout->setBackGroundImage("res/ui/plates/p_login.png");
     this->addChild(m_pFormLayout);
     
         // init 'mail' label
-    auto mail_label_pos = ui::LinearLayoutParameter::create();
-    mail_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto mail_label_pos = ui::RelativeLayoutParameter::create();
+    mail_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    mail_label_pos->setMargin(ui::Margin(form_size.width * 0.05357,
+                                         form_size.height * 0.1107,
+                                         0,
+                                         0));
     
     m_pMailLabel = ui::Text::create("Enter mail",
                                     TitleFont,
@@ -116,8 +133,12 @@ UILoginPage::UILoginPage()
     m_pFormLayout->addChild(m_pMailLabel);
     
         // init 'mail' field
-    auto mail_field_pos = ui::LinearLayoutParameter::create();
-    mail_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto mail_field_pos = ui::RelativeLayoutParameter::create();
+    mail_field_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    mail_field_pos->setMargin(ui::Margin(form_size.width * 0.05357,
+                                         form_size.height * 0.2307,
+                                         0,
+                                         0));
     
     m_pMailField = ui::TextField::create(" ",
                                          TitleFont,
@@ -132,8 +153,12 @@ UILoginPage::UILoginPage()
     m_pFormLayout->addChild(m_pMailField);
     
         // init 'password' label
-    auto password_label_pos = ui::LinearLayoutParameter::create();
-    password_label_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto password_label_pos = ui::RelativeLayoutParameter::create();
+    password_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    password_label_pos->setMargin(ui::Margin(form_size.width * 0.05357,
+                                             form_size.height * 0.4341,
+                                             0,
+                                             0));
     
     m_pPasswordLabel = ui::Text::create("Enter password",
                                         TitleFont,
@@ -142,8 +167,12 @@ UILoginPage::UILoginPage()
     m_pFormLayout->addChild(m_pPasswordLabel);
     
         // init 'password' field
-    auto password_field_pos = ui::LinearLayoutParameter::create();
-    password_field_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto password_field_pos = ui::RelativeLayoutParameter::create();
+    password_field_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    password_field_pos->setMargin(ui::Margin(form_size.width * 0.05357,
+                                             form_size.height * 0.5641,
+                                             0,
+                                             0));
     
     m_pPasswordField = ui::TextField::create(" ",
                                              TitleFont,
@@ -156,12 +185,16 @@ UILoginPage::UILoginPage()
     m_pPasswordField->setPasswordStyleText("*");
     m_pPasswordField->setAnchorPoint(Vec2::ZERO);
     m_pPasswordField->setTextAreaSize(field_size);
-    m_pPasswordField->setLayoutParameter(mail_field_pos);
+    m_pPasswordField->setLayoutParameter(password_field_pos);
     m_pFormLayout->addChild(m_pPasswordField);
     
         // init 'log in' button
     auto login_button_pos = ui::RelativeLayoutParameter::create();
     login_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
+    login_button_pos->setMargin(ui::Margin(0,
+                                           0,
+                                           form_size.width * 0.0357,
+                                           form_size.height * 0.0769));
     
     m_pLogInButton = ui::Button::create("res/ui/buttons/b_small_1.png",
                                         "res/ui/buttons/b_small_1_press.png");
@@ -169,11 +202,15 @@ UILoginPage::UILoginPage()
     m_pLogInButton->setTitleText("Log me in");
     m_pLogInButton->setTitleFontName(TitleFont);
     m_pLogInButton->setTitleFontSize(32);
-    this->addChild(m_pLogInButton);
+    m_pFormLayout->addChild(m_pLogInButton);
     
         // init 'reg me' button
     auto reg_button_pos = ui::RelativeLayoutParameter::create();
     reg_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    reg_button_pos->setMargin(ui::Margin(form_size.width * 0.0357,
+                                         0,
+                                         0,
+                                         form_size.height * 0.0769));
     
     m_pRegButton = ui::Button::create("res/ui/buttons/b_small_2.png",
                                       "res/ui/buttons/b_small_2.png");
@@ -181,7 +218,7 @@ UILoginPage::UILoginPage()
     m_pRegButton->setTitleText("Register");
     m_pRegButton->setTitleFontName(TitleFont);
     m_pRegButton->setTitleFontSize(32);
-    this->addChild(m_pRegButton);
+    m_pFormLayout->addChild(m_pRegButton);
 }
 
 UIMainMenuPage::UIMainMenuPage()
@@ -191,27 +228,6 @@ UIMainMenuPage::UIMainMenuPage()
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(visibleSize);
     this->setPosition(Vec2::ZERO);
-    
-//        // init 'background' image
-//    auto backgrnd_pos = ui::RelativeLayoutParameter::create();
-//    backgrnd_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
-//    
-//    m_pBackgroundImg = ui::ImageView::create("res/background.png");
-//    m_pBackgroundImg->setLayoutParameter(backgrnd_pos);
-//    this->addChild(m_pBackgroundImg);
-    
-        // init gameinfo label
-    auto gameinfo_pos = ui::RelativeLayoutParameter::create();
-    gameinfo_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
-    
-    m_pGameInfo = ui::Text::create(StringUtils::format("%d.%d.%d\n",
-                                                       GAMEVERSION_MAJOR,
-                                                       GAMEVERSION_MINOR,
-                                                       GAMEVERSION_BUILD),
-                                   "fonts/kenvector_future.ttf",
-                                   16);
-    m_pGameInfo->setLayoutParameter(gameinfo_pos);
-    this->addChild(m_pGameInfo);
     
         // init news layout
     auto news_layout_pos = ui::RelativeLayoutParameter::create();
@@ -223,10 +239,15 @@ UIMainMenuPage::UIMainMenuPage()
     
         // init central buttons layout
     auto centr_layout_size = visibleSize;
-    centr_layout_size.height *= 0.33;
+    centr_layout_size.width *= 0.55;
+    centr_layout_size.height *= 0.219;
     
     auto centr_layout_pos = ui::RelativeLayoutParameter::create();
-    centr_layout_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    centr_layout_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
+    centr_layout_pos->setMargin(ui::Margin(0,
+                                           0,
+                                           0,
+                                           visibleSize.height * 0.28));
     
     m_pButtonsLayout = ui::Layout::create();
     m_pButtonsLayout->setLayoutType(ui::Layout::Type::VERTICAL);
@@ -242,25 +263,33 @@ UIMainMenuPage::UIMainMenuPage()
                                        "res/ui/buttons/b_mid_1_press.png");
     m_pPlayButton->setTitleText("Play");
     m_pPlayButton->setTitleFontName(TitleFont);
-    m_pPlayButton->setTitleFontSize(16);
+    m_pPlayButton->setTitleFontSize(50);
     m_pPlayButton->setLayoutParameter(play_but_pos);
     m_pButtonsLayout->addChild(m_pPlayButton);
     
         // init 'collection' button
     auto collection_but_pos = ui::LinearLayoutParameter::create();
     collection_but_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
+    collection_but_pos->setMargin(ui::Margin(0,
+                                             visibleSize.height * 0.031,
+                                             0,
+                                             0));
     
-    m_pCollectionButton = ui::Button::create("res/ui/buttons/b_mid_1.png",
-                                             "res/ui/buttons/b_mid_1_press.png");
+    m_pCollectionButton = ui::Button::create("res/ui/buttons/b_mid_2.png",
+                                             "res/ui/buttons/b_mid_2_press.png");
     m_pCollectionButton->setTitleText("Collection");
     m_pCollectionButton->setTitleFontName(TitleFont);
-    m_pCollectionButton->setTitleFontSize(16);
+    m_pCollectionButton->setTitleFontSize(50);
     m_pCollectionButton->setLayoutParameter(collection_but_pos);
     m_pButtonsLayout->addChild(m_pCollectionButton);
     
         // init settings button
     auto sett_but_pos = ui::RelativeLayoutParameter::create();
     sett_but_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
+    sett_but_pos->setMargin(ui::Margin(0,
+                                       0,
+                                       visibleSize.width * 0.15,
+                                       visibleSize.height * 0.09));
     
     m_pSettingsButton = ui::Button::create("res/ui/buttons/b_rect_b_2.png",
                                            "res/ui/buttons/b_rect_b_2_press.png");
@@ -270,6 +299,10 @@ UIMainMenuPage::UIMainMenuPage()
         // init donate button
     auto shop_but_pos = ui::RelativeLayoutParameter::create();
     shop_but_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    shop_but_pos->setMargin(ui::Margin(visibleSize.width * 0.15,
+                                       0,
+                                       0,
+                                       visibleSize.height * 0.09));
     
     m_pShopButton = ui::Button::create("res/ui/buttons/b_rect_b_1.png",
                                        "res/ui/buttons/b_rect_b_1_press.png");
@@ -292,10 +325,14 @@ UINewsLayout::UINewsLayout()
         // init News label
     auto news_label_pos = ui::RelativeLayoutParameter::create();
     news_label_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    news_label_pos->setMargin(ui::Margin(10,
+                                         20,
+                                         0,
+                                         0)); // FIXME: hardcoded
     
-    m_pNewsLabel = ui::Text::create("News",
+    m_pNewsLabel = ui::Text::create("Newsfeed",
                                     TitleFont,
-                                    24);
+                                    36);
     m_pNewsLabel->setLayoutParameter(news_label_pos);
     this->addChild(m_pNewsLabel);
     
@@ -310,10 +347,14 @@ UINewsLayout::UINewsLayout()
     
         // init news listview
     auto listview_size = layout_size;
-    listview_size.height *= 0.9;
+    listview_size.height *= 0.82;
     
     auto news_list_pos = ui::RelativeLayoutParameter::create();
     news_list_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    news_list_pos->setMargin(ui::Margin(10,
+                                        0,
+                                        0,
+                                        0));
     
     m_pNewsListView = ui::ListView::create();
     m_pNewsListView->setDirection(ui::ScrollView::Direction::VERTICAL);

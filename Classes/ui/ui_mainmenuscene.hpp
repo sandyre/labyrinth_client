@@ -61,9 +61,6 @@ class UIMainMenuPage : public cocos2d::ui::Layout
 public:
     UIMainMenuPage();
     
-    cocos2d::ui::Text * m_pGameInfo;
-    cocos2d::ui::ImageView * m_pBackgroundImg;
-    
     UINewsLayout * m_pNewsLayout;
     
     cocos2d::ui::Layout * m_pButtonsLayout; // contains central buttons
