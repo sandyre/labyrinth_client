@@ -156,11 +156,13 @@ UIBattleLogs::UIBattleLogs()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.width *= 0.5;
+    layout_size.width *= 0.4;
     layout_size.height *= 0.4;
     
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(layout_size);
+    this->setTouchEnabled(false);
+    this->setEnabled(false);
 
         // init textfield
     auto textf_pos = ui::RelativeLayoutParameter::create();
@@ -172,14 +174,25 @@ UIBattleLogs::UIBattleLogs()
     this->addChild(m_pListView);
 }
 
-    // FIXME: seems legit, but doesnt work.
 void
 UIBattleLogs::AddLogMessage(const std::string& msg)
 {
-    auto dummy_text = ui::Text::create(msg,
-                                       "fonts/pw_extended.ttf",
-                                       24);
-    m_pListView->pushBackCustomItem(dummy_text);
+    auto text_msg = ui::Text::create(msg,
+                                     "fonts/pw_extended.ttf",
+                                     12);
+    text_msg->setCameraMask((unsigned short)CameraFlag::USER1);
+    text_msg->setOpacity(0);
+    m_pListView->insertCustomItem(text_msg, 0);
+    
+    auto fadein = FadeIn::create(0.5f);
+    auto delay = DelayTime::create(5.0f);
+    auto fadeout = FadeOut::create(0.5f);
+    auto seq = Sequence::create(fadein,
+                                delay,
+                                fadeout,
+                                RemoveSelf::create(),
+                                nullptr);
+    text_msg->runAction(seq);
 }
 
 UIBattleView::UIBattleView()

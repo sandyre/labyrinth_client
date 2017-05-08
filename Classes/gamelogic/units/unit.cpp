@@ -279,6 +279,24 @@ void
 Unit::TakeDamage(int16_t dmg)
 {
     m_nHealth -= dmg;
+    
+    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", dmg),
+                                          "fonts/alagard.ttf",
+                                          12);
+    hp_text->setTextColor(cocos2d::Color4B::RED);
+    
+    auto center_pos = this->getContentSize() / 2;
+    hp_text->setPosition(center_pos);
+    this->addChild(hp_text);
+    
+    auto moveup = cocos2d::MoveBy::create(1,
+                                          cocos2d::Vec2(0, center_pos.height));
+    auto fadeout = cocos2d::FadeOut::create(0.5f);
+    auto seq = cocos2d::Sequence::create(moveup,
+                                         fadeout,
+                                         cocos2d::RemoveSelf::create(),
+                                         nullptr);
+    hp_text->runAction(seq);
 }
 
 void

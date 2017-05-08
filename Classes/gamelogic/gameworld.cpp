@@ -414,8 +414,7 @@ GameWorld::ReceiveInputNetEvents()
                         second->EndDuel();
                         second->Die();
                         
-                        m_qBattleLogs.push(cocos2d::StringUtils::format("%s killed %s",
-                                                                        first->GetName().c_str(),
+                        m_qBattleLogs.push(cocos2d::StringUtils::format("%s died",
                                                                         second->GetName().c_str()));
                         break;
                     }
