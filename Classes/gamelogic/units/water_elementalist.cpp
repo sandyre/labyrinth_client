@@ -72,7 +72,7 @@ WaterElementalist::SpellCast1()
 void
 WaterElementalist::update(float delta)
 {
-    Hero::UpdateCDs(delta);
+    Hero::update(delta);
     
     if(m_bDashing &&
        m_nDashADuration > 0.0)

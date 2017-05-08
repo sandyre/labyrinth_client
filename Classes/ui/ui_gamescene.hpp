@@ -23,7 +23,9 @@ public:
     
         // stats (left top)
     cocos2d::ui::Layout * m_pStatsLayout;
-    cocos2d::ui::Text * m_pHP;
+    cocos2d::ui::ImageView * m_pHPBarBack;
+    cocos2d::ui::LoadingBar * m_pHPBar;
+    cocos2d::ui::Text * m_pHPText;
     cocos2d::ui::Text * m_pDamage;
     
         // left bottom (selected item)
@@ -90,6 +92,7 @@ public:
     UIAction();
     
         // action icon
+    cocos2d::ui::ImageView *    m_pTapeImage;
     cocos2d::ui::ImageView *    m_pIcon;
 };
 

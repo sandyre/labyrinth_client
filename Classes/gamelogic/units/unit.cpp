@@ -238,7 +238,7 @@ Unit::Die()
 {
     m_eState = Unit::State::DEAD;
     m_nHealth = 0;
-    m_nAttributes = 0;
+    m_nAttributes = GameObject::Attributes::PASSABLE;
     
         // drop items
     while(!m_aInventory.empty())

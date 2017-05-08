@@ -45,5 +45,5 @@ EarthElementalist::SpellCast1()
 void
 EarthElementalist::update(float delta)
 {
-    Hero::UpdateCDs(delta);
+    Hero::update(delta);
 }

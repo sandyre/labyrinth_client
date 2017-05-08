@@ -22,37 +22,61 @@ UIGameScene::UIGameScene()
         // stats layout init
     auto stats_size = visible_size;
     stats_size.height *= 0.25;
-    stats_size.width *= 0.25;
+    stats_size.width *= 0.5;
     
     auto stats_pos = ui::RelativeLayoutParameter::create();
     stats_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
     
     m_pStatsLayout = ui::Layout::create();
-    m_pStatsLayout->setLayoutType(ui::Layout::Type::VERTICAL);
+    m_pStatsLayout->setLayoutType(ui::Layout::Type::RELATIVE);
     m_pStatsLayout->setContentSize(stats_size);
     this->addChild(m_pStatsLayout);
     
         // init hp
-    auto hp_pos = ui::LinearLayoutParameter::create();
-    hp_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto hp_bar_b_pos = ui::RelativeLayoutParameter::create();
+    hp_bar_b_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
     
-    m_pHP = ui::Text::create(" ",
+    m_pHPBarBack = ui::ImageView::create("res/ui/bars/bar_hp_back.png");
+    m_pHPBarBack->setLayoutParameter(hp_bar_b_pos);
+    m_pStatsLayout->addChild(m_pHPBarBack);
+    
+    auto hp_bar_pos = ui::RelativeLayoutParameter::create();
+    hp_bar_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    hp_bar_pos->setMargin(ui::Margin(visible_size.width * 0.098,
+                                     visible_size.height * 0.0083,
+                                     0,
+                                     0));
+    
+    m_pHPBar = ui::LoadingBar::create("res/ui/bars/bar_hp.png");
+    m_pHPBar->setLayoutParameter(hp_bar_pos);
+    m_pHPBar->setPercent(100.0);
+    m_pStatsLayout->addChild(m_pHPBar);
+    
+    auto hp_text_pos = ui::RelativeLayoutParameter::create();
+    hp_text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    hp_text_pos->setMargin(ui::Margin(visible_size.width * 0.43,
+                                      visible_size.height * 0.0083,
+                                      0,
+                                      0));
+    
+    m_pHPText = ui::Text::create(" ",
                              TitleFont,
                              30);
-    m_pHP->setAnchorPoint(Vec2::ZERO);
-    m_pHP->setLayoutParameter(hp_pos);
+    m_pHPText->setAnchorPoint(Vec2::ZERO);
+    m_pHPText->setLayoutParameter(hp_text_pos);
     
-    m_pStatsLayout->addChild(m_pHP);
+    m_pStatsLayout->addChild(m_pHPText);
     
         // init dmg
     auto dmg_pos = ui::LinearLayoutParameter::create();
-    hp_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    dmg_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
     
     m_pDamage = ui::Text::create(" ",
                              TitleFont,
                              30);
     m_pDamage->setAnchorPoint(Vec2::ZERO);
     m_pDamage->setLayoutParameter(dmg_pos);
+    m_pDamage->setVisible(false);
     
     m_pStatsLayout->addChild(m_pDamage);
     
@@ -188,13 +212,10 @@ UIActionsView::UIActionsView()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.width *= 0.5;
     layout_size.height *= 0.4;
     
     this->setLayoutType(ui::Layout::Type::VERTICAL);
     this->setContentSize(layout_size);
-//    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-//    this->setBackGroundColor(Color3B::GRAY);
     
         // init actions
     for(int i = 0; i < 1; ++i)
@@ -215,19 +236,25 @@ UIAction::UIAction()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.width *= 0.5;
-    layout_size.height *= 0.1;
+    layout_size.height *= 0.12;
     
-    this->setLayoutType(ui::Layout::Type::HORIZONTAL);
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(layout_size);
-    this->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-    this->setBackGroundColor(Color3B::GRAY);
+    this->setBackGroundImage("res/ui/battle/btl_tape.png");
+    
+        // init tape
+    auto tape_img_pos = ui::RelativeLayoutParameter::create();
+    tape_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pTapeImage = ui::ImageView::create("res/ui/battle/btl_mainTape.png");
+    m_pTapeImage->setLayoutParameter(tape_img_pos);
+    this->addChild(m_pTapeImage);
     
         // init icon
-    auto icon_pos = ui::LinearLayoutParameter::create();
-    icon_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto icon_pos = ui::RelativeLayoutParameter::create();
+    icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pIcon = ui::ImageView::create("res/not_ready.png");
+    m_pIcon = ui::ImageView::create("res/ui/battle/btl_arrow_4.png");
     m_pIcon->setLayoutParameter(icon_pos);
     this->addChild(m_pIcon);
 }

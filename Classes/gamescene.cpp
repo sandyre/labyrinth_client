@@ -147,9 +147,9 @@ GameScene::UpdateHUD(float delta)
 {
     Hero * player = m_pGWorld->GetLocalPlayer();
         // update hud
-    m_pUI->m_pHP->setString(StringUtils::format("Health: %d / %d",
-                                                player->GetHealth(),
-                                                player->GetMaxHealth()));
+    m_pUI->m_pHPText->setString(StringUtils::format("%d",
+                                                    player->GetHealth()));
+    m_pUI->m_pHPBar->setPercent(((float)player->GetHealth() / player->GetMaxHealth()) * 100.0f);
     m_pUI->m_pDamage->setString(StringUtils::format("Damage: %d",
                                                     player->GetDamage()));
 
