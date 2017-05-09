@@ -30,23 +30,6 @@ Hero::update(float delta)
 {
     process_input_events();
     UpdateCDs(delta);
-    
-        // check that player can enter duel, and there is an opponent ^_-!
-    if(this->GetState() == Unit::State::WALKING &&
-       (this->GetAttributes() & GameObject::Attributes::DUELABLE))
-    {
-        for(auto object : m_poGameWorld->m_apoObjects)
-        {
-            if(object->GetObjType() == GameObject::Type::UNIT &&
-               (this->GetLogicalPosition().distance(object->GetLogicalPosition()) == 1.0) &&
-               (object->GetAttributes() & GameObject::Attributes::DUELABLE) &&
-               object->GetUID() != this->GetUID())
-            {
-                RequestStartDuel(static_cast<Unit*>(object));
-                break;
-            }
-        }
-    }
 }
 
 void
@@ -94,7 +77,27 @@ Hero::process_input_events()
                 else if(event == InputEvent::SWIPE_RIGHT)
                     ++next_pos.x;
                 
-                RequestMove(next_pos);
+                    // check that there is no opponent in path
+                bool duel_enter = false;
+                if(this->GetAttributes() & GameObject::Attributes::DUELABLE)
+                {
+                    for(auto object : m_poGameWorld->m_apoObjects)
+                    {
+                        if(object->GetObjType() == GameObject::Type::UNIT &&
+                           (next_pos == object->GetLogicalPosition()) &&
+                           (object->GetAttributes() & GameObject::Attributes::DUELABLE) &&
+                           object->GetUID() != this->GetUID())
+                        {
+                            RequestStartDuel(static_cast<Unit*>(object));
+                            duel_enter = true;
+                        }
+                    }
+                }
+                
+                if(!duel_enter)
+                {
+                    RequestMove(next_pos);
+                }
                 break;
             }
             case Unit::State::DUEL:

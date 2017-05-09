@@ -150,8 +150,8 @@ GameScene::UpdateHUD(float delta)
     m_pUI->m_pHPText->setString(StringUtils::format("%d",
                                                     player->GetHealth()));
     m_pUI->m_pHPBar->setPercent(((float)player->GetHealth() / player->GetMaxHealth()) * 100.0f);
-    m_pUI->m_pDamage->setString(StringUtils::format("Damage: %d",
-                                                    player->GetDamage()));
+    m_pUI->m_pArmor->setString(StringUtils::format("Armor: %d",
+                                                   player->GetArmor()));
 
         // update HUD based on state
     if(player->GetState() == Unit::State::DUEL)

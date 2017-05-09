@@ -35,56 +35,56 @@ GameWorld::AddPlayer(PlayerInfo player)
 {
     switch(player.nHeroIndex)
     {
-        case Hero::Type::AIR_ELEMENTALIST:
+        case Hero::Type::WARRIOR:
         {
-            auto air_elem = AirElementalist::create("res/units/player_down.png");
-            air_elem->SetUID(player.nUID);
-            air_elem->SetName(player.sNickname);
-            air_elem->SetGameWorld(this);
-            m_apoObjects.push_back(air_elem);
-            this->addChild(air_elem, 1);
+            auto warrior = Warrior::create("res/units/player_down.png");
+            warrior->SetUID(player.nUID);
+            warrior->SetName(player.sNickname);
+            warrior->SetGameWorld(this);
+            m_apoObjects.push_back(warrior);
+            this->addChild(warrior, 1);
             
             if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = air_elem;
+                m_poLocalPlayer = warrior;
             break;
         }
-        case Hero::Type::EARTH_ELEMENTALIST:
+        case Hero::Type::MAGE:
         {
-            auto earth_elem = EarthElementalist::create("res/units/player_down.png");
-            earth_elem->SetUID(player.nUID);
-            earth_elem->SetName(player.sNickname);
-            earth_elem->SetGameWorld(this);
-            m_apoObjects.push_back(earth_elem);
-            this->addChild(earth_elem, 1);
+            auto mage = Mage::create("res/units/player_down.png");
+            mage->SetUID(player.nUID);
+            mage->SetName(player.sNickname);
+            mage->SetGameWorld(this);
+            m_apoObjects.push_back(mage);
+            this->addChild(mage, 1);
             
             if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = earth_elem;
+                m_poLocalPlayer = mage;
             break;
         }
-        case Hero::Type::WATER_ELEMENTALIST:
+        case Hero::Type::ROGUE:
         {
-            auto water_elem = WaterElementalist::create("res/units/player_down.png");
-            water_elem->SetUID(player.nUID);
-            water_elem->SetName(player.sNickname);
-            water_elem->SetGameWorld(this);
-            m_apoObjects.push_back(water_elem);
-            this->addChild(water_elem, 1);
+            auto rogue = Rogue::create("res/units/player_down.png");
+            rogue->SetUID(player.nUID);
+            rogue->SetName(player.sNickname);
+            rogue->SetGameWorld(this);
+            m_apoObjects.push_back(rogue);
+            this->addChild(rogue, 1);
             
             if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = water_elem;
+                m_poLocalPlayer = rogue;
             break;
         }
-        case Hero::Type::FIRE_ELEMENTALIST:
+        case Hero::Type::PRIEST:
         {
-            auto fire_elem = FireElementalist::create("res/units/player_down.png");
-            fire_elem->SetUID(player.nUID);
-            fire_elem->SetName(player.sNickname);
-            fire_elem->SetGameWorld(this);
-            m_apoObjects.push_back(fire_elem);
-            this->addChild(fire_elem, 1);
+            auto priest = Priest::create("res/units/player_down.png");
+            priest->SetUID(player.nUID);
+            priest->SetName(player.sNickname);
+            priest->SetGameWorld(this);
+            m_apoObjects.push_back(priest);
+            this->addChild(priest, 1);
             
             if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = fire_elem;
+                m_poLocalPlayer = priest;
             break;
         }
         default:

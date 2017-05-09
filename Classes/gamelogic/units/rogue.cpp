@@ -1,22 +1,23 @@
 //
-//  air_elementalist.cpp
+//  rogue.cpp
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 03.03.17.
 //
 //
 
-#include "air_elementalist.hpp"
+#include "rogue.hpp"
 
 #include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
-AirElementalist::AirElementalist()
+Rogue::Rogue()
 {
-    m_eHero = Hero::Type::AIR_ELEMENTALIST;
-    m_nMoveSpeed = 0.1;
-    m_nMHealth = m_nHealth = 75;
-    m_nBaseDamage = m_nActualDamage = 6;
+    m_eHero = Hero::Type::ROGUE;
+    m_nMoveSpeed = 0.125;
+    m_nMHealth = m_nHealth = 50;
+    m_nBaseDamage = m_nActualDamage = 8;
+    m_nArmor = 2;
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;
@@ -26,23 +27,23 @@ AirElementalist::AirElementalist()
     m_bInvisible = false;
 }
 
-AirElementalist *
-AirElementalist::create(const std::string& filename)
+Rogue *
+Rogue::create(const std::string& filename)
 {
-    AirElementalist * pAir = new AirElementalist();
+    Rogue * pRogue = new Rogue();
     
-    if(pAir->initWithFile(filename))
+    if(pRogue->initWithFile(filename))
     {
-        pAir->autorelease();
-        return pAir;
+        pRogue->autorelease();
+        return pRogue;
     }
     
-    CC_SAFE_DELETE(pAir);
+    CC_SAFE_DELETE(pRogue);
     return nullptr;
 }
 
 void
-AirElementalist::RequestSpellCast1()
+Rogue::RequestSpellCast1()
 {
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
@@ -60,7 +61,7 @@ AirElementalist::RequestSpellCast1()
 }
 
 void
-AirElementalist::SpellCast1()
+Rogue::SpellCast1()
 {
     m_nSpell1ACD = m_nSpell1CD;
     m_bInvisible = true;
@@ -73,7 +74,7 @@ AirElementalist::SpellCast1()
 }
 
 void
-AirElementalist::TakeItem(Item * item)
+Rogue::TakeItem(Item * item)
 {
     Unit::TakeItem(item);
     
@@ -88,7 +89,7 @@ AirElementalist::TakeItem(Item * item)
 }
 
 void
-AirElementalist::update(float delta)
+Rogue::update(float delta)
 {
     Hero::update(delta);
     

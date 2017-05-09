@@ -17,6 +17,7 @@ Monster::Monster()
     
     m_nBaseDamage = m_nActualDamage = 10;
     m_nMHealth = m_nHealth = 50;
+    m_nArmor = 2;
 }
 
 Monster *

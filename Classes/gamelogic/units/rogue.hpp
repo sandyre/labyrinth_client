@@ -1,30 +1,30 @@
 //
-//  air_elementalist.hpp
+//  rogue.hpp
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 03.03.17.
 //
 //
 
-#ifndef air_elementalist_hpp
-#define air_elementalist_hpp
+#ifndef rogue_hpp
+#define rogue_hpp
 
 #include "hero.hpp"
 
 #include <string>
 #include <vector>
 
-class AirElementalist : public Hero
+class Rogue : public Hero
 {
 public:
-    static AirElementalist* create(const std::string&);
+    static Rogue* create(const std::string&);
     
     virtual void                RequestSpellCast1() override;
     virtual void                SpellCast1() override;
 
     virtual void                TakeItem(Item*) override;
 protected:
-    AirElementalist();
+    Rogue();
     
     virtual void update(float) override;
     
@@ -35,4 +35,4 @@ protected:
     float   m_nInvisDuration;
 };
 
-#endif /* air_elementalist_hpp */
+#endif /* rogue_hpp */

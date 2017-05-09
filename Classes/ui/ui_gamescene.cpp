@@ -68,17 +68,19 @@ UIGameScene::UIGameScene()
     m_pStatsLayout->addChild(m_pHPText);
     
         // init dmg
-    auto dmg_pos = ui::LinearLayoutParameter::create();
-    dmg_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::LEFT);
+    auto arm_pos = ui::RelativeLayoutParameter::create();
+    arm_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    arm_pos->setMargin(ui::Margin(10,
+                                  40,
+                                  0,
+                                  0)); // FIXME: calculate the margin
     
-    m_pDamage = ui::Text::create(" ",
-                             TitleFont,
-                             30);
-    m_pDamage->setAnchorPoint(Vec2::ZERO);
-    m_pDamage->setLayoutParameter(dmg_pos);
-    m_pDamage->setVisible(false);
-    
-    m_pStatsLayout->addChild(m_pDamage);
+    m_pArmor = ui::Text::create("Armor: ",
+                                TitleFont,
+                                30);
+    m_pArmor->setAnchorPoint(Vec2::ZERO);
+    m_pArmor->setLayoutParameter(arm_pos);
+    m_pStatsLayout->addChild(m_pArmor);
     
         // init selected item
     auto frame_pos = ui::RelativeLayoutParameter::create();

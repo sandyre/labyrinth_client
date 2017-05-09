@@ -55,10 +55,10 @@ protected:
     friend GameMap;
     friend Unit;
     friend Hero;
-    friend AirElementalist;
-    friend FireElementalist;
-    friend EarthElementalist;
-    friend WaterElementalist;
+    friend Rogue;
+    friend Priest;
+    friend Warrior;
+    friend Mage;
     friend Monster;
 };
 

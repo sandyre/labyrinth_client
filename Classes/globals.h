@@ -48,13 +48,12 @@ const std::array<std::string, 4> SpritesPath
     "res/arrow_right.png"
 };
     
-const std::array<std::string, 5> HeroNames
+const std::array<std::string, 4> HeroNames
 {
-    "Air elementalist",
-    "Water elementalist",
-    "Fire elementalist",
-    "Earth elementalist",
-    "Random hero"
+    "Warrior",
+    "Mage",
+    "Rogue",
+    "Priest"
 };
 
 struct PlayerInfo

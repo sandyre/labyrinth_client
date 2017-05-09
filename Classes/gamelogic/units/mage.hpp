@@ -1,28 +1,28 @@
 //
-//  water_elementalist.hpp
+//  mage.hpp
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 03.03.17.
 //
 //
 
-#ifndef water_elementalist_hpp
-#define water_elementalist_hpp
+#ifndef mage_hpp
+#define mage_hpp
 
 #include "hero.hpp"
 
 #include <string>
 #include <vector>
 
-class WaterElementalist : public Hero
+class Mage : public Hero
 {
 public:
-    static WaterElementalist* create(const std::string&);
+    static Mage* create(const std::string&);
     
     virtual void                RequestSpellCast1() override;
     virtual void                SpellCast1() override;
 protected:
-    WaterElementalist();
+    Mage();
     
     virtual void    update(float) override;
     
@@ -32,4 +32,4 @@ protected:
     float   m_nDashADuration;
 };
 
-#endif /* water_elementalist_hpp */
+#endif /* mage_hpp */

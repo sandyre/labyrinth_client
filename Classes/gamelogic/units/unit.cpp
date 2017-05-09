@@ -11,6 +11,8 @@
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
 
+#include <cocos2d.h>
+
 Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),
 m_eState(Unit::State::UNDEFINED),
@@ -20,6 +22,7 @@ m_nBaseDamage(0),
 m_nActualDamage(0),
 m_nHealth(0),
 m_nMHealth(0),
+m_nArmor(0),
 m_nMoveSpeed(0.5),
 m_pDuelTarget(nullptr)
 {
@@ -78,6 +81,12 @@ Unit::GetMaxHealth() const
     return m_nMHealth;
 }
 
+int16_t
+Unit::GetArmor() const
+{
+    return m_nArmor;
+}
+
 Unit * const
 Unit::GetDuelTarget() const
 {
@@ -114,6 +123,11 @@ Unit::RequestMove(cocos2d::Vec2 pos)
             return;
         }
     }
+    
+        // detect if player is already moving
+    auto action = this->getActionByTag(5);
+    if(action != nullptr)
+        return;
     
     flatbuffers::FlatBufferBuilder builder;
     auto move = GameEvent::CreateCLActionMove(builder,
@@ -258,6 +272,7 @@ Unit::Move(cocos2d::Vec2 log_pos)
         // animation
     auto moveTo = cocos2d::MoveTo::create(m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(log_pos, this->getContentSize()));
+    moveTo->setTag(5);
     this->runAction(moveTo);
 }
 
@@ -278,9 +293,9 @@ Unit::Attack()
 void
 Unit::TakeDamage(int16_t dmg)
 {
-    m_nHealth -= dmg;
+    m_nHealth -= (dmg - m_nArmor);
     
-    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", dmg),
+    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", (dmg - m_nArmor)),
                                           "fonts/alagard.ttf",
                                           12);
     hp_text->setTextColor(cocos2d::Color4B::RED);

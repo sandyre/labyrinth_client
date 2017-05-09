@@ -38,12 +38,6 @@ public:
         DUEL,
         DEAD
     };
-    struct Status
-    {
-        static const int MOVABLE = 0x01;
-        static const int DUELABLE = 0x02;
-        static const int INVULNERABLE = 0x04;
-    };
 public:
     Unit::Type          GetUnitType() const;
     Unit::State         GetState() const;
@@ -56,6 +50,7 @@ public:
     int16_t             GetDamage() const;
     int16_t             GetHealth() const;
     int16_t             GetMaxHealth() const;
+    int16_t             GetArmor() const;
     
     std::vector<Item*>& GetInventory();
     Unit * const        GetDuelTarget() const;
@@ -102,6 +97,8 @@ protected:
     int16_t             m_nBaseDamage;
     int16_t             m_nActualDamage;
     int16_t             m_nHealth, m_nMHealth;
+    
+    int16_t             m_nArmor;
     
     float   m_nMoveSpeed;
     

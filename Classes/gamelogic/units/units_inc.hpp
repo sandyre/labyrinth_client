@@ -10,9 +10,9 @@
 #define units_inc_h
 
 #include "monster.hpp"
-#include "air_elementalist.hpp"
-#include "fire_elementalist.hpp"
-#include "earth_elementalist.hpp"
-#include "water_elementalist.hpp"
+#include "rogue.hpp"
+#include "priest.hpp"
+#include "warrior.hpp"
+#include "mage.hpp"
 
 #endif /* units_inc_hpp */

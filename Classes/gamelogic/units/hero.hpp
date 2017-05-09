@@ -21,10 +21,10 @@ public:
     enum Type : int
     {
         FIRST_HERO = 0x00,
-        AIR_ELEMENTALIST = 0x00,
-        WATER_ELEMENTALIST = 0x01,
-        FIRE_ELEMENTALIST = 0x02,
-        EARTH_ELEMENTALIST = 0x03,
+        WARRIOR = 0x00,
+        MAGE = 0x01,
+        ROGUE = 0x02,
+        PRIEST = 0x03,
         LAST_HERO = 0x03
     };
 public:

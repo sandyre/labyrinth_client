@@ -1,48 +1,47 @@
 //
-//  water_elementalist.cpp
+//  warrior.cpp
 //  labyrinth
 //
 //  Created by Aleksandr Borzikh on 03.03.17.
 //
 //
 
-#include "water_elementalist.hpp"
+#include "warrior.hpp"
 
 #include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
-WaterElementalist::WaterElementalist()
+Warrior::Warrior()
 {
-    m_eHero = Hero::Type::WATER_ELEMENTALIST;
-    m_nMoveSpeed = 0.3;
-    m_nMHealth = m_nHealth = 75;
-    m_nBaseDamage = m_nActualDamage = 8;
+    m_eHero = Hero::Type::WARRIOR;
+    m_nMoveSpeed = 0.4;
+    m_nMHealth = m_nHealth = 50;
+    m_nArmor = 6;
+    m_nBaseDamage = m_nActualDamage = 10;
     
-    m_nSpell1CD = 30.0;
+    m_nSpell1CD = 10.0;
     m_nSpell1ACD = 0.0;
     
-    m_nDashDuration = 10.0;
-    m_nDashADuration = 0.0;
-    m_bDashing = false;
+    m_nDashingDuration = 3.0;
 }
 
-WaterElementalist *
-WaterElementalist::create(const std::string& filename)
+Warrior *
+Warrior::create(const std::string& filename)
 {
-    WaterElementalist * pAir = new WaterElementalist();
+    Warrior * pWar = new Warrior();
     
-    if(pAir->initWithFile(filename))
+    if(pWar->initWithFile(filename))
     {
-        pAir->autorelease();
-        return pAir;
+        pWar->autorelease();
+        return pWar;
     }
     
-    CC_SAFE_DELETE(pAir);
+    CC_SAFE_DELETE(pWar);
     return nullptr;
 }
 
 void
-WaterElementalist::RequestSpellCast1()
+Warrior::RequestSpellCast1()
 {
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
@@ -60,29 +59,30 @@ WaterElementalist::RequestSpellCast1()
 }
 
 void
-WaterElementalist::SpellCast1()
+Warrior::SpellCast1()
 {
     m_nSpell1ACD = m_nSpell1CD;
-    m_nDashADuration = m_nDashDuration;
     m_bDashing = true;
     
-    m_nMoveSpeed = 0.001;
+    m_nDashingADuration = m_nDashingDuration;
+    m_nMoveSpeed = 0.1;
 }
 
 void
-WaterElementalist::update(float delta)
+Warrior::update(float delta)
 {
     Hero::update(delta);
     
     if(m_bDashing &&
-       m_nDashADuration > 0.0)
+       m_nDashingADuration > 0.0)
     {
-        m_nDashADuration -= delta;
+        m_nDashingADuration -= delta;
     }
     else if(m_bDashing &&
-            m_nDashADuration < 0.0)
+            m_nDashingADuration < 0.0)
     {
         m_bDashing = false;
-        m_nMoveSpeed = 0.3;
+        m_nDashingADuration = 0.0;
+        m_nMoveSpeed = 0.4; // make it default
     }
 }

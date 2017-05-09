@@ -26,7 +26,7 @@ public:
     cocos2d::ui::ImageView * m_pHPBarBack;
     cocos2d::ui::LoadingBar * m_pHPBar;
     cocos2d::ui::Text * m_pHPText;
-    cocos2d::ui::Text * m_pDamage;
+    cocos2d::ui::Text * m_pArmor;
     
         // left bottom (selected item)
     cocos2d::ui::ImageView * m_pItemFrame;
