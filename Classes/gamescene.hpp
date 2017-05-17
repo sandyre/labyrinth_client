@@ -11,7 +11,6 @@
 
 #include "cocos2d.h"
 #include "gameworld.hpp"
-#include "gamehud.hpp"
 #include "ui/ui_gamescene.hpp"
 
 #include "gsnet_generated.h"

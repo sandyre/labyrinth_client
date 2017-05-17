@@ -8,13 +8,14 @@
 
 #include "warrior.hpp"
 
+#include "../effect.hpp"
 #include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
 Warrior::Warrior()
 {
     m_eHero = Hero::Type::WARRIOR;
-    m_nMoveSpeed = 0.4;
+    m_nMoveSpeed = 2.5;
     m_nMHealth = m_nHealth = 50;
     m_nArmor = 6;
     m_nBaseDamage = m_nActualDamage = 10;
@@ -22,7 +23,9 @@ Warrior::Warrior()
     m_nSpell1CD = 10.0;
     m_nSpell1ACD = 0.0;
     
-    m_nDashingDuration = 3.0;
+        // initialize ATTACK sequence
+    InputSequence seq(5);
+    m_aCastSequences.push_back(seq);
 }
 
 Warrior *
@@ -46,9 +49,7 @@ Warrior::RequestSpellCast1()
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
                                                  this->GetUID(),
-                                                 1,
-                                                 GameEvent::ActionSpellTarget_TARGET_PLAYER,
-                                                 this->GetUID());
+                                                 1);
     auto event = GameEvent::CreateMessage(builder,
                                           GameEvent::Events_CLActionSpell,
                                           spell1.Union());
@@ -59,30 +60,18 @@ Warrior::RequestSpellCast1()
 }
 
 void
-Warrior::SpellCast1()
+Warrior::SpellCast1(const GameEvent::SVActionSpell*)
 {
     m_nSpell1ACD = m_nSpell1CD;
-    m_bDashing = true;
     
-    m_nDashingADuration = m_nDashingDuration;
-    m_nMoveSpeed = 0.1;
+    WarriorDash * pDash = new WarriorDash(3.0,
+                                          5.5);
+    pDash->SetTargetUnit(this);
+    this->ApplyEffect(pDash);
 }
 
 void
 Warrior::update(float delta)
 {
     Hero::update(delta);
-    
-    if(m_bDashing &&
-       m_nDashingADuration > 0.0)
-    {
-        m_nDashingADuration -= delta;
-    }
-    else if(m_bDashing &&
-            m_nDashingADuration < 0.0)
-    {
-        m_bDashing = false;
-        m_nDashingADuration = 0.0;
-        m_nMoveSpeed = 0.4; // make it default
-    }
 }

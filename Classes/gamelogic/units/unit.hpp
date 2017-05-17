@@ -11,8 +11,16 @@
 
 #include "../gameobject.hpp"
 #include "../item.hpp"
+#include "../../gsnet_generated.h"
 
 #include <string>
+
+class Effect;
+class WarriorDash;
+class WarriorArmorUp;
+class RogueInvisibility;
+class MageFreeze;
+class DuelInvulnerability;
 
 class Unit : public GameObject
 {
@@ -64,6 +72,12 @@ public:
         // Able to do
     virtual void    RequestMove(cocos2d::Vec2);
     virtual void    Move(cocos2d::Vec2);
+    virtual void    RequestStartDuel(Unit*);
+    virtual void    StartDuel(Unit*);
+    
+    virtual void    RequestAttack();
+    virtual void    Attack(const GameEvent::SVActionAttack*);
+    virtual void    TakeAttack(const GameEvent::SVActionAttack*);
     
         // Items manip
     virtual void    RequestTakeItem(Item*);
@@ -73,19 +87,15 @@ public:
     virtual void    RequestUseItem(Item*) {}
     virtual void    UseItem(Item*) {}
     
-    virtual void    RequestStartDuel(Unit*);
-    virtual void    StartDuel(Unit*);
-    
-    virtual void    RequestAttack();
-    virtual void    Attack();
-    virtual void    TakeDamage(int16_t);
+        // additional funcs
+    virtual void    ApplyEffect(Effect*);
     
         // Received from scenes event listeners
     virtual void    AddInputEvent(InputEvent);
 protected:
     Unit();
     
-    virtual void        update(float) = 0;
+    virtual void        update(float);
     virtual void        process_input_events() = 0;
 protected:
     Unit::Type          m_eUnitType;
@@ -107,6 +117,14 @@ protected:
     std::queue<InputEvent>  m_aInputEvents;
         // Duel-data
     Unit *              m_pDuelTarget;
+    
+    std::vector<Effect*> m_aAppliedEffects;
+        // Effects should have access to every field
+    friend WarriorDash;
+    friend WarriorArmorUp;
+    friend RogueInvisibility;
+    friend MageFreeze;
+    friend DuelInvulnerability;
 };
 
 #endif /* unit_hpp */

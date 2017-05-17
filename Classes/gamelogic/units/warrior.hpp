@@ -20,16 +20,11 @@ public:
     static Warrior *   create(const std::string&);
     
     virtual void                RequestSpellCast1() override;
-    virtual void                SpellCast1() override;
+    virtual void                SpellCast1(const GameEvent::SVActionSpell*) override;
 protected:
     Warrior();
     
     virtual void    update(float) override;
-    
-protected:
-    bool m_bDashing;
-    float m_nDashingADuration;
-    float m_nDashingDuration;
 };
 
 #endif /* warrior_hpp */

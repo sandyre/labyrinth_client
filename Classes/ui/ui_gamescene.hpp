@@ -12,6 +12,8 @@
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
 
+#include "../gamelogic/units/hero.hpp"
+
 class UIBattleView;
 class UISkillsPanel;
 class UIBattleLogs;
@@ -91,7 +93,10 @@ class UIAction : public cocos2d::ui::Layout
 public:
     UIAction();
     
+    void    InitSequence(InputSequence);
+    void    RotateLeft();
         // action icon
+    cocos2d::ui::Layout *       m_pSequenceLayout;
     cocos2d::ui::ImageView *    m_pTapeImage;
     cocos2d::ui::ImageView *    m_pIcon;
 };

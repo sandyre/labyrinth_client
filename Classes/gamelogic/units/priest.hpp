@@ -20,7 +20,7 @@ public:
     static Priest * create(const std::string&);
     
     virtual void                RequestSpellCast1() override {}
-    virtual void                SpellCast1() override {}
+    virtual void                SpellCast1(const GameEvent::SVActionSpell*) override {}
 protected:
     Priest();
     

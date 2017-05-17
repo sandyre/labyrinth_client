@@ -37,7 +37,7 @@ GameWorld::AddPlayer(PlayerInfo player)
     {
         case Hero::Type::WARRIOR:
         {
-            auto warrior = Warrior::create("res/units/player_down.png");
+            auto warrior = Warrior::create("res/units/warrior/down.png");
             warrior->SetUID(player.nUID);
             warrior->SetName(player.sNickname);
             warrior->SetGameWorld(this);
@@ -50,7 +50,7 @@ GameWorld::AddPlayer(PlayerInfo player)
         }
         case Hero::Type::MAGE:
         {
-            auto mage = Mage::create("res/units/player_down.png");
+            auto mage = Mage::create("res/units/mage/down.png");
             mage->SetUID(player.nUID);
             mage->SetName(player.sNickname);
             mage->SetGameWorld(this);
@@ -63,7 +63,7 @@ GameWorld::AddPlayer(PlayerInfo player)
         }
         case Hero::Type::ROGUE:
         {
-            auto rogue = Rogue::create("res/units/player_down.png");
+            auto rogue = Rogue::create("res/units/rogue/down.png");
             rogue->SetUID(player.nUID);
             rogue->SetName(player.sNickname);
             rogue->SetGameWorld(this);
@@ -76,7 +76,7 @@ GameWorld::AddPlayer(PlayerInfo player)
         }
         case Hero::Type::PRIEST:
         {
-            auto priest = Priest::create("res/units/player_down.png");
+            auto priest = Priest::create("res/units/priest/down.png");
             priest->SetUID(player.nUID);
             priest->SetName(player.sNickname);
             priest->SetGameWorld(this);
@@ -376,22 +376,6 @@ GameWorld::ReceiveInputNetEvents()
                         break;
                     }
                         
-                    case GameEvent::ActionDuelType_ATTACK:
-                    {
-                        Unit * attacker = nullptr;
-                        
-                        for(auto object : m_apoObjects)
-                        {
-                            if(object->GetUID() == sv_duel->target1_uid())
-                            {
-                                attacker = static_cast<Unit*>(object);
-                            }
-                        }
-                        
-                        attacker->Attack();
-                        break;
-                    }
-                        
                     case GameEvent::ActionDuelType_KILL:
                     {
                             // player killed
@@ -455,6 +439,24 @@ GameWorld::ReceiveInputNetEvents()
                 break;
             }
                 
+            case GameEvent::Events_SVActionAttack:
+            {
+                auto atk = static_cast<const GameEvent::SVActionAttack*>(gs_event->event());
+                
+                Unit * attacker = nullptr;
+                
+                for(auto object : m_apoObjects)
+                {
+                    if(object->GetUID() == atk->target1_uid())
+                    {
+                        attacker = static_cast<Unit*>(object);
+                    }
+                }
+                
+                attacker->Attack(atk);
+                break;
+            }
+                
             case GameEvent::Events_SVActionSpell:
             {
                 auto gs_spell = static_cast<const GameEvent::SVActionSpell*>(gs_event->event());
@@ -467,7 +469,7 @@ GameWorld::ReceiveInputNetEvents()
                         player = static_cast<Hero*>(object);
                         if(gs_spell->spell_id() == 1)
                         {
-                            player->SpellCast1();
+                            player->SpellCast1(gs_spell);
                         }
                         else
                         {

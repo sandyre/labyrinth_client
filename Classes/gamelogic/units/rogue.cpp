@@ -8,23 +8,20 @@
 
 #include "rogue.hpp"
 
+#include "../effect.hpp"
 #include "../gameworld.hpp"
 #include "gsnet_generated.h"
 
 Rogue::Rogue()
 {
     m_eHero = Hero::Type::ROGUE;
-    m_nMoveSpeed = 0.125;
+    m_nMoveSpeed = 8.0;
     m_nMHealth = m_nHealth = 50;
     m_nBaseDamage = m_nActualDamage = 8;
     m_nArmor = 2;
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;
-    
-    m_nInvisDuration = 10.0;
-    m_nInvisADuration = 0.0;
-    m_bInvisible = false;
 }
 
 Rogue *
@@ -48,9 +45,7 @@ Rogue::RequestSpellCast1()
     flatbuffers::FlatBufferBuilder builder;
     auto spell1 = GameEvent::CreateCLActionSpell(builder,
                                                  this->GetUID(),
-                                                 1,
-                                                 GameEvent::ActionSpellTarget_TARGET_PLAYER,
-                                                 this->GetUID());
+                                                 1);
     auto event = GameEvent::CreateMessage(builder,
                                           GameEvent::Events_CLActionSpell,
                                           spell1.Union());
@@ -61,52 +56,23 @@ Rogue::RequestSpellCast1()
 }
 
 void
-Rogue::SpellCast1()
+Rogue::SpellCast1(const GameEvent::SVActionSpell*)
 {
     m_nSpell1ACD = m_nSpell1CD;
-    m_bInvisible = true;
-    m_nAttributes ^= GameObject::Attributes::DUELABLE;
     
-    m_nInvisADuration = m_nInvisDuration;
-    
-    auto fadeOut = cocos2d::FadeOut::create(0.5);
-    this->runAction(fadeOut);
+    RogueInvisibility * pInvis = new RogueInvisibility(5.0);
+    pInvis->SetTargetUnit(this);
+    this->ApplyEffect(pInvis);
 }
 
 void
 Rogue::TakeItem(Item * item)
 {
     Unit::TakeItem(item);
-    
-    if(m_bInvisible)
-    {
-        m_bInvisible = false;
-        m_nInvisADuration = 0.0;
-        m_nAttributes |= GameObject::Attributes::DUELABLE;
-        auto fadeIn = cocos2d::FadeIn::create(0.5);
-        this->runAction(fadeIn);
-    }
 }
 
 void
 Rogue::update(float delta)
 {
     Hero::update(delta);
-    
-    if(m_bInvisible &&
-       m_nInvisADuration > 0.0)
-    {
-        m_nInvisADuration -= delta;
-    }
-    else if(m_bInvisible &&
-            m_nInvisADuration < 0.0)
-    {
-            // make visible & duelable
-        m_nInvisADuration = 0.0;
-        m_bInvisible = false;
-        m_nAttributes |= GameObject::Attributes::DUELABLE;
-        
-        auto fadeIn = cocos2d::FadeIn::create(0.5);
-        this->runAction(fadeIn);
-    }
 }

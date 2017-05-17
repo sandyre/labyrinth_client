@@ -13,7 +13,7 @@
 Priest::Priest()
 {
     m_eHero = Hero::Type::PRIEST;
-    m_nMoveSpeed = 0.33;
+    m_nMoveSpeed = 3.0;
     m_nMHealth = m_nHealth = 50;
     m_nBaseDamage = m_nActualDamage = 10;
     m_nArmor = 4;

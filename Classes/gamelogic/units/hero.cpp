@@ -28,6 +28,7 @@ Hero::GetHero() const
 void
 Hero::update(float delta)
 {
+    Unit::update(delta);
     process_input_events();
     UpdateCDs(delta);
 }
@@ -102,8 +103,40 @@ Hero::process_input_events()
             }
             case Unit::State::DUEL:
             {
-                if(event == InputEvent::SWIPE_UP)
-                    this->RequestAttack();
+                for(auto i = 0;
+                    i < m_aCastSequences.size();
+                    ++i)
+                {
+                    auto& seq = m_aCastSequences[i];
+                    if(seq.sequence.front() == event)
+                    {
+                        seq.sequence.pop();
+                        
+                        if(seq.sequence.empty())
+                        {
+                            HUDMessage succ_msg;
+                            succ_msg.msg_type = HUDMessage::MessageType::DUEL_SEQ_COMPLETED;
+                            
+                            m_aHUDMessages.push(succ_msg);
+                            
+                            if(i == 0)
+                            {
+                                this->RequestAttack();
+                            }
+                        }
+                        else
+                        {
+                            HUDMessage corr_msg;
+                            corr_msg.msg_type = HUDMessage::MessageType::DUEL_SEQ_CORRECT_INPUT;
+                            
+                            m_aHUDMessages.push(corr_msg);
+                        }
+                    }
+                    else
+                    {
+                        seq.Refresh();
+                    }
+                }
                 
                 break;
             }
@@ -111,6 +144,26 @@ Hero::process_input_events()
         
         m_aInputEvents.pop();
     }
+}
+
+void
+Hero::StartDuel(Unit * enemy)
+{
+    Unit::StartDuel(enemy);
+    
+    HUDMessage msg;
+    msg.msg_type = HUDMessage::MessageType::DUEL_START;
+    m_aHUDMessages.push(msg);
+}
+
+void
+Hero::EndDuel()
+{
+    Unit::EndDuel();
+    
+    HUDMessage msg;
+    msg.msg_type = HUDMessage::MessageType::DUEL_END;
+    m_aHUDMessages.push(msg);
 }
 
 void

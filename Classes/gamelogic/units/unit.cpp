@@ -10,6 +10,7 @@
 
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
+#include "../effect.hpp"
 
 #include <cocos2d.h>
 
@@ -23,7 +24,7 @@ m_nActualDamage(0),
 m_nHealth(0),
 m_nMHealth(0),
 m_nArmor(0),
-m_nMoveSpeed(0.5),
+m_nMoveSpeed(2.0),
 m_pDuelTarget(nullptr)
 {
     m_eObjType = GameObject::Type::UNIT;
@@ -105,6 +106,37 @@ Unit::AddInputEvent(InputEvent event)
     m_aInputEvents.push(event);
 }
 
+void
+Unit::ApplyEffect(Effect * effect)
+{
+    effect->start();
+    m_aAppliedEffects.push_back(effect);
+}
+
+void
+Unit::update(float delta)
+{
+    for(auto effect : m_aAppliedEffects)
+    {
+        effect->update(delta);
+        if(effect->GetState() == Effect::State::OVER)
+        {
+            effect->stop();
+        }
+    }
+    m_aAppliedEffects.erase(std::remove_if(m_aAppliedEffects.begin(),
+                                           m_aAppliedEffects.end(),
+                                           [this](Effect * eff)
+                                           {
+                                               if(eff->GetState() == Effect::State::OVER)
+                                               {
+                                                   delete eff;
+                                                   return true;
+                                               }
+                                               return false;
+                                           }),
+                            m_aAppliedEffects.end());
+}
 /*
  *
  * Actions request
@@ -185,12 +217,13 @@ void
 Unit::RequestAttack()
 {
     flatbuffers::FlatBufferBuilder builder;
-    auto atk = GameEvent::CreateCLActionDuel(builder,
-                                             this->GetUID(),
-                                             m_pDuelTarget->GetUID(),
-                                             GameEvent::ActionDuelType_ATTACK);
+    auto atk = GameEvent::CreateCLActionAttack(builder,
+                                               this->GetUID(),
+                                               m_pDuelTarget->GetUID(),
+                                               m_nActualDamage,
+                                               0);
     auto msg = GameEvent::CreateMessage(builder,
-                                        GameEvent::Events_CLActionDuel,
+                                        GameEvent::Events_CLActionAttack,
                                         atk.Union());
     builder.Finish(msg);
     
@@ -260,6 +293,12 @@ Unit::Die()
         this->DropItem(0);
     }
     
+        // remove all effects
+    for(auto effect : m_aAppliedEffects)
+    {
+        effect->stop();
+    }
+    
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);
     this->runAction(fadeOut);
@@ -270,7 +309,7 @@ Unit::Move(cocos2d::Vec2 log_pos)
 {
     m_stLogPosition = log_pos;
         // animation
-    auto moveTo = cocos2d::MoveTo::create(m_nMoveSpeed,
+    auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(log_pos, this->getContentSize()));
     moveTo->setTag(5);
     this->runAction(moveTo);
@@ -285,20 +324,27 @@ Unit::TakeItem(Item * item)
 }
 
 void
-Unit::Attack()
+Unit::Attack(const GameEvent::SVActionAttack* atk)
 {
-    m_pDuelTarget->TakeDamage(m_nActualDamage);
+        // play animation and remove enemy hp
+    m_pDuelTarget->TakeAttack(atk);
 }
 
 void
-Unit::TakeDamage(int16_t dmg)
+Unit::TakeAttack(const GameEvent::SVActionAttack* atk)
 {
-    m_nHealth -= (dmg - m_nArmor);
+    int16_t damage_taken = atk->damage();
+    if(!(atk->modificators() & 1))
+    {
+        damage_taken -= m_nArmor;
+    }
     
-    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", (dmg - m_nArmor)),
+    m_nHealth -= damage_taken;
+    
+    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
                                           "fonts/alagard.ttf",
                                           12);
-    hp_text->setTextColor(cocos2d::Color4B::RED);
+    hp_text->setTextColor(atk->modificators() == 1 ? cocos2d::Color4B::YELLOW : cocos2d::Color4B::RED);
     
     auto center_pos = this->getContentSize() / 2;
     hp_text->setPosition(center_pos);

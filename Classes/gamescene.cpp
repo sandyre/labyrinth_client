@@ -153,10 +153,36 @@ GameScene::UpdateHUD(float delta)
     m_pUI->m_pArmor->setString(StringUtils::format("Armor: %d",
                                                    player->GetArmor()));
 
-        // update HUD based on state
-    if(player->GetState() == Unit::State::DUEL)
+    auto& msgs = player->GetHUDMessages();
+    while(!msgs.empty())
     {
-        m_pUI->m_poBattleView->setActive(true);
+        auto& msg = msgs.front();
+        switch(msg.msg_type)
+        {
+            case HUDMessage::MessageType::DUEL_START:
+            {
+                m_pUI->m_poBattleView->setActive(true);
+                break;
+            }
+            case HUDMessage::MessageType::DUEL_END:
+            {
+                m_pUI->m_poBattleView->setActive(false);
+                break;
+            }
+            case HUDMessage::DUEL_SEQ_CORRECT_INPUT:
+            {
+                break;
+            }
+            case HUDMessage::DUEL_SEQ_COMPLETED:
+            {
+                break;
+            }
+            case HUDMessage::DUEL_SEQ_WRONG_INPUT:
+            {
+                break;
+            }
+        }
+        msgs.pop();
     }
     
         // update battle logs
