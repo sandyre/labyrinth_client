@@ -101,12 +101,6 @@ Unit::GetInventory()
 }
 
 void
-Unit::AddInputEvent(InputEvent event)
-{
-    m_aInputEvents.push(event);
-}
-
-void
 Unit::ApplyEffect(Effect * effect)
 {
     effect->start();

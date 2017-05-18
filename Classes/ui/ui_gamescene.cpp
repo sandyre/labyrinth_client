@@ -257,13 +257,6 @@ UIAction::UIAction()
     this->setContentSize(layout_size);
     this->setBackGroundImage("res/ui/battle/btl_tape.png");
     
-        // init sequence
-    m_pSequenceLayout = ui::Layout::create();
-    m_pSequenceLayout->setLayoutType(ui::Layout::Type::HORIZONTAL);
-    m_pSequenceLayout->setContentSize(layout_size);
-    
-    m_pSequenceLayout->setAnchorPoint(Vec2::ZERO);
-    
         // init tape
     auto tape_img_pos = ui::RelativeLayoutParameter::create();
     tape_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
@@ -272,11 +265,21 @@ UIAction::UIAction()
     m_pTapeImage->setLayoutParameter(tape_img_pos);
     this->addChild(m_pTapeImage);
     
+        // init sequence
+    auto seq_lay_pos = ui::RelativeLayoutParameter::create();
+    tape_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+    
+    m_pSequenceLayout = ui::Layout::create();
+    m_pSequenceLayout->setLayoutType(ui::Layout::Type::ABSOLUTE);
+    m_pSequenceLayout->setLayoutParameter(seq_lay_pos);
+    m_pSequenceLayout->setContentSize(layout_size);
+    this->addChild(m_pSequenceLayout);
+    
         // init icon
     auto icon_pos = ui::RelativeLayoutParameter::create();
     icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pIcon = ui::ImageView::create("res/ui/battle/btl_arrow_4.png");
+    m_pIcon = ui::ImageView::create("res/ui/battle/btl_atk_icon.png");
     m_pIcon->setLayoutParameter(icon_pos);
     this->addChild(m_pIcon);
 }

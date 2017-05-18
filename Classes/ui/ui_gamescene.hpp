@@ -12,11 +12,11 @@
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
 
-#include "../gamelogic/units/hero.hpp"
-
 class UIBattleView;
 class UISkillsPanel;
 class UIBattleLogs;
+
+struct InputSequence;
 
 class UIGameScene : public cocos2d::ui::Layout
 {
@@ -93,10 +93,9 @@ class UIAction : public cocos2d::ui::Layout
 public:
     UIAction();
     
-    void    InitSequence(InputSequence);
-    void    RotateLeft();
         // action icon
     cocos2d::ui::Layout *       m_pSequenceLayout;
+    std::vector<cocos2d::ui::ImageView*>    m_pSequenceSymbols;
     cocos2d::ui::ImageView *    m_pTapeImage;
     cocos2d::ui::ImageView *    m_pIcon;
 };

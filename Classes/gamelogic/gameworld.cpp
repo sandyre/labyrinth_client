@@ -33,63 +33,42 @@ GameWorld::CreateGameMap(const GameMap::Configuration& _conf)
 void
 GameWorld::AddPlayer(PlayerInfo player)
 {
+    Hero * pHero = nullptr;
     switch(player.nHeroIndex)
     {
         case Hero::Type::WARRIOR:
         {
-            auto warrior = Warrior::create("res/units/warrior/down.png");
-            warrior->SetUID(player.nUID);
-            warrior->SetName(player.sNickname);
-            warrior->SetGameWorld(this);
-            m_apoObjects.push_back(warrior);
-            this->addChild(warrior, 1);
-            
-            if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = warrior;
+            pHero = Warrior::create("res/units/warrior/down.png");
             break;
         }
         case Hero::Type::MAGE:
         {
-            auto mage = Mage::create("res/units/mage/down.png");
-            mage->SetUID(player.nUID);
-            mage->SetName(player.sNickname);
-            mage->SetGameWorld(this);
-            m_apoObjects.push_back(mage);
-            this->addChild(mage, 1);
-            
-            if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = mage;
+            pHero = Mage::create("res/units/mage/down.png");
             break;
         }
         case Hero::Type::ROGUE:
         {
-            auto rogue = Rogue::create("res/units/rogue/down.png");
-            rogue->SetUID(player.nUID);
-            rogue->SetName(player.sNickname);
-            rogue->SetGameWorld(this);
-            m_apoObjects.push_back(rogue);
-            this->addChild(rogue, 1);
-            
-            if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = rogue;
+            pHero = Rogue::create("res/units/rogue/down.png");
             break;
         }
         case Hero::Type::PRIEST:
         {
-            auto priest = Priest::create("res/units/priest/down.png");
-            priest->SetUID(player.nUID);
-            priest->SetName(player.sNickname);
-            priest->SetGameWorld(this);
-            m_apoObjects.push_back(priest);
-            this->addChild(priest, 1);
-            
-            if(player.nUID == GameConfiguraton::Instance().GetUID())
-                m_poLocalPlayer = priest;
+            pHero = Priest::create("res/units/priest/down.png");
             break;
         }
         default:
             assert(false);
             break;
+    }
+    pHero->SetUID(player.nUID);
+    pHero->SetName(player.sNickname);
+    pHero->SetGameWorld(this);
+    m_apoObjects.push_back(pHero);
+    this->addChild(pHero, 1);
+    if(player.nUID == GameConfiguraton::Instance().GetUID())
+    {
+        m_poLocalPlayer = pHero;
+        pHero->SetIsLocalPlayer(true);
     }
 }
 
@@ -398,8 +377,8 @@ GameWorld::ReceiveInputNetEvents()
                         second->EndDuel();
                         second->Die();
                         
-                        m_qBattleLogs.push(cocos2d::StringUtils::format("%s died",
-                                                                        second->GetName().c_str()));
+                        m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
+                                                                                         second->GetName().c_str()));
                         break;
                     }
                         
@@ -515,4 +494,12 @@ GameWorld::update(float delta)
     {
         object->update(delta);
     }
+}
+
+void
+GameWorld::SetHUD(UIGameScene * ui)
+{
+    m_pUI = ui;
+    
+    m_poLocalPlayer->SetHUD(ui);
 }

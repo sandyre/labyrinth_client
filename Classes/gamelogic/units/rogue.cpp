@@ -22,6 +22,11 @@ Rogue::Rogue()
     
     m_nSpell1CD = 30.0;
     m_nSpell1ACD = 0.0;
+    
+        // initialize ATTACK sequence
+    InputSequence seq(5);
+    seq.Refresh();
+    m_aCastSequences.push_back(seq);
 }
 
 Rogue *

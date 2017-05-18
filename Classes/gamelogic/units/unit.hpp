@@ -91,12 +91,11 @@ public:
     virtual void    ApplyEffect(Effect*);
     
         // Received from scenes event listeners
-    virtual void    AddInputEvent(InputEvent);
+    virtual void    ApplyInputEvent(InputEvent) {}
 protected:
     Unit();
     
     virtual void        update(float);
-    virtual void        process_input_events() = 0;
 protected:
     Unit::Type          m_eUnitType;
     Unit::State         m_eState;

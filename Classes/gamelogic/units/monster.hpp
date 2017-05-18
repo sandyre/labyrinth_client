@@ -18,7 +18,6 @@ public:
     
 protected:
     virtual void    update(float) override {}
-    virtual void    process_input_events() override {}
     
     Monster();
 };

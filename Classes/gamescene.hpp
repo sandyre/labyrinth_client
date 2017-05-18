@@ -30,10 +30,8 @@ public:
     
 protected:
     void    UpdateView(float);
-    void    UpdateHUD(float);
 private:
     UIGameScene *               m_pUI;
-    
     GameWorld * m_pGWorld;
 };
 

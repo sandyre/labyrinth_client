@@ -13,6 +13,7 @@
 #include "gamemap.hpp"
 #include "gsnet_generated.h"
 #include "units/units_inc.hpp"
+#include "../ui/ui_gamescene.hpp"
 
 #include <cocos2d.h>
 #include <vector>
@@ -30,9 +31,7 @@ public:
     void    AddPlayer(PlayerInfo);
     void    CreateGameMap(const GameMap::Configuration&);
     
-    std::queue<std::string>&    GetBattleLogs() {
-        return m_qBattleLogs;
-    }
+    void    SetHUD(UIGameScene * ui);
     
     Hero *  GetLocalPlayer();
 protected:
@@ -40,8 +39,6 @@ protected:
     void    SendOutgoingNetEvents();
 protected:
     GameMap::Configuration  m_stMapConf;
-    
-    std::queue<std::string> m_qBattleLogs;
     
         // contains outgoing events
     std::queue<std::vector<char>> m_aOutEvents;
@@ -51,6 +48,8 @@ protected:
     std::vector<GameObject*>    m_apoObjects;
         // just points to an Unit in vector
     Hero *   m_poLocalPlayer;
+    
+    UIGameScene * m_pUI;
     
     friend GameMap;
     friend Unit;

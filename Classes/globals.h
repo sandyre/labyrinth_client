@@ -40,12 +40,12 @@ enum class InputEvent
     SPELL_CAST_1_CLICK = 0x05
 };
     
-const std::array<std::string, 4> SpritesPath
+const std::array<std::string, 4> BattleSwipeSprites
 {
-    "res/arrow_up.png",
-    "res/arrow_down.png",
-    "res/arrow_left.png",
-    "res/arrow_right.png"
+    "res/ui/battle/btl_arrow_1.png",
+    "res/ui/battle/btl_arrow_2.png",
+    "res/ui/battle/btl_arrow_3.png",
+    "res/ui/battle/btl_arrow_4.png"
 };
     
 const std::array<std::string, 4> HeroNames

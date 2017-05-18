@@ -24,8 +24,14 @@ Warrior::Warrior()
     m_nSpell1ACD = 0.0;
     
         // initialize ATTACK sequence
-    InputSequence seq(5);
-    m_aCastSequences.push_back(seq);
+    InputSequence atk_seq(5);
+    atk_seq.Refresh();
+    m_aCastSequences.push_back(atk_seq);
+    
+        // initialize spell2 sequence (armor up)
+    InputSequence sp_seq(5);
+    sp_seq.Refresh();
+    m_aCastSequences.push_back(sp_seq);
 }
 
 Warrior *

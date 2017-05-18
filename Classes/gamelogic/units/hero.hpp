@@ -13,23 +13,9 @@
 #include "globals.h"
 #include "../item.hpp"
 #include "../../gsnet_generated.h"
+#include "../../ui/ui_gamescene.hpp"
 
 #include "unit.hpp"
-
-struct HUDMessage
-{
-    enum MessageType
-    {
-        DUEL_START,
-        DUEL_SEQ_CORRECT_INPUT,
-        DUEL_SEQ_WRONG_INPUT,
-        DUEL_SEQ_COMPLETED,
-        DUEL_END
-    };
-    
-    MessageType msg_type;
-    std::array<uint8_t, 64> payload;
-};
 
 struct InputSequence
 {
@@ -41,23 +27,23 @@ struct InputSequence
             i < size;
             ++i)
         {
-            sequence.push(InputEvent::SWIPE_DOWN);
+            sequence.push_back(InputEvent::SWIPE_DOWN);
         }
     }
     
     void    Refresh()
     {
-        sequence = std::queue<InputEvent>();
+        sequence.clear();
         for(auto i = 0;
             i < len;
             ++i)
         {
-            sequence.push(InputEvent::SWIPE_DOWN);
+            sequence.push_back((InputEvent)cocos2d::RandomHelper::random_int((int)0, (int)InputEvent::SWIPE_RIGHT));
         }
     }
     
     int len;
-    std::queue<InputEvent> sequence;
+    std::deque<InputEvent> sequence;
 };
 
 class Hero : public Unit
@@ -75,19 +61,16 @@ public:
 public:
     Hero::Type      GetHero() const;
     
-    const std::vector<InputSequence>& GetCastSequences() const
-    {
-        return m_aCastSequences;
-    }
-    std::queue<HUDMessage>&     GetHUDMessages()
-    {
-        return m_aHUDMessages;
-    }
+    void                        SetIsLocalPlayer(bool val);
+    void                        SetHUD(UIGameScene* ui);
+    virtual void                ApplyInputEvent(InputEvent) override;
     
     virtual void                RequestSpellCast1() = 0;
     virtual void                SpellCast1(const GameEvent::SVActionSpell*) = 0;
     float                       GetSpell1ACD() const;
     bool                        isSpellCast1Ready() const;
+    
+    virtual void                RequestSpellCast2() = 0;
     
     virtual void                StartDuel(Unit *) override;
     virtual void                EndDuel() override;
@@ -96,16 +79,17 @@ protected:
     
     virtual void        UpdateCDs(float);
     virtual void        update(float) override;
-    virtual void        process_input_events() override;
-    
 protected:
     Hero::Type          m_eHero;
     
-    std::queue<HUDMessage>  m_aHUDMessages;
     std::vector<InputSequence> m_aCastSequences;
     
     float               m_nSpell1CD;
     float               m_nSpell1ACD;
+    
+    bool    m_bIsLocalPlayer;
+    
+    UIGameScene * m_pUI;
 };
 
 #endif /* player_hpp */
