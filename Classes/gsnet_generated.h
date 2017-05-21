@@ -40,6 +40,8 @@ namespace GameEvent {
     
     struct MageTeleport;
     
+    struct MageFreeze;
+    
     struct Spell;
     
     struct CLActionSpell;
@@ -144,14 +146,16 @@ namespace GameEvent {
     enum Spells {
         Spells_NONE = 0,
         Spells_MageTeleport = 1,
+        Spells_MageFreeze = 2,
         Spells_MIN = Spells_NONE,
-        Spells_MAX = Spells_MageTeleport
+        Spells_MAX = Spells_MageFreeze
     };
     
     inline const char **EnumNamesSpells() {
         static const char *names[] = {
             "NONE",
             "MageTeleport",
+            "MageFreeze",
             nullptr
         };
         return names;
@@ -168,6 +172,10 @@ namespace GameEvent {
     
     template<> struct SpellsTraits<MageTeleport> {
         static const Spells enum_value = Spells_MageTeleport;
+    };
+    
+    template<> struct SpellsTraits<MageFreeze> {
+        static const Spells enum_value = Spells_MageFreeze;
     };
     
     bool VerifySpells(flatbuffers::Verifier &verifier, const void *obj, Spells type);
@@ -1261,6 +1269,46 @@ namespace GameEvent {
         return builder_.Finish();
     }
     
+    struct MageFreeze FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_ENEMY_ID = 4
+        };
+        uint32_t enemy_id() const {
+            return GetField<uint32_t>(VT_ENEMY_ID, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_ENEMY_ID) &&
+            verifier.EndTable();
+        }
+    };
+    
+    struct MageFreezeBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_enemy_id(uint32_t enemy_id) {
+            fbb_.AddElement<uint32_t>(MageFreeze::VT_ENEMY_ID, enemy_id, 0);
+        }
+        MageFreezeBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        MageFreezeBuilder &operator=(const MageFreezeBuilder &);
+        flatbuffers::Offset<MageFreeze> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<MageFreeze>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<MageFreeze> CreateMageFreeze(
+                                                            flatbuffers::FlatBufferBuilder &_fbb,
+                                                            uint32_t enemy_id = 0) {
+        MageFreezeBuilder builder_(_fbb);
+        builder_.add_enemy_id(enemy_id);
+        return builder_.Finish();
+    }
+    
     struct Spell FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_SPELL_TYPE = 4,
@@ -2332,6 +2380,10 @@ namespace GameEvent {
             }
             case Spells_MageTeleport: {
                 auto ptr = reinterpret_cast<const MageTeleport *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Spells_MageFreeze: {
+                auto ptr = reinterpret_cast<const MageFreeze *>(obj);
                 return verifier.VerifyTable(ptr);
             }
             default: return false;

@@ -52,8 +52,6 @@ UIPregameScene::UIPregameScene()
     auto players_list_pos = ui::RelativeLayoutParameter::create();
     players_list_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_BOTTOM_CENTER_HORIZONTAL);
     
-    
-    
     m_pPlayersList = new UIPlayersList();
     m_pPlayersList->setLayoutParameter(players_list_pos);
     this->addChild(m_pPlayersList);

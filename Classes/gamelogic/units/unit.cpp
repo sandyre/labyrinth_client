@@ -18,6 +18,7 @@ Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),
 m_eState(Unit::State::UNDEFINED),
 m_eOrientation(Unit::Orientation::DOWN),
+m_nUnitAttributes(0),
 m_sName("Unit"),
 m_nBaseDamage(0),
 m_nActualDamage(0),
@@ -29,9 +30,12 @@ m_pDuelTarget(nullptr)
 {
     m_eObjType = GameObject::Type::UNIT;
     m_eState = Unit::State::WALKING;
-    m_nAttributes |= GameObject::Attributes::MOVABLE;
-    m_nAttributes |= GameObject::Attributes::DUELABLE;
-    m_nAttributes |= GameObject::Attributes::DAMAGABLE;
+    m_nObjAttributes |= GameObject::Attributes::MOVABLE;
+    m_nObjAttributes |= GameObject::Attributes::DUELABLE;
+    m_nObjAttributes |= GameObject::Attributes::DAMAGABLE;
+    
+    m_nUnitAttributes |= Unit::Attributes::INPUT;
+    m_nUnitAttributes |= Unit::Attributes::ATTACK;
 }
 
 Unit::Type
@@ -143,7 +147,7 @@ Unit::RequestMove(cocos2d::Vec2 pos)
     for(auto object : m_poGameWorld->m_apoObjects)
     {
         if(object->GetLogicalPosition() == pos &&
-           !(object->GetAttributes() & GameObject::Attributes::PASSABLE))
+           !(object->GetObjAttributes() & GameObject::Attributes::PASSABLE))
         {
                 // unpassable object
             return;
@@ -236,7 +240,7 @@ Unit::Spawn(cocos2d::Vec2 log_pos)
 {
     using Attributes = GameObject::Attributes;
     m_eState = Unit::State::WALKING;
-    m_nAttributes = Attributes::DAMAGABLE |
+    m_nObjAttributes = Attributes::DAMAGABLE |
                     Attributes::DUELABLE |
                     Attributes::VISIBLE |
                     Attributes::MOVABLE;
@@ -279,7 +283,7 @@ Unit::Die()
 {
     m_eState = Unit::State::DEAD;
     m_nHealth = 0;
-    m_nAttributes = GameObject::Attributes::PASSABLE;
+    m_nObjAttributes = GameObject::Attributes::PASSABLE;
     
         // drop items
     while(!m_aInventory.empty())
@@ -358,7 +362,7 @@ void
 Unit::StartDuel(Unit * enemy)
 {
     m_eState = Unit::State::DUEL;
-    m_nAttributes ^= GameObject::Attributes::DUELABLE;
+    m_nObjAttributes ^= GameObject::Attributes::DUELABLE;
     
     m_pDuelTarget = enemy;
 }
@@ -367,7 +371,7 @@ void
 Unit::EndDuel()
 {
     m_eState = Unit::State::WALKING;
-    m_nAttributes ^= GameObject::Attributes::DUELABLE;
+    m_nObjAttributes ^= GameObject::Attributes::DUELABLE;
     
     m_pDuelTarget = nullptr;
 }

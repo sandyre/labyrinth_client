@@ -446,14 +446,7 @@ GameWorld::ReceiveInputNetEvents()
                     if(object->GetUID() == gs_spell->player_uid())
                     {
                         player = static_cast<Hero*>(object);
-                        if(gs_spell->spell_id() == 1)
-                        {
-                            player->SpellCast1(gs_spell);
-                        }
-                        else
-                        {
-                            assert(false);
-                        }
+                        player->SpellCast(gs_spell);
                     }
                 }
                 

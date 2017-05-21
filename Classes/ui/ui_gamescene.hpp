@@ -13,8 +13,9 @@
 #include <UI/CocosGUI.h>
 
 class UIBattleView;
-class UISkillsPanel;
+class UISpellsPanel;
 class UIBattleLogs;
+class Hero;
 
 struct InputSequence;
 
@@ -23,6 +24,7 @@ class UIGameScene : public cocos2d::ui::Layout
 public:
     UIGameScene();
     
+    void    ConfigureForHero(Hero *);
         // stats (left top)
     cocos2d::ui::Layout * m_pStatsLayout;
     cocos2d::ui::ImageView * m_pHPBarBack;
@@ -38,7 +40,7 @@ public:
     cocos2d::ui::Button * m_pTakeItemButton;
     
         // right center - skills panel
-    UISkillsPanel * m_poSkillsPanel;
+    UISpellsPanel * m_poSkillsPanel;
     
         // right top - battle logs
     UIBattleLogs * m_pBattleLogs;
@@ -58,10 +60,12 @@ protected:
     cocos2d::ui::ListView * m_pListView;
 };
 
-class UISkillsPanel : public cocos2d::ui::Layout
+class UISpellsPanel : public cocos2d::ui::Layout
 {
 public:
-    UISkillsPanel();
+    UISpellsPanel();
+    
+    void    CreateSpell(const std::string&);
     
     std::vector<cocos2d::ui::Button*> m_aSkillsButtons;
 };
@@ -85,6 +89,8 @@ class UIActionsView : public cocos2d::ui::Layout
 public:
     UIActionsView();
     
+    UIAction *  CreateAction();
+    
     std::vector<UIAction*>   m_apActions;
 };
 
@@ -92,6 +98,8 @@ class UIAction : public cocos2d::ui::Layout
 {
 public:
     UIAction();
+    
+    void    SetIcon(const std::string&);
     
         // action icon
     cocos2d::ui::Layout *       m_pSequenceLayout;

@@ -9,6 +9,7 @@
 #include "ui_gamescene.hpp"
 
 #include "../resources.hpp"
+#include "../gamelogic/units/hero.hpp"
 USING_NS_CC;
 
 UIGameScene::UIGameScene()
@@ -114,7 +115,7 @@ UIGameScene::UIGameScene()
     auto skills_panel_pos = ui::RelativeLayoutParameter::create();
     skills_panel_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
-    m_poSkillsPanel = new UISkillsPanel();
+    m_poSkillsPanel = new UISpellsPanel();
     m_poSkillsPanel->setLayoutParameter(skills_panel_pos);
     this->addChild(m_poSkillsPanel);
     
@@ -127,7 +128,62 @@ UIGameScene::UIGameScene()
     this->addChild(m_poBattleView);
 }
 
-UISkillsPanel::UISkillsPanel()
+void
+UIGameScene::ConfigureForHero(Hero * player)
+{
+        // init warrior UI
+    if(player->GetHero() == Hero::Type::WARRIOR)
+    {
+            // init skills panel
+            // init dash
+        m_poSkillsPanel->CreateSpell("res/units/warrior/spell_1_icon.png");
+        
+            // init battleview
+        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
+        atk_action->SetIcon("res/units/warrior/atk_icon.png");
+        
+        auto dash_action = m_poBattleView->m_poActionsView->CreateAction();
+        dash_action->SetIcon("res/units/warrior/spell_2_icon.png");
+    }
+    else if(player->GetHero() == Hero::Type::MAGE)
+    {
+            // init skills panel
+            // init teleport
+        m_poSkillsPanel->CreateSpell("res/units/mage/spell_1_icon.png");
+        
+            // init battleview
+        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
+        atk_action->SetIcon("res/units/mage/atk_icon.png");
+        
+        auto freeze_act = m_poBattleView->m_poActionsView->CreateAction();
+        freeze_act->SetIcon("res/units/mage/spell_2_icon.png");
+    }
+    else if(player->GetHero() == Hero::Type::ROGUE)
+    {
+            // init skills panel
+            // init invisibility
+        m_poSkillsPanel->CreateSpell("res/units/rogue/spell_1_icon.png");
+        
+            // init battleview
+        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
+        atk_action->SetIcon("res/units/rogue/atk_icon.png");
+        
+        auto poisondagg_act = m_poBattleView->m_poActionsView->CreateAction();
+        poisondagg_act->SetIcon("res/units/rogue/spell_2_icon.png");
+    }
+    else if(player->GetHero() == Hero::Type::PRIEST)
+    {
+            // init skills panel
+            // init blinding light
+        m_poSkillsPanel->CreateSpell("res/units/priest/spell_1_icon.png");
+        
+            // init battleview
+        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
+        atk_action->SetIcon("res/units/rogue/atk_icon.png");
+    }
+}
+
+UISpellsPanel::UISpellsPanel()
 {
     auto visible_size = Director::getInstance()->getVisibleSize();
     
@@ -138,18 +194,18 @@ UISkillsPanel::UISkillsPanel()
     
     this->setLayoutType(ui::Layout::Type::VERTICAL);
     this->setContentSize(layout_size);
+}
+
+void
+UISpellsPanel::CreateSpell(const std::string& icon)
+{
+    auto skill_pos = ui::LinearLayoutParameter::create();
+    skill_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::TOP);
     
-        // init 'skills'
-    for(int i = 0; i < 1; ++i)
-    {
-        auto skill_pos = ui::LinearLayoutParameter::create();
-        skill_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::TOP);
-        
-        auto skill_button = ui::Button::create("res/earth_elem.png");
-        skill_button->setLayoutParameter(skill_pos);
-        this->addChild(skill_button);
-        m_aSkillsButtons.push_back(skill_button);
-    }
+    auto skill_button = ui::Button::create(icon);
+    skill_button->setLayoutParameter(skill_pos);
+    this->addChild(skill_button);
+    m_aSkillsButtons.push_back(skill_button);
 }
 
 UIBattleLogs::UIBattleLogs()
@@ -231,18 +287,20 @@ UIActionsView::UIActionsView()
     
     this->setLayoutType(ui::Layout::Type::VERTICAL);
     this->setContentSize(layout_size);
+}
+
+UIAction *
+UIActionsView::CreateAction()
+{
+    auto action_pos = ui::LinearLayoutParameter::create();
+    action_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::RIGHT);
     
-        // init actions
-    for(int i = 0; i < 1; ++i)
-    {
-        auto action_pos = ui::LinearLayoutParameter::create();
-        action_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::RIGHT);
-        
-        auto action = new UIAction();
-        action->setLayoutParameter(action_pos);
-        this->addChild(action);
-        m_apActions.push_back(action);
-    }
+    auto action = new UIAction();
+    action->setLayoutParameter(action_pos);
+    this->addChild(action);
+    m_apActions.push_back(action);
+    
+    return action;
 }
 
 UIAction::UIAction()
@@ -274,12 +332,15 @@ UIAction::UIAction()
     m_pSequenceLayout->setLayoutParameter(seq_lay_pos);
     m_pSequenceLayout->setContentSize(layout_size);
     this->addChild(m_pSequenceLayout);
-    
-        // init icon
+}
+
+void
+UIAction::SetIcon(const std::string& filename)
+{
     auto icon_pos = ui::RelativeLayoutParameter::create();
     icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pIcon = ui::ImageView::create("res/ui/battle/btl_atk_icon.png");
+    m_pIcon = ui::ImageView::create(filename);
     m_pIcon->setLayoutParameter(icon_pos);
     this->addChild(m_pIcon);
 }

@@ -37,7 +37,7 @@ enum class InputEvent
     SWIPE_LEFT = 0x02,
     SWIPE_RIGHT = 0x03,
     TAKE_ITEM_BUTTON_CLICK = 0x04,
-    SPELL_CAST_1_CLICK = 0x05
+    SPELL_CAST_0_CLICK = 0x05
 };
     
 const std::array<std::string, 4> BattleSwipeSprites

@@ -20,8 +20,11 @@ Rogue::Rogue()
     m_nBaseDamage = m_nActualDamage = 8;
     m_nArmor = 2;
     
-    m_nSpell1CD = 30.0;
-    m_nSpell1ACD = 0.0;
+        // spell 1 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 30.0f));
+    
+        // spell 2 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 15.0f));
     
         // initialize ATTACK sequence
     InputSequence seq(5);
@@ -45,29 +48,47 @@ Rogue::create(const std::string& filename)
 }
 
 void
-Rogue::RequestSpellCast1()
+Rogue::RequestSpellCast(int index)
 {
-    flatbuffers::FlatBufferBuilder builder;
-    auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                 this->GetUID(),
-                                                 1);
-    auto event = GameEvent::CreateMessage(builder,
-                                          GameEvent::Events_CLActionSpell,
-                                          spell1.Union());
-    builder.Finish(event);
-    
-    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                        builder.GetBufferPointer() + builder.GetSize());
+        // invisibility cast
+    if(index == 0)
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+                                                     this->GetUID(),
+                                                     0);
+        auto event = GameEvent::CreateMessage(builder,
+                                              GameEvent::Events_CLActionSpell,
+                                              spell1.Union());
+        builder.Finish(event);
+        
+        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                            builder.GetBufferPointer() + builder.GetSize());
+    }
+    else if(index == 1)
+    {
+        
+    }
 }
 
 void
-Rogue::SpellCast1(const GameEvent::SVActionSpell*)
+Rogue::SpellCast(const GameEvent::SVActionSpell* spell)
 {
-    m_nSpell1ACD = m_nSpell1CD;
-    
-    RogueInvisibility * pInvis = new RogueInvisibility(5.0);
-    pInvis->SetTargetUnit(this);
-    this->ApplyEffect(pInvis);
+        // invisibility cast (0 spell)
+    if(spell->spell_id() == 0)
+    {
+            // set up CD
+        std::get<0>(m_aSpellCDs[0]) = false;
+        std::get<1>(m_aSpellCDs[0]) = std::get<2>(m_aSpellCDs[0]);
+        
+        RogueInvisibility * pInvis = new RogueInvisibility(5.0);
+        pInvis->SetTargetUnit(this);
+        this->ApplyEffect(pInvis);
+    }
+    else if(spell->spell_id() == 1)
+    {
+        
+    }
 }
 
 void

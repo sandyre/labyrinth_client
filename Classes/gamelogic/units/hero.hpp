@@ -56,21 +56,19 @@ public:
         MAGE = 0x01,
         ROGUE = 0x02,
         PRIEST = 0x03,
-        LAST_HERO = 0x03
+        LAST_HERO = 0x01
     };
 public:
     Hero::Type      GetHero() const;
     
     void                        SetIsLocalPlayer(bool val);
+    
+        // sets HUD and configures it for current hero
     void                        SetHUD(UIGameScene* ui);
     virtual void                ApplyInputEvent(InputEvent) override;
     
-    virtual void                RequestSpellCast1() = 0;
-    virtual void                SpellCast1(const GameEvent::SVActionSpell*) = 0;
-    float                       GetSpell1ACD() const;
-    bool                        isSpellCast1Ready() const;
-    
-    virtual void                RequestSpellCast2() = 0;
+    virtual void                RequestSpellCast(int index) = 0;
+    virtual void                SpellCast(const GameEvent::SVActionSpell*) = 0;
     
     virtual void                StartDuel(Unit *) override;
     virtual void                EndDuel() override;
@@ -84,8 +82,7 @@ protected:
     
     std::vector<InputSequence> m_aCastSequences;
     
-    float               m_nSpell1CD;
-    float               m_nSpell1ACD;
+    std::vector<std::tuple<bool, float, float>>    m_aSpellCDs; // <ready, ActiveCD, nominalCD>
     
     bool    m_bIsLocalPlayer;
     

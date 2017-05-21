@@ -46,6 +46,11 @@ public:
         DUEL,
         DEAD
     };
+    struct Attributes
+    {
+        static const int INPUT = 0x01;
+        static const int ATTACK = 0x02;
+    };
 public:
     Unit::Type          GetUnitType() const;
     Unit::State         GetState() const;
@@ -100,6 +105,8 @@ protected:
     Unit::Type          m_eUnitType;
     Unit::State         m_eState;
     Unit::Orientation   m_eOrientation;
+    
+    uint32_t            m_nUnitAttributes;
     
     std::string         m_sName;
     

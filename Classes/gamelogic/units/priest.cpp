@@ -18,8 +18,11 @@ Priest::Priest()
     m_nBaseDamage = m_nActualDamage = 10;
     m_nArmor = 4;
     
-    m_nSpell1CD = 30.0;
-    m_nSpell1ACD = 0.0;
+        // spell 1 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
+    
+        // spell 2 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
     
     m_nRegenInterval = 2.0;
     m_nRegenTimer = 0.0;

@@ -16,12 +16,15 @@ Warrior::Warrior()
 {
     m_eHero = Hero::Type::WARRIOR;
     m_nMoveSpeed = 2.5;
-    m_nMHealth = m_nHealth = 50;
+    m_nMHealth = m_nHealth = 80;
     m_nArmor = 6;
     m_nBaseDamage = m_nActualDamage = 10;
     
-    m_nSpell1CD = 10.0;
-    m_nSpell1ACD = 0.0;
+        // spell 1 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
+    
+        // spell 2 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 5.0f));
     
         // initialize ATTACK sequence
     InputSequence atk_seq(5);
@@ -50,30 +53,66 @@ Warrior::create(const std::string& filename)
 }
 
 void
-Warrior::RequestSpellCast1()
+Warrior::RequestSpellCast(int index)
 {
-    flatbuffers::FlatBufferBuilder builder;
-    auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                 this->GetUID(),
-                                                 1);
-    auto event = GameEvent::CreateMessage(builder,
-                                          GameEvent::Events_CLActionSpell,
-                                          spell1.Union());
-    builder.Finish(event);
-    
-    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                        builder.GetBufferPointer() + builder.GetSize());
+        // warrior dash
+    if(index == 0)
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+                                                     this->GetUID(),
+                                                     0);
+        auto event = GameEvent::CreateMessage(builder,
+                                              GameEvent::Events_CLActionSpell,
+                                              spell1.Union());
+        builder.Finish(event);
+        
+        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                            builder.GetBufferPointer() + builder.GetSize());
+    }
+        // warrior armor up
+    else if(index == 1)
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+                                                     this->GetUID(),
+                                                     1);
+        auto event = GameEvent::CreateMessage(builder,
+                                              GameEvent::Events_CLActionSpell,
+                                              spell1.Union());
+        builder.Finish(event);
+        
+        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                            builder.GetBufferPointer() + builder.GetSize());
+    }
 }
 
 void
-Warrior::SpellCast1(const GameEvent::SVActionSpell*)
+Warrior::SpellCast(const GameEvent::SVActionSpell* spell)
 {
-    m_nSpell1ACD = m_nSpell1CD;
-    
-    WarriorDash * pDash = new WarriorDash(3.0,
-                                          5.5);
-    pDash->SetTargetUnit(this);
-    this->ApplyEffect(pDash);
+        // spell0 == dash
+    if(spell->spell_id() == 0)
+    {
+            // set up CD
+        std::get<0>(m_aSpellCDs[0]) = false;
+        std::get<1>(m_aSpellCDs[0]) = std::get<2>(m_aSpellCDs[0]);
+        
+        WarriorDash * pDash = new WarriorDash(3.0,
+                                              5.5);
+        pDash->SetTargetUnit(this);
+        this->ApplyEffect(pDash);
+    }
+    else if(spell->spell_id() == 1)
+    {
+            // set up CD
+        std::get<0>(m_aSpellCDs[1]) = false;
+        std::get<1>(m_aSpellCDs[1]) = std::get<2>(m_aSpellCDs[1]);
+        
+        WarriorArmorUp * pArmUp = new WarriorArmorUp(5.0,
+                                                     4);
+        pArmUp->SetTargetUnit(this);
+        this->ApplyEffect(pArmUp);
+    }
 }
 
 void

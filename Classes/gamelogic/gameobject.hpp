@@ -41,7 +41,7 @@ public:
     
     void            SetGameWorld(GameWorld*);
     
-    uint32_t        GetAttributes() const;
+    uint32_t        GetObjAttributes() const;
     
     uint32_t        GetUID() const;
     void            SetUID(uint32_t);
@@ -53,7 +53,7 @@ protected:
     GameWorld *     m_poGameWorld;
     
     GameObject::Type    m_eObjType;
-    uint32_t            m_nAttributes;
+    uint32_t            m_nObjAttributes;
     uint32_t            m_nUID;
     cocos2d::Vec2       m_stLogPosition;
 };

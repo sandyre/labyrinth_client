@@ -63,8 +63,10 @@ GameScene::init()
         // init UI (aka HUD)
     m_pUI = new UIGameScene();
     m_pUI->m_poBattleView->setActive(false);
-    m_pUI->setCameraMask((unsigned short)CameraFlag::USER1);
     this->addChild(m_pUI);
+    
+    m_pUI->ConfigureForHero(m_pGWorld->GetLocalPlayer());
+    m_pUI->setCameraMask((unsigned short)CameraFlag::USER1);
     
         // from now on, HUD view is controlled by gameworld,
         // but input is controlled by gamescene
@@ -95,7 +97,7 @@ GameScene::init()
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_Q)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_1_CLICK);
+            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListener, this);
@@ -114,7 +116,7 @@ GameScene::init()
     {
         if(type == ui::Widget::TouchEventType::ENDED)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_1_CLICK);
+            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
     m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->addTouchEventListener(skill_1_callback);
