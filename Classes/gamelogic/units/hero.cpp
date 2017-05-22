@@ -37,8 +37,9 @@ Hero::update(float delta)
         m_pUI->m_pHPText->setString(cocos2d::StringUtils::format("%d",
                                                                  this->GetHealth()));
         m_pUI->m_pHPBar->setPercent(((float)this->GetHealth() / this->GetMaxHealth()) * 100.0f);
-        m_pUI->m_pArmor->setString(cocos2d::StringUtils::format("Armor: %d",
-                                                                this->GetArmor()));
+        m_pUI->m_pArmor->setString(cocos2d::StringUtils::format("Phys: %d Mag: %d",
+                                                                this->GetArmor(),
+                                                                this->GetMagicResistance()));
         
         if(std::get<0>(m_aSpellCDs[0]) == true)
             m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);

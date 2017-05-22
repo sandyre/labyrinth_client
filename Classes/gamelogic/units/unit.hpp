@@ -64,6 +64,7 @@ public:
     int16_t             GetHealth() const;
     int16_t             GetMaxHealth() const;
     int16_t             GetArmor() const;
+    int16_t             GetMagicResistance() const;
     
     std::vector<Item*>& GetInventory();
     Unit * const        GetDuelTarget() const;
@@ -115,6 +116,7 @@ protected:
     int16_t             m_nHealth, m_nMHealth;
     
     int16_t             m_nArmor;
+    int16_t             m_nMResistance;
     
     float   m_nMoveSpeed;
     

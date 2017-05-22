@@ -17,8 +17,9 @@ Warrior::Warrior()
     m_eHero = Hero::Type::WARRIOR;
     m_nMoveSpeed = 2.5;
     m_nMHealth = m_nHealth = 80;
-    m_nArmor = 6;
     m_nBaseDamage = m_nActualDamage = 10;
+    m_nArmor = 6;
+    m_nMResistance = 2;
     
         // spell 1 cd
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));

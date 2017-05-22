@@ -20,11 +20,12 @@ m_eState(Unit::State::UNDEFINED),
 m_eOrientation(Unit::Orientation::DOWN),
 m_nUnitAttributes(0),
 m_sName("Unit"),
-m_nBaseDamage(0),
-m_nActualDamage(0),
-m_nHealth(0),
-m_nMHealth(0),
-m_nArmor(0),
+m_nBaseDamage(10),
+m_nActualDamage(10),
+m_nHealth(50),
+m_nMHealth(50),
+m_nArmor(2),
+m_nMResistance(2),
 m_nMoveSpeed(2.0),
 m_pDuelTarget(nullptr)
 {
@@ -90,6 +91,12 @@ int16_t
 Unit::GetArmor() const
 {
     return m_nArmor;
+}
+
+int16_t
+Unit::GetMagicResistance() const
+{
+    return m_nMResistance;
 }
 
 Unit * const

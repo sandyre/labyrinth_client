@@ -18,6 +18,7 @@ Mage::Mage()
     m_nMHealth = m_nHealth = 50;
     m_nBaseDamage = m_nActualDamage = 18;
     m_nArmor = 2;
+    m_nMResistance = 6;
     
         // spell 1 cd
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 30.0f));
