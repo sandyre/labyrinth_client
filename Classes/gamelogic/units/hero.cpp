@@ -11,7 +11,7 @@
 #include "gsnet_generated.h"
 #include "../gameworld.hpp"
 
-#include <cocos/ui/CocosGUI.h>
+#include "cocos2d/cocos/ui/CocosGUI.h"
 
 Hero::Hero() :
 m_eHero(Hero::Type::FIRST_HERO),
