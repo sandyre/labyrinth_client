@@ -30,7 +30,6 @@ void
 Hero::update(float delta)
 {
     Unit::update(delta);
-    UpdateCDs(delta);
     
     if(m_bIsLocalPlayer)
     {
@@ -51,6 +50,10 @@ Hero::update(float delta)
 void
 Hero::ApplyInputEvent(InputEvent event)
 {
+        // if input is disabled, nothing happens
+    if(!(m_nUnitAttributes & Unit::Attributes::INPUT))
+        return;
+    
     switch(m_eState)
     {
         case Unit::State::WALKING:
@@ -80,29 +83,48 @@ Hero::ApplyInputEvent(InputEvent event)
                     this->RequestSpellCast(0);
                 break;
             }
+            
+            auto prev_orientation = m_eOrientation;
             auto next_pos = m_stLogPosition;
             if(event == InputEvent::SWIPE_DOWN)
+            {
+                m_eOrientation = Orientation::DOWN;
                 --next_pos.y;
+            }
             else if(event == InputEvent::SWIPE_UP)
+            {
+                m_eOrientation = Orientation::UP;
                 ++next_pos.y;
+            }
             else if(event == InputEvent::SWIPE_LEFT)
+            {
+                m_eOrientation = Orientation::LEFT;
                 --next_pos.x;
+            }
             else if(event == InputEvent::SWIPE_RIGHT)
+            {
+                m_eOrientation = Orientation::RIGHT;
                 ++next_pos.x;
+            }
             
                 // check that there is no opponent in path
             bool duel_enter = false;
-            if(this->GetObjAttributes() & GameObject::Attributes::DUELABLE)
+            if(m_nUnitAttributes & Unit::Attributes::DUELABLE)
             {
                 for(auto object : m_poGameWorld->m_apoObjects)
                 {
-                    if(object->GetObjType() == GameObject::Type::UNIT &&
-                       (next_pos == object->GetLogicalPosition()) &&
-                       (object->GetObjAttributes() & GameObject::Attributes::DUELABLE) &&
-                       object->GetUID() != this->GetUID())
+                    if(object->GetUID() != this->GetUID() &&
+                       object->GetObjType() == GameObject::Type::UNIT)
                     {
-                        RequestStartDuel(static_cast<Unit*>(object));
-                        duel_enter = true;
+                        auto unit = dynamic_cast<Unit*>(object);
+                        if(unit->GetState() == Unit::State::WALKING &&
+                           (unit->GetUnitAttributes() & Unit::Attributes::DUELABLE) &&
+                           unit->GetLogicalPosition().distance(this->GetLogicalPosition()) <= 1.0)
+                        {
+                            RequestStartDuel(unit);
+                            duel_enter = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -110,6 +132,20 @@ Hero::ApplyInputEvent(InputEvent event)
             if(!duel_enter)
             {
                 RequestMove(next_pos);
+                break;
+            }
+            
+                // flip player depending on new orientation
+            if(prev_orientation != m_eOrientation)
+            {
+                if(m_eOrientation == Orientation::LEFT)
+                {
+                    this->setFlippedX(true);
+                }
+                else if(m_eOrientation == Orientation::RIGHT)
+                {
+                    this->setFlippedX(false);
+                }
             }
             break;
         }
@@ -136,11 +172,11 @@ Hero::ApplyInputEvent(InputEvent event)
                     {
                         if(i == 0)
                         {
-                            RequestAttack();
+                            RequestSpellCast(1);
                         }
                         else if(i == 1)
                         {
-                            RequestSpellCast(1);
+                            RequestSpellCast(2);
                         }
                         
                         seq.Refresh();
@@ -244,36 +280,6 @@ Hero::EndDuel()
     if(m_bIsLocalPlayer)
     {
         m_pUI->m_poBattleView->setVisible(false);
-    }
-}
-
-void
-Hero::UpdateCDs(float delta)
-{
-        // update spell 1 (global) cd
-    if(std::get<0>(m_aSpellCDs[0]) == false)
-    {
-        std::get<1>(m_aSpellCDs[0]) -= delta;
-        m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(false);
-    }
-    else
-    {
-        std::get<0>(m_aSpellCDs[0]) = true;
-        m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);
-    }
-    
-        // update duel-only spells
-    for(int i = 1; i < m_aSpellCDs.size(); ++i)
-    {
-        if(std::get<0>(m_aSpellCDs[i]) == false)
-        {
-            std::get<1>(m_aSpellCDs[i]) -= delta;
-        }
-        else
-        {
-            std::get<0>(m_aSpellCDs[i]) = true;
-            std::get<1>(m_aSpellCDs[i]) = 0.0f;
-        }
     }
 }
 

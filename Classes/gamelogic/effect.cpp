@@ -107,7 +107,8 @@ RogueInvisibility::RogueInvisibility(float duration)
 void
 RogueInvisibility::start()
 {
-    m_pTargetUnit->m_nObjAttributes ^= (GameObject::Attributes::VISIBLE | GameObject::Attributes::DUELABLE);
+    m_pTargetUnit->m_nObjAttributes &= ~(GameObject::Attributes::VISIBLE);
+    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
     auto fadeOut = cocos2d::FadeOut::create(0.5);
     m_pTargetUnit->runAction(fadeOut);
 }
@@ -128,7 +129,8 @@ RogueInvisibility::update(float delta)
 void
 RogueInvisibility::stop()
 {
-    m_pTargetUnit->m_nObjAttributes |= (GameObject::Attributes::VISIBLE | GameObject::Attributes::DUELABLE);
+    m_pTargetUnit->m_nObjAttributes |= (GameObject::Attributes::VISIBLE);
+    m_pTargetUnit->m_nUnitAttributes |= (Unit::Attributes::DUELABLE);
     auto fadeIn = cocos2d::FadeIn::create(0.5);
     m_pTargetUnit->runAction(fadeIn);
 }
@@ -171,7 +173,7 @@ DuelInvulnerability::DuelInvulnerability(float duration)
 void
 DuelInvulnerability::start()
 {
-    m_pTargetUnit->m_nObjAttributes &= ~(GameObject::Attributes::DUELABLE);
+    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
 }
 
 void
@@ -190,5 +192,5 @@ DuelInvulnerability::update(float delta)
 void
 DuelInvulnerability::stop()
 {
-    m_pTargetUnit->m_nObjAttributes |= GameObject::Attributes::DUELABLE;
+    m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
 }

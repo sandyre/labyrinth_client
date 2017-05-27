@@ -67,22 +67,16 @@ public:
     void                        SetHUD(UIGameScene* ui);
     virtual void                ApplyInputEvent(InputEvent) override;
     
-    virtual void                RequestSpellCast(int index) = 0;
-    virtual void                SpellCast(const GameEvent::SVActionSpell*) = 0;
-    
     virtual void                StartDuel(Unit *) override;
     virtual void                EndDuel() override;
 protected:
     Hero();
-    
-    virtual void        UpdateCDs(float);
+
     virtual void        update(float) override;
 protected:
     Hero::Type          m_eHero;
     
     std::vector<InputSequence> m_aCastSequences;
-    
-    std::vector<std::tuple<bool, float, float>>    m_aSpellCDs; // <ready, ActiveCD, nominalCD>
     
     bool    m_bIsLocalPlayer;
     

@@ -38,12 +38,12 @@ GameWorld::AddPlayer(PlayerInfo player)
     {
         case Hero::Type::WARRIOR:
         {
-            pHero = Warrior::create("res/units/warrior/down.png");
+            pHero = Warrior::create("res/units/warrior/spr_char_warrior.png");
             break;
         }
         case Hero::Type::MAGE:
         {
-            pHero = Mage::create("res/units/mage/down.png");
+            pHero = Mage::create("res/units/mage/spr_char_mage.png");
             break;
         }
         case Hero::Type::ROGUE:
@@ -375,7 +375,7 @@ GameWorld::ReceiveInputNetEvents()
                         
                         first->EndDuel();
                         second->EndDuel();
-                        second->Die();
+                        second->Die(first);
                         
                         m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
                                                                                          second->GetName().c_str()));
@@ -386,6 +386,32 @@ GameWorld::ReceiveInputNetEvents()
                         assert(false);
                         break;
                 }
+                
+                break;
+            }
+                
+            case GameEvent::Events_SVActionDeath:
+            {
+                auto gs_death = static_cast<const GameEvent::SVActionDeath*>(gs_event->event());
+                
+                Unit * player = nullptr;
+                Unit * killer = nullptr;
+                for(auto object : m_apoObjects)
+                {
+                    if(object->GetUID() == gs_death->player_uid())
+                    {
+                        player = static_cast<Unit*>(object);
+                    }
+                    else if(object->GetUID() == gs_death->killer_uid())
+                    {
+                        killer = static_cast<Unit*>(object);
+                    }
+                }
+                
+                player->Die(killer);
+                killer->EndDuel();
+                m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
+                                                                                 player->GetName().c_str()));
                 
                 break;
             }
@@ -415,24 +441,6 @@ GameWorld::ReceiveInputNetEvents()
                 this->release();
                 cocos2d::Director::getInstance()->popScene();
                 
-                break;
-            }
-                
-            case GameEvent::Events_SVActionAttack:
-            {
-                auto atk = static_cast<const GameEvent::SVActionAttack*>(gs_event->event());
-                
-                Unit * attacker = nullptr;
-                
-                for(auto object : m_apoObjects)
-                {
-                    if(object->GetUID() == atk->target1_uid())
-                    {
-                        attacker = static_cast<Unit*>(object);
-                    }
-                }
-                
-                attacker->Attack(atk);
                 break;
             }
                 

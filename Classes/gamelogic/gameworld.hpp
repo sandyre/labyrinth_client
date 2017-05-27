@@ -51,6 +51,8 @@ protected:
     
     UIGameScene * m_pUI;
     
+    cocos2d::Sprite *   m_pGameWorldSprite;
+    
     friend GameMap;
     friend Unit;
     friend Hero;

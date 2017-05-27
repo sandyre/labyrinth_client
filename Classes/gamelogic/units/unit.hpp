@@ -46,16 +46,22 @@ public:
         DUEL,
         DEAD
     };
+    enum class DamageType
+    {
+        PHYSICAL = 0x00,
+        MAGICAL = 0x01
+    };
     struct Attributes
     {
         static const int INPUT = 0x01;
         static const int ATTACK = 0x02;
+        static const int DUELABLE = 0x04;
     };
 public:
     Unit::Type          GetUnitType() const;
     Unit::State         GetState() const;
     Unit::Orientation   GetOrientation() const;
-    uint32_t            GetStatus() const;
+    uint32_t            GetUnitAttributes() const;
     
     std::string         GetName() const;
     void                SetName(const std::string&);
@@ -70,20 +76,19 @@ public:
     Unit * const        GetDuelTarget() const;
     
         // Only server actions
+    virtual void    TakeDamage(int16_t, DamageType, Unit *);
     virtual void    Spawn(cocos2d::Vec2);
     virtual void    Respawn(cocos2d::Vec2);
     virtual void    EndDuel();
-    virtual void    Die();
+    virtual void    Die(Unit *);
     
         // Able to do
+    virtual void    RequestSpellCast(int index) = 0;
+    virtual void    SpellCast(const GameEvent::SVActionSpell*) = 0;
     virtual void    RequestMove(cocos2d::Vec2);
     virtual void    Move(cocos2d::Vec2);
     virtual void    RequestStartDuel(Unit*);
     virtual void    StartDuel(Unit*);
-    
-    virtual void    RequestAttack();
-    virtual void    Attack(const GameEvent::SVActionAttack*);
-    virtual void    TakeAttack(const GameEvent::SVActionAttack*);
     
         // Items manip
     virtual void    RequestTakeItem(Item*);
@@ -102,6 +107,7 @@ protected:
     Unit();
     
     virtual void        update(float);
+    virtual void        UpdateCDs(float);
 protected:
     Unit::Type          m_eUnitType;
     Unit::State         m_eState;
@@ -121,6 +127,8 @@ protected:
     float   m_nMoveSpeed;
     
     std::vector<Item*>  m_aInventory;
+    
+    std::vector<std::tuple<bool, float, float>>    m_aSpellCDs; // <ready, ActiveCD, nominalCD>
     
     std::queue<InputEvent>  m_aInputEvents;
         // Duel-data

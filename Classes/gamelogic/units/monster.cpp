@@ -34,3 +34,14 @@ Monster::create(const std::string& filename)
     CC_SAFE_DELETE(pMonster);
     return nullptr;
 }
+
+void
+Monster::SpellCast(const GameEvent::SVActionSpell * spell)
+{
+    if(spell->spell_id() == 0)
+    {
+        m_pDuelTarget->TakeDamage(m_nActualDamage,
+                                  Unit::DamageType::PHYSICAL,
+                                  this);
+    }
+}

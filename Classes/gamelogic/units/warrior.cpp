@@ -25,6 +25,9 @@ Warrior::Warrior()
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
     
         // spell 2 cd
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 0.0f));
+    
+        // spell 3 cd
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 5.0f));
     
         // initialize ATTACK sequence
@@ -71,13 +74,28 @@ Warrior::RequestSpellCast(int index)
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
                                             builder.GetBufferPointer() + builder.GetSize());
     }
-        // warrior armor up
+        // warrior attack
     else if(index == 1)
     {
         flatbuffers::FlatBufferBuilder builder;
         auto spell1 = GameEvent::CreateCLActionSpell(builder,
                                                      this->GetUID(),
                                                      1);
+        auto event = GameEvent::CreateMessage(builder,
+                                              GameEvent::Events_CLActionSpell,
+                                              spell1.Union());
+        builder.Finish(event);
+        
+        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                            builder.GetBufferPointer() + builder.GetSize());
+    }
+        // warrior armor up
+    else if(index == 2)
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+                                                     this->GetUID(),
+                                                     2);
         auto event = GameEvent::CreateMessage(builder,
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
@@ -103,11 +121,23 @@ Warrior::SpellCast(const GameEvent::SVActionSpell* spell)
         pDash->SetTargetUnit(this);
         this->ApplyEffect(pDash);
     }
+        // spell1 == attack
     else if(spell->spell_id() == 1)
     {
             // set up CD
         std::get<0>(m_aSpellCDs[1]) = false;
         std::get<1>(m_aSpellCDs[1]) = std::get<2>(m_aSpellCDs[1]);
+        
+        m_pDuelTarget->TakeDamage(m_nActualDamage,
+                                  Unit::DamageType::PHYSICAL,
+                                  this);
+    }
+        // spell2 == armor up
+    else if(spell->spell_id() == 2)
+    {
+            // set up CD
+        std::get<0>(m_aSpellCDs[2]) = false;
+        std::get<1>(m_aSpellCDs[2]) = std::get<2>(m_aSpellCDs[2]);
         
         WarriorArmorUp * pArmUp = new WarriorArmorUp(5.0,
                                                      4);

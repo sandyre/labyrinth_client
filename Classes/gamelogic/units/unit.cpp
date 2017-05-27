@@ -32,11 +32,11 @@ m_pDuelTarget(nullptr)
     m_eObjType = GameObject::Type::UNIT;
     m_eState = Unit::State::WALKING;
     m_nObjAttributes |= GameObject::Attributes::MOVABLE;
-    m_nObjAttributes |= GameObject::Attributes::DUELABLE;
     m_nObjAttributes |= GameObject::Attributes::DAMAGABLE;
     
     m_nUnitAttributes |= Unit::Attributes::INPUT;
     m_nUnitAttributes |= Unit::Attributes::ATTACK;
+    m_nUnitAttributes |= Unit::Attributes::DUELABLE;
 }
 
 Unit::Type
@@ -121,6 +121,7 @@ Unit::ApplyEffect(Effect * effect)
 void
 Unit::update(float delta)
 {
+    UpdateCDs(delta);
     for(auto effect : m_aAppliedEffects)
     {
         effect->update(delta);
@@ -141,6 +142,24 @@ Unit::update(float delta)
                                                return false;
                                            }),
                             m_aAppliedEffects.end());
+}
+
+void
+Unit::UpdateCDs(float delta)
+{
+    for(auto& cd : m_aSpellCDs)
+    {
+        if(std::get<0>(cd) == false)
+        {
+            std::get<1>(cd) -= delta;
+            
+            if(std::get<1>(cd) <= 0.0f)
+            {
+                std::get<0>(cd) = true;
+                std::get<1>(cd) = 0.0f;
+            }
+        }
+    }
 }
 /*
  *
@@ -218,24 +237,6 @@ Unit::RequestStartDuel(Unit * enemy)
                                         builder.GetBufferPointer() + builder.GetSize());
 }
 
-void
-Unit::RequestAttack()
-{
-    flatbuffers::FlatBufferBuilder builder;
-    auto atk = GameEvent::CreateCLActionAttack(builder,
-                                               this->GetUID(),
-                                               m_pDuelTarget->GetUID(),
-                                               m_nActualDamage,
-                                               0);
-    auto msg = GameEvent::CreateMessage(builder,
-                                        GameEvent::Events_CLActionAttack,
-                                        atk.Union());
-    builder.Finish(msg);
-    
-    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                        builder.GetBufferPointer() + builder.GetSize());
-}
-
 /*
  *
  * Animations
@@ -248,9 +249,11 @@ Unit::Spawn(cocos2d::Vec2 log_pos)
     using Attributes = GameObject::Attributes;
     m_eState = Unit::State::WALKING;
     m_nObjAttributes = Attributes::DAMAGABLE |
-                    Attributes::DUELABLE |
                     Attributes::VISIBLE |
                     Attributes::MOVABLE;
+    m_nUnitAttributes = Unit::Attributes::ATTACK |
+    Unit::Attributes::DUELABLE |
+    Unit::Attributes::INPUT;
     m_nHealth = m_nMHealth;
     
     m_stLogPosition = log_pos;
@@ -286,11 +289,47 @@ Unit::DropItem(int32_t index)
 }
 
 void
-Unit::Die()
+Unit::TakeDamage(int16_t damage,
+                 Unit::DamageType dmg_type,
+                 Unit * damage_dealer)
+{
+    int16_t damage_taken = damage;
+    if(dmg_type == Unit::DamageType::PHYSICAL)
+        damage_taken -= m_nArmor;
+    else if(dmg_type == Unit::DamageType::MAGICAL)
+        damage_taken -= m_nMResistance;
+    
+    m_nHealth -= damage_taken;
+    
+    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
+                                          "fonts/alagard.ttf",
+                                          12);
+    hp_text->setTextColor(dmg_type == Unit::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::BLUE);
+    
+    auto center_pos = this->getContentSize() / 2;
+    hp_text->setPosition(center_pos);
+    this->addChild(hp_text);
+    
+    auto moveup = cocos2d::MoveBy::create(1,
+                                          cocos2d::Vec2(0, center_pos.height));
+    auto fadeout = cocos2d::FadeOut::create(0.5f);
+    auto seq = cocos2d::Sequence::create(moveup,
+                                         fadeout,
+                                         cocos2d::RemoveSelf::create(),
+                                         nullptr);
+    hp_text->runAction(seq);
+}
+
+void
+Unit::Die(Unit * killer)
 {
     m_eState = Unit::State::DEAD;
     m_nHealth = 0;
     m_nObjAttributes = GameObject::Attributes::PASSABLE;
+    m_nUnitAttributes = 0;
+    
+    if(m_pDuelTarget != nullptr)
+        EndDuel();
     
         // drop items
     while(!m_aInventory.empty())
@@ -309,10 +348,17 @@ Unit::Die()
     this->runAction(fadeOut);
 }
 
+uint32_t
+Unit::GetUnitAttributes() const
+{
+    return m_nUnitAttributes;
+}
+
 void
 Unit::Move(cocos2d::Vec2 log_pos)
 {
     m_stLogPosition = log_pos;
+    
         // animation
     auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(log_pos, this->getContentSize()));
@@ -329,47 +375,10 @@ Unit::TakeItem(Item * item)
 }
 
 void
-Unit::Attack(const GameEvent::SVActionAttack* atk)
-{
-        // play animation and remove enemy hp
-    m_pDuelTarget->TakeAttack(atk);
-}
-
-void
-Unit::TakeAttack(const GameEvent::SVActionAttack* atk)
-{
-    int16_t damage_taken = atk->damage();
-    if(!(atk->modificators() & 1))
-    {
-        damage_taken -= m_nArmor;
-    }
-    
-    m_nHealth -= damage_taken;
-    
-    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
-                                          "fonts/alagard.ttf",
-                                          12);
-    hp_text->setTextColor(atk->modificators() == 1 ? cocos2d::Color4B::YELLOW : cocos2d::Color4B::RED);
-    
-    auto center_pos = this->getContentSize() / 2;
-    hp_text->setPosition(center_pos);
-    this->addChild(hp_text);
-    
-    auto moveup = cocos2d::MoveBy::create(1,
-                                          cocos2d::Vec2(0, center_pos.height));
-    auto fadeout = cocos2d::FadeOut::create(0.5f);
-    auto seq = cocos2d::Sequence::create(moveup,
-                                         fadeout,
-                                         cocos2d::RemoveSelf::create(),
-                                         nullptr);
-    hp_text->runAction(seq);
-}
-
-void
 Unit::StartDuel(Unit * enemy)
 {
     m_eState = Unit::State::DUEL;
-    m_nObjAttributes ^= GameObject::Attributes::DUELABLE;
+    m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
     
     m_pDuelTarget = enemy;
 }
@@ -378,7 +387,7 @@ void
 Unit::EndDuel()
 {
     m_eState = Unit::State::WALKING;
-    m_nObjAttributes ^= GameObject::Attributes::DUELABLE;
+    m_nUnitAttributes |= Unit::Attributes::DUELABLE;
     
     m_pDuelTarget = nullptr;
 }
