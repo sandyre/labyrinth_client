@@ -84,26 +84,21 @@ Hero::ApplyInputEvent(InputEvent event)
                 break;
             }
             
-            auto prev_orientation = m_eOrientation;
             auto next_pos = m_stLogPosition;
             if(event == InputEvent::SWIPE_DOWN)
             {
-                m_eOrientation = Orientation::DOWN;
                 --next_pos.y;
             }
             else if(event == InputEvent::SWIPE_UP)
             {
-                m_eOrientation = Orientation::UP;
                 ++next_pos.y;
             }
             else if(event == InputEvent::SWIPE_LEFT)
             {
-                m_eOrientation = Orientation::LEFT;
                 --next_pos.x;
             }
             else if(event == InputEvent::SWIPE_RIGHT)
             {
-                m_eOrientation = Orientation::RIGHT;
                 ++next_pos.x;
             }
             
@@ -119,7 +114,7 @@ Hero::ApplyInputEvent(InputEvent event)
                         auto unit = dynamic_cast<Unit*>(object);
                         if(unit->GetState() == Unit::State::WALKING &&
                            (unit->GetUnitAttributes() & Unit::Attributes::DUELABLE) &&
-                           unit->GetLogicalPosition().distance(this->GetLogicalPosition()) <= 1.0)
+                           unit->GetLogicalPosition() == next_pos)
                         {
                             RequestStartDuel(unit);
                             duel_enter = true;
@@ -131,21 +126,8 @@ Hero::ApplyInputEvent(InputEvent event)
             
             if(!duel_enter)
             {
-                RequestMove(next_pos);
-                break;
-            }
-            
-                // flip player depending on new orientation
-            if(prev_orientation != m_eOrientation)
-            {
-                if(m_eOrientation == Orientation::LEFT)
-                {
-                    this->setFlippedX(true);
-                }
-                else if(m_eOrientation == Orientation::RIGHT)
-                {
-                    this->setFlippedX(false);
-                }
+                    // FIXME: potential disaster if we change InputEvent or MoveDirection consts
+                RequestMove((MoveDirection)event);
             }
             break;
         }

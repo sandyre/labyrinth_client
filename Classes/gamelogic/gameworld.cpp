@@ -255,8 +255,7 @@ GameWorld::ReceiveInputNetEvents()
                         
                         if(unit->GetUID() == gs_mov->target_uid())
                         {
-                            unit->Move(cocos2d::Vec2(gs_mov->x(),
-                                                     gs_mov->y()));
+                            unit->Move(gs_mov);
                             break;
                         }
                     }

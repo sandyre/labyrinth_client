@@ -263,7 +263,11 @@ UIBattleView::UIBattleView()
     
         // init 'actionsview'
     auto act_view_pos = ui::RelativeLayoutParameter::create();
-    act_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
+    act_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+    act_view_pos->setMargin(ui::Margin(0,
+                                       visible_size.height * 0.120,
+                                       0,
+                                       0));
     
     m_poActionsView = new UIActionsView();
     m_poActionsView->setLayoutParameter(act_view_pos);
