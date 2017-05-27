@@ -167,19 +167,8 @@ Unit::UpdateCDs(float delta)
  *
  */
 void
-Unit::RequestMove(cocos2d::Vec2 pos)
+Unit::RequestMove(MoveDirection dir)
 {
-        // check that path is clear
-    for(auto object : m_poGameWorld->m_apoObjects)
-    {
-        if(object->GetLogicalPosition() == pos &&
-           !(object->GetObjAttributes() & GameObject::Attributes::PASSABLE))
-        {
-                // unpassable object
-            return;
-        }
-    }
-    
         // detect if player is already moving
     auto action = this->getActionByTag(5);
     if(action != nullptr)
@@ -188,8 +177,7 @@ Unit::RequestMove(cocos2d::Vec2 pos)
     flatbuffers::FlatBufferBuilder builder;
     auto move = GameEvent::CreateCLActionMove(builder,
                                               this->GetUID(),
-                                              pos.x,
-                                              pos.y);
+                                              (char)dir);
     auto event = GameEvent::CreateMessage(builder,
                                           GameEvent::Events_CLActionMove,
                                           move.Union());
@@ -355,13 +343,48 @@ Unit::GetUnitAttributes() const
 }
 
 void
-Unit::Move(cocos2d::Vec2 log_pos)
+Unit::Move(const GameEvent::SVActionMove* mov)
 {
-    m_stLogPosition = log_pos;
+    Orientation new_orient = (Orientation)mov->mov_dir();
+    MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
+    cocos2d::Vec2 new_pos = m_stLogPosition;
+    if(mov_dir == MoveDirection::UP)
+    {
+        ++new_pos.y;
+    }
+    else if(mov_dir == MoveDirection::DOWN)
+    {
+        --new_pos.y;
+    }
+    else if(mov_dir == MoveDirection::LEFT)
+    {
+        --new_pos.x;
+    }
+    else if(mov_dir == MoveDirection::RIGHT)
+    {
+        ++new_pos.x;
+    }
+    
+        // change orientation properly
+    if(m_eOrientation != new_orient)
+    {
+        if(new_orient == Orientation::LEFT)
+        {
+            this->setFlippedX(true);
+        }
+        else if(new_orient == Orientation::RIGHT)
+        {
+            this->setFlippedX(false);
+        }
+    }
+    
+    m_eOrientation = new_orient;
+    
+    m_stLogPosition = new_pos;
     
         // animation
     auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
-                                          LOG_TO_PHYS_COORD(log_pos, this->getContentSize()));
+                                          LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
     moveTo->setTag(5);
     this->runAction(moveTo);
 }

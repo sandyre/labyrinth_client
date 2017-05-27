@@ -46,6 +46,8 @@ namespace GameEvent {
     
     struct WarriorAttack;
     
+    struct MonsterAttack;
+    
     struct WarriorDash;
     
     struct WarriorArmorUp;
@@ -153,8 +155,9 @@ namespace GameEvent {
         Spells_WarriorAttack = 4,
         Spells_WarriorDash = 5,
         Spells_WarriorArmorUp = 6,
+        Spells_MonsterAttack = 7,
         Spells_MIN = Spells_NONE,
-        Spells_MAX = Spells_WarriorArmorUp
+        Spells_MAX = Spells_MonsterAttack
     };
     
     inline const char **EnumNamesSpells() {
@@ -166,6 +169,7 @@ namespace GameEvent {
             "WarriorAttack",
             "WarriorDash",
             "WarriorArmorUp",
+            "MonsterAttack",
             nullptr
         };
         return names;
@@ -202,6 +206,10 @@ namespace GameEvent {
     
     template<> struct SpellsTraits<WarriorArmorUp> {
         static const Spells enum_value = Spells_WarriorArmorUp;
+    };
+    
+    template<> struct SpellsTraits<MonsterAttack> {
+        static const Spells enum_value = Spells_MonsterAttack;
     };
     
     bool VerifySpells(flatbuffers::Verifier &verifier, const void *obj, Spells type);
@@ -969,23 +977,18 @@ namespace GameEvent {
     struct CLActionMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET_UID = 4,
-            VT_X = 6,
-            VT_Y = 8
+            VT_MOV_DIR = 6
         };
         uint32_t target_uid() const {
             return GetField<uint32_t>(VT_TARGET_UID, 0);
         }
-        uint16_t x() const {
-            return GetField<uint16_t>(VT_X, 0);
-        }
-        uint16_t y() const {
-            return GetField<uint16_t>(VT_Y, 0);
+        int8_t mov_dir() const {
+            return GetField<int8_t>(VT_MOV_DIR, 0);
         }
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             VerifyField<uint32_t>(verifier, VT_TARGET_UID) &&
-            VerifyField<uint16_t>(verifier, VT_X) &&
-            VerifyField<uint16_t>(verifier, VT_Y) &&
+            VerifyField<int8_t>(verifier, VT_MOV_DIR) &&
             verifier.EndTable();
         }
     };
@@ -996,11 +999,8 @@ namespace GameEvent {
         void add_target_uid(uint32_t target_uid) {
             fbb_.AddElement<uint32_t>(CLActionMove::VT_TARGET_UID, target_uid, 0);
         }
-        void add_x(uint16_t x) {
-            fbb_.AddElement<uint16_t>(CLActionMove::VT_X, x, 0);
-        }
-        void add_y(uint16_t y) {
-            fbb_.AddElement<uint16_t>(CLActionMove::VT_Y, y, 0);
+        void add_mov_dir(int8_t mov_dir) {
+            fbb_.AddElement<int8_t>(CLActionMove::VT_MOV_DIR, mov_dir, 0);
         }
         CLActionMoveBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1008,7 +1008,7 @@ namespace GameEvent {
         }
         CLActionMoveBuilder &operator=(const CLActionMoveBuilder &);
         flatbuffers::Offset<CLActionMove> Finish() {
-            const auto end = fbb_.EndTable(start_, 3);
+            const auto end = fbb_.EndTable(start_, 2);
             auto o = flatbuffers::Offset<CLActionMove>(end);
             return o;
         }
@@ -1017,23 +1017,25 @@ namespace GameEvent {
     inline flatbuffers::Offset<CLActionMove> CreateCLActionMove(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target_uid = 0,
-                                                                uint16_t x = 0,
-                                                                uint16_t y = 0) {
+                                                                int8_t mov_dir = 0) {
         CLActionMoveBuilder builder_(_fbb);
         builder_.add_target_uid(target_uid);
-        builder_.add_y(y);
-        builder_.add_x(x);
+        builder_.add_mov_dir(mov_dir);
         return builder_.Finish();
     }
     
     struct SVActionMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET_UID = 4,
-            VT_X = 6,
-            VT_Y = 8
+            VT_MOV_DIR = 6,
+            VT_X = 8,
+            VT_Y = 10
         };
         uint32_t target_uid() const {
             return GetField<uint32_t>(VT_TARGET_UID, 0);
+        }
+        int8_t mov_dir() const {
+            return GetField<int8_t>(VT_MOV_DIR, 0);
         }
         uint16_t x() const {
             return GetField<uint16_t>(VT_X, 0);
@@ -1044,6 +1046,7 @@ namespace GameEvent {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             VerifyField<uint32_t>(verifier, VT_TARGET_UID) &&
+            VerifyField<int8_t>(verifier, VT_MOV_DIR) &&
             VerifyField<uint16_t>(verifier, VT_X) &&
             VerifyField<uint16_t>(verifier, VT_Y) &&
             verifier.EndTable();
@@ -1055,6 +1058,9 @@ namespace GameEvent {
         flatbuffers::uoffset_t start_;
         void add_target_uid(uint32_t target_uid) {
             fbb_.AddElement<uint32_t>(SVActionMove::VT_TARGET_UID, target_uid, 0);
+        }
+        void add_mov_dir(int8_t mov_dir) {
+            fbb_.AddElement<int8_t>(SVActionMove::VT_MOV_DIR, mov_dir, 0);
         }
         void add_x(uint16_t x) {
             fbb_.AddElement<uint16_t>(SVActionMove::VT_X, x, 0);
@@ -1068,7 +1074,7 @@ namespace GameEvent {
         }
         SVActionMoveBuilder &operator=(const SVActionMoveBuilder &);
         flatbuffers::Offset<SVActionMove> Finish() {
-            const auto end = fbb_.EndTable(start_, 3);
+            const auto end = fbb_.EndTable(start_, 4);
             auto o = flatbuffers::Offset<SVActionMove>(end);
             return o;
         }
@@ -1077,12 +1083,14 @@ namespace GameEvent {
     inline flatbuffers::Offset<SVActionMove> CreateSVActionMove(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target_uid = 0,
+                                                                int8_t mov_dir = 0,
                                                                 uint16_t x = 0,
                                                                 uint16_t y = 0) {
         SVActionMoveBuilder builder_(_fbb);
         builder_.add_target_uid(target_uid);
         builder_.add_y(y);
         builder_.add_x(x);
+        builder_.add_mov_dir(mov_dir);
         return builder_.Finish();
     }
     
@@ -1391,6 +1399,56 @@ namespace GameEvent {
                                                                   uint32_t enemy_id = 0,
                                                                   uint16_t damage = 0) {
         WarriorAttackBuilder builder_(_fbb);
+        builder_.add_enemy_id(enemy_id);
+        builder_.add_damage(damage);
+        return builder_.Finish();
+    }
+    
+    struct MonsterAttack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_ENEMY_ID = 4,
+            VT_DAMAGE = 6
+        };
+        uint32_t enemy_id() const {
+            return GetField<uint32_t>(VT_ENEMY_ID, 0);
+        }
+        uint16_t damage() const {
+            return GetField<uint16_t>(VT_DAMAGE, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_ENEMY_ID) &&
+            VerifyField<uint16_t>(verifier, VT_DAMAGE) &&
+            verifier.EndTable();
+        }
+    };
+    
+    struct MonsterAttackBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_enemy_id(uint32_t enemy_id) {
+            fbb_.AddElement<uint32_t>(MonsterAttack::VT_ENEMY_ID, enemy_id, 0);
+        }
+        void add_damage(uint16_t damage) {
+            fbb_.AddElement<uint16_t>(MonsterAttack::VT_DAMAGE, damage, 0);
+        }
+        MonsterAttackBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        MonsterAttackBuilder &operator=(const MonsterAttackBuilder &);
+        flatbuffers::Offset<MonsterAttack> Finish() {
+            const auto end = fbb_.EndTable(start_, 2);
+            auto o = flatbuffers::Offset<MonsterAttack>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<MonsterAttack> CreateMonsterAttack(
+                                                                  flatbuffers::FlatBufferBuilder &_fbb,
+                                                                  uint32_t enemy_id = 0,
+                                                                  uint16_t damage = 0) {
+        MonsterAttackBuilder builder_(_fbb);
         builder_.add_enemy_id(enemy_id);
         builder_.add_damage(damage);
         return builder_.Finish();
@@ -2313,6 +2371,10 @@ namespace GameEvent {
             }
             case Spells_WarriorArmorUp: {
                 auto ptr = reinterpret_cast<const WarriorArmorUp *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Spells_MonsterAttack: {
+                auto ptr = reinterpret_cast<const MonsterAttack *>(obj);
                 return verifier.VerifyTable(ptr);
             }
             default: return false;

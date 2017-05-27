@@ -38,6 +38,13 @@ public:
         LEFT,
         RIGHT
     };
+    enum class MoveDirection
+    {
+        UP = 0x00,
+        DOWN = 0x01,
+        LEFT = 0x02,
+        RIGHT = 0x03
+    };
     enum class State
     {
         UNDEFINED,
@@ -85,8 +92,8 @@ public:
         // Able to do
     virtual void    RequestSpellCast(int index) = 0;
     virtual void    SpellCast(const GameEvent::SVActionSpell*) = 0;
-    virtual void    RequestMove(cocos2d::Vec2);
-    virtual void    Move(cocos2d::Vec2);
+    virtual void    RequestMove(MoveDirection);
+    virtual void    Move(const GameEvent::SVActionMove*);
     virtual void    RequestStartDuel(Unit*);
     virtual void    StartDuel(Unit*);
     
