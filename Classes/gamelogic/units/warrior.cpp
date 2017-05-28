@@ -31,12 +31,12 @@ Warrior::Warrior()
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 5.0f));
     
         // initialize ATTACK sequence
-    InputSequence atk_seq(5);
+    InputSequence atk_seq(5, InputEvent::SWIPE_DOWN);
     atk_seq.Refresh();
     m_aCastSequences.push_back(atk_seq);
     
         // initialize spell2 sequence (armor up)
-    InputSequence sp_seq(5);
+    InputSequence sp_seq(5, InputEvent::SWIPE_UP);
     sp_seq.Refresh();
     m_aCastSequences.push_back(sp_seq);
 }

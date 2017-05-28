@@ -348,3 +348,16 @@ UIAction::SetIcon(const std::string& filename)
     m_pIcon->setLayoutParameter(icon_pos);
     this->addChild(m_pIcon);
 }
+
+void
+UIAction::SetHighlighted(bool val)
+{
+    if(val)
+    {
+        this->setOpacity(255);
+    }
+    else
+    {
+        this->setOpacity(50);
+    }
+}

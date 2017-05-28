@@ -19,11 +19,14 @@
 
 struct InputSequence
 {
-    InputSequence(int size)
+    InputSequence(int size,
+                  InputEvent starts_w)
     {
         len = size;
+        starts_with = starts_w;
         
-        for(auto i = 0;
+        sequence.push_back(starts_w);
+        for(auto i = 1;
             i < size;
             ++i)
         {
@@ -34,7 +37,8 @@ struct InputSequence
     void    Refresh()
     {
         sequence.clear();
-        for(auto i = 0;
+        sequence.push_back(starts_with);
+        for(auto i = 1;
             i < len;
             ++i)
         {
@@ -42,7 +46,9 @@ struct InputSequence
         }
     }
     
+    bool is_selected = false;
     int len;
+    InputEvent starts_with;
     std::deque<InputEvent> sequence;
 };
 
@@ -76,6 +82,7 @@ protected:
 protected:
     Hero::Type          m_eHero;
     
+    int                        m_nCurrentSequence;
     std::vector<InputSequence> m_aCastSequences;
     
     bool    m_bIsLocalPlayer;
