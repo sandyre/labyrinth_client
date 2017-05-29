@@ -263,7 +263,14 @@ Hero::StartDuel(Unit * enemy)
         auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
         for(auto seq = 0; seq < m_aCastSequences.size(); ++seq)
         {
-            auto act = bv->m_poActionsView->m_apActions[seq];
+            auto& act = bv->m_poActionsView->m_apActions[seq];
+            for(auto& symb : act->m_pSequenceSymbols)
+            {
+                symb->removeFromParentAndCleanup(true);
+            }
+            act->m_pSequenceSymbols.clear();
+            act->SetHighlighted(false);
+            
             auto current_symbol_pos = visibleSize;
             current_symbol_pos.width *= 0.5;
             current_symbol_pos.height *= 0.058;
