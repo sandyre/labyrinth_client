@@ -155,7 +155,6 @@ Hero::ApplyInputEvent(InputEvent event)
                     if(seq.sequence.empty())
                     {
                         RequestSpellCast(m_nCurrentSequence + 1);
-                        
                         seq.Refresh();
                         
                             // refresh sequence
@@ -259,10 +258,11 @@ Hero::StartDuel(Unit * enemy)
     {
         auto bv = m_pUI->m_poBattleView;
         
-            // set up sequences
+            // set up sequence
         auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
         for(auto seq = 0; seq < m_aCastSequences.size(); ++seq)
         {
+            m_aCastSequences[seq].Refresh();
             auto& act = bv->m_poActionsView->m_apActions[seq];
             for(auto& symb : act->m_pSequenceSymbols)
             {

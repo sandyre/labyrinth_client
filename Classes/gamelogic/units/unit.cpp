@@ -380,6 +380,13 @@ Unit::Move(const GameEvent::SVActionMove* mov)
     
     m_eOrientation = new_orient;
     
+    if(new_pos != cocos2d::Vec2(mov->x(),
+                                mov->y()))
+    {
+        new_pos = cocos2d::Vec2(mov->x(),
+                                mov->y());
+    }
+    
     m_stLogPosition = new_pos;
     
         // animation
