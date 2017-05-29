@@ -292,7 +292,7 @@ Unit::TakeDamage(int16_t damage,
     auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
                                           "fonts/alagard.ttf",
                                           12);
-    hp_text->setTextColor(dmg_type == Unit::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::BLUE);
+    hp_text->setTextColor(dmg_type == Unit::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::MAGENTA);
     
     auto center_pos = this->getContentSize() / 2;
     hp_text->setPosition(center_pos);

@@ -32,12 +32,12 @@ Mage::Mage()
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
     
         // initialize spell 1 sequence
-    InputSequence atk_seq(7);
+    InputSequence atk_seq(7, InputEvent::SWIPE_DOWN);
     atk_seq.Refresh();
     m_aCastSequences.push_back(atk_seq);
     
         // initialize spell2 sequence (freeze)
-    InputSequence sp_seq(7);
+    InputSequence sp_seq(7, InputEvent::SWIPE_UP);
     sp_seq.Refresh();
     m_aCastSequences.push_back(sp_seq);
 }

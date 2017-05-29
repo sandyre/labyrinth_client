@@ -27,7 +27,7 @@ Rogue::Rogue()
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 15.0f));
     
         // initialize ATTACK sequence
-    InputSequence seq(5);
+    InputSequence seq(5, InputEvent::SWIPE_DOWN);
     seq.Refresh();
     m_aCastSequences.push_back(seq);
 }

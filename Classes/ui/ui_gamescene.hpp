@@ -99,6 +99,7 @@ class UIAction : public cocos2d::ui::Layout
 public:
     UIAction();
     
+    void    SetHighlighted(bool);
     void    SetIcon(const std::string&);
     
         // action icon
