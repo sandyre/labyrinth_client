@@ -361,3 +361,46 @@ UIAction::SetHighlighted(bool val)
         this->setOpacity(50);
     }
 }
+
+void
+UIAction::ShiftLeft()
+{
+    auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+    for(auto symb : m_pSequenceSymbols)
+    {
+        auto move_left = cocos2d::MoveBy::create(0.2,
+                                                 cocos2d::Vec2(-visibleSize.width * 0.2,
+                                                               0));
+        symb->runAction(move_left);
+    }
+}
+
+void
+UIAction::Clear()
+{
+    for(auto symb : m_pSequenceSymbols)
+    {
+        symb->removeFromParentAndCleanup(true);
+    }
+    m_pSequenceSymbols.clear();
+}
+
+void
+UIAction::Fill(InputSequence seq)
+{
+    auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+    auto current_symbol_pos = visibleSize;
+    current_symbol_pos.width *= 0.5;
+    current_symbol_pos.height *= 0.058;
+    
+    for(auto i = 0; i < seq.sequence.size(); ++i)
+    {
+        auto symbol = cocos2d::ui::ImageView::create(BattleSwipeSprites[(int)seq.sequence[i]]);
+        symbol->setPosition(current_symbol_pos);
+        symbol->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1); // to make it visible on HUD!
+        m_pSequenceLayout->addChild(symbol);
+        m_pSequenceSymbols.push_back(symbol);
+        
+        current_symbol_pos.width += (visibleSize.width * 0.2);
+    }
+}

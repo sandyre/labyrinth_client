@@ -12,7 +12,7 @@
 #include "../gameworld.hpp"
 #include "../construction.hpp"
 
-#include "cocos2d/cocos/ui/CocosGUI.h"
+#include <cocos/ui/CocosGUI.h>
 
 Hero::Hero() :
 m_eHero(Hero::Type::FIRST_HERO),
@@ -46,6 +46,17 @@ Hero::update(float delta)
             m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);
         else
             m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(false);
+        
+        if(std::get<0>(m_aSpellCDs[1]) == true)
+            m_pUI->m_poBattleView->m_poActionsView->m_apActions[0]->m_pIcon->setEnabled(true);
+        else
+            m_pUI->m_poBattleView->m_poActionsView->m_apActions[0]->m_pIcon->setEnabled(false);
+        
+        if(std::get<0>(m_aSpellCDs[2]) == true)
+            m_pUI->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(true);
+        else
+            m_pUI->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(false);
+        
     }
 }
 
@@ -171,20 +182,12 @@ Hero::ApplyInputEvent(InputEvent event)
             if(m_nCurrentSequence != -1)
             {
                 auto& seq = m_aCastSequences[m_nCurrentSequence];
+                auto seq_ui = m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence];
                 if(seq.sequence.front() == event)
                 {
+                        // shift sprites left
                     seq.sequence.pop_front();
-                    
-                        // move sprites left
-                    auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
-                    auto ui_seq = m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence];
-                    for(auto symb : ui_seq->m_pSequenceSymbols)
-                    {
-                        auto move_left = cocos2d::MoveBy::create(0.2,
-                                                                 cocos2d::Vec2(-visibleSize.width * 0.2,
-                                                                               0));
-                        symb->runAction(move_left);
-                    }
+                    seq_ui->ShiftLeft();
                     
                     if(seq.sequence.empty())
                     {
@@ -193,31 +196,12 @@ Hero::ApplyInputEvent(InputEvent event)
                         
                             // refresh sequence
                             // remove previous and add new
-                        auto& ui_seq = m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence];
-                        for(auto symb : ui_seq->m_pSequenceSymbols)
-                        {
-                            symb->removeFromParentAndCleanup(true);
-                        }
-                        ui_seq->m_pSequenceSymbols.clear();
-                        
-                        auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
-                        auto current_symbol_pos = visibleSize;
-                        current_symbol_pos.width *= 0.5;
-                        current_symbol_pos.height *= 0.058;
-                        
-                        for(auto i = 0; i < seq.sequence.size(); ++i)
-                        {
-                            auto symbol = cocos2d::ui::ImageView::create(BattleSwipeSprites[(int)m_aCastSequences[0].sequence[i]]);
-                            symbol->setPosition(current_symbol_pos);
-                            symbol->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1); // to make it visible on HUD!
-                            ui_seq->m_pSequenceLayout->addChild(symbol);
-                            ui_seq->m_pSequenceSymbols.push_back(symbol);
-                            
-                            current_symbol_pos.width += (visibleSize.width * 0.2);
-                        }
+                        seq_ui->Clear();
+                        seq_ui->Fill(seq);
+                        seq_ui->m_pIcon->setEnabled(false);
                         
                         m_nCurrentSequence = -1;
-                        ui_seq->SetHighlighted(false);
+                        seq_ui->SetHighlighted(false);
                     }
                 }
                 else
@@ -226,31 +210,11 @@ Hero::ApplyInputEvent(InputEvent event)
                     
                         // refresh sequence
                         // remove previous and add new
-                    auto& ui_seq = m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence];
-                    for(auto symb : ui_seq->m_pSequenceSymbols)
-                    {
-                        symb->removeFromParentAndCleanup(true);
-                    }
-                    ui_seq->m_pSequenceSymbols.clear();
-                    
-                    auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
-                    auto current_symbol_pos = visibleSize;
-                    current_symbol_pos.width *= 0.5;
-                    current_symbol_pos.height *= 0.058;
-                    
-                    for(auto i = 0; i < seq.sequence.size(); ++i)
-                    {
-                        auto symbol = cocos2d::ui::ImageView::create(BattleSwipeSprites[(int)m_aCastSequences[0].sequence[i]]);
-                        symbol->setPosition(current_symbol_pos);
-                        symbol->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1); // to make it visible on HUD!
-                        ui_seq->m_pSequenceLayout->addChild(symbol);
-                        ui_seq->m_pSequenceSymbols.push_back(symbol);
-                        
-                        current_symbol_pos.width += (visibleSize.width * 0.2);
-                    }
+                    seq_ui->Clear();
+                    seq_ui->Fill(seq);
                     
                     m_nCurrentSequence = -1;
-                    ui_seq->SetHighlighted(false);
+                    seq_ui->SetHighlighted(false);
                 }
             }
             else
@@ -258,22 +222,18 @@ Hero::ApplyInputEvent(InputEvent event)
                 for(int i = 0; i < m_aCastSequences.size(); ++i)
                 {
                     auto& seq = m_aCastSequences[i];
+                    if(std::get<0>(m_aSpellCDs[i+1]) == false)
+                        continue;
+                    
+                    auto seq_ui = m_pUI->m_poBattleView->m_poActionsView->m_apActions[i];
                     if(seq.sequence.front() == event)
                     {
-                        m_nCurrentSequence = i;
-                        m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence]->SetHighlighted(true);
                         seq.sequence.pop_front();
+                        m_nCurrentSequence = i;
+                        seq_ui->SetHighlighted(true);
                         
                             // move sprites left
-                        auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
-                        auto ui_seq = m_pUI->m_poBattleView->m_poActionsView->m_apActions[m_nCurrentSequence];
-                        for(auto symb : ui_seq->m_pSequenceSymbols)
-                        {
-                            auto move_left = cocos2d::MoveBy::create(0.2,
-                                                                     cocos2d::Vec2(-visibleSize.width * 0.2,
-                                                                                   0));
-                            symb->runAction(move_left);
-                        }
+                        seq_ui->ShiftLeft();
                         break;
                     }
                 }
@@ -298,26 +258,9 @@ Hero::StartDuel(Unit * enemy)
         {
             m_aCastSequences[seq].Refresh();
             auto& act = bv->m_poActionsView->m_apActions[seq];
-            for(auto& symb : act->m_pSequenceSymbols)
-            {
-                symb->removeFromParentAndCleanup(true);
-            }
-            act->m_pSequenceSymbols.clear();
+            act->Clear();
+            act->Fill(m_aCastSequences[seq]);
             act->SetHighlighted(false);
-            
-            auto current_symbol_pos = visibleSize;
-            current_symbol_pos.width *= 0.5;
-            current_symbol_pos.height *= 0.058;
-            for(auto i = 0; i < m_aCastSequences[seq].sequence.size(); ++i)
-            {
-                auto symbol = cocos2d::ui::ImageView::create(BattleSwipeSprites[(int)m_aCastSequences[seq].sequence[i]]);
-                symbol->setPosition(current_symbol_pos);
-                symbol->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1); // to make it visible on HUD!
-                act->m_pSequenceLayout->addChild(symbol);
-                act->m_pSequenceSymbols.push_back(symbol);
-                
-                current_symbol_pos.width += (visibleSize.width * 0.2);
-            }
         }
         bv->setVisible(true);
     }

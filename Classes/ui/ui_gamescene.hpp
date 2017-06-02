@@ -101,6 +101,9 @@ public:
     
     void    SetHighlighted(bool);
     void    SetIcon(const std::string&);
+    void    ShiftLeft();
+    void    Fill(InputSequence);
+    void    Clear();
     
         // action icon
     cocos2d::ui::Layout *       m_pSequenceLayout;

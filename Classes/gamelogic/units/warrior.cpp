@@ -28,7 +28,7 @@ Warrior::Warrior()
     m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 0.0f));
     
         // spell 3 cd
-    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 5.0f));
+    m_aSpellCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
     
         // initialize ATTACK sequence
     InputSequence atk_seq(5, InputEvent::SWIPE_DOWN);
