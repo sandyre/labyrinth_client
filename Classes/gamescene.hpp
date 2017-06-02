@@ -10,7 +10,7 @@
 #define gamescene_hpp
 
 #include "cocos2d.h"
-#include "gameworld.hpp"
+#include "gamelogic/gameworld.hpp"
 #include "ui/ui_gamescene.hpp"
 
 #include "gsnet_generated.h"

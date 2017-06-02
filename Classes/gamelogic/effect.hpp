@@ -9,6 +9,8 @@
 #ifndef effect_hpp
 #define effect_hpp
 
+#include <cstdint>
+
 class Unit;
 
 class Effect
