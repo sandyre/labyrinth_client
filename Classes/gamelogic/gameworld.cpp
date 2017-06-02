@@ -64,7 +64,7 @@ GameWorld::AddPlayer(PlayerInfo player)
     pHero->SetName(player.sNickname);
     pHero->SetGameWorld(this);
     m_apoObjects.push_back(pHero);
-    this->addChild(pHero, 1);
+    this->addChild(pHero, 10);
     if(player.nUID == GameConfiguraton::Instance().GetUID())
     {
         m_poLocalPlayer = pHero;

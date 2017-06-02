@@ -50,7 +50,6 @@ public:
     {
         UNDEFINED,
         WALKING,
-        SWAMP,
         DUEL,
         DEAD
     };

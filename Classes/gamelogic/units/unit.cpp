@@ -304,7 +304,7 @@ Unit::TakeDamage(int16_t damage,
     hp_text->setPosition(center_pos);
     this->addChild(hp_text);
     
-    auto moveup = cocos2d::MoveBy::create(1,
+    auto moveup = cocos2d::MoveBy::create(3,
                                           cocos2d::Vec2(0, center_pos.height));
     auto fadeout = cocos2d::FadeOut::create(0.5f);
     auto seq = cocos2d::Sequence::create(moveup,

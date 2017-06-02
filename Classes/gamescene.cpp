@@ -144,5 +144,5 @@ GameScene::UpdateView(float delta)
     pCam->setPosition3D(Vec3(
                              cur_pos.x,
                              cur_pos.y,
-                             700));
+                             800));
 }

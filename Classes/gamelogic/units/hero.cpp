@@ -12,7 +12,7 @@
 #include "../gameworld.hpp"
 #include "../construction.hpp"
 
-#include <cocos/ui/CocosGUI.h>
+#include <cocos2D/cocos/ui/CocosGUI.h>
 
 Hero::Hero() :
 m_eHero(Hero::Type::FIRST_HERO),

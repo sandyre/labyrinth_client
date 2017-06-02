@@ -22,7 +22,7 @@ m_stLogPosition(Vec2::ZERO)
 
 GameObject::~GameObject()
 {
-    
+	//this->getTexture()->setAliasTexParameters();
 }
 
 GameObject::Type
