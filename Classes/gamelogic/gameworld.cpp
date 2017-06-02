@@ -38,12 +38,12 @@ GameWorld::AddPlayer(PlayerInfo player)
     {
         case Hero::Type::WARRIOR:
         {
-            pHero = Warrior::create("res/units/warrior/spr_char_warrior.png");
+            pHero = Warrior::create("res/units/warrior/unit_warrior.png");
             break;
         }
         case Hero::Type::MAGE:
         {
-            pHero = Mage::create("res/units/mage/spr_char_mage.png");
+            pHero = Mage::create("res/units/mage/unit_mage.png");
             break;
         }
         case Hero::Type::ROGUE:
@@ -115,7 +115,7 @@ GameWorld::ReceiveInputNetEvents()
             {
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
                 
-                auto monster = Monster::create("res/units/monster.png");
+                auto monster = Monster::create("res/units/skeleton/unit_skeleton.png");
                 monster->SetGameWorld(this);
                 monster->SetUID(gs_spawn->monster_uid());
                 monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
@@ -133,7 +133,7 @@ GameWorld::ReceiveInputNetEvents()
                 {
                     case Item::Type::KEY:
                     {
-                        auto key = Key::create("res/key.png");
+                        auto key = Key::create("res/items/item_key.png");
                         key->SetUID(gs_spawn->item_uid());
                         key->SetCarrierID(0);
                         
@@ -149,27 +149,6 @@ GameWorld::ReceiveInputNetEvents()
                         this->addChild(key, 0);
                         
                         key->AnimationSpawn();
-                        break;
-                    }
-                        
-                    case Item::Type::SWORD:
-                    {
-                        auto sword = Sword::create("res/sword.png");
-                        sword->SetUID(gs_spawn->item_uid());
-                        sword->SetCarrierID(0);
-                        
-                        cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                                 gs_spawn->y());
-                        cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    sword->getContentSize());
-                        
-                        sword->SetGameWorld(this);
-                        sword->SetLogicalPosition(log_coords);
-                        sword->setPosition(spritePos);
-                        m_apoObjects.push_back(sword);
-                        this->addChild(sword, 0);
-                        
-                        sword->AnimationSpawn();
                         break;
                     }
                         
@@ -205,7 +184,7 @@ GameWorld::ReceiveInputNetEvents()
                         
                     case Construction::Type::GRAVEYARD:
                     {
-                        auto grave = Graveyard::create("res/graveyard.png");
+                        auto grave = Graveyard::create("res/constructions/construction_graveyard.png");
                         
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
@@ -221,7 +200,7 @@ GameWorld::ReceiveInputNetEvents()
                         
                     case Construction::Type::DOOR:
                     {
-                        auto door = Door::create("res/door.png");
+                        auto door = Door::create("res/constructions/construction_door.png");
                         
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
@@ -376,7 +355,7 @@ GameWorld::ReceiveInputNetEvents()
                         second->EndDuel();
                         second->Die(first);
                         
-                        m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
+                        m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s was killed",
                                                                                          second->GetName().c_str()));
                         break;
                     }
@@ -437,8 +416,41 @@ GameWorld::ReceiveInputNetEvents()
             case GameEvent::Events_SVGameEnd:
             {
                 auto gs_go = static_cast<const GameEvent::SVGameEnd*>(gs_event->event());
-                this->release();
-                cocos2d::Director::getInstance()->popScene();
+                
+                Unit * winner = nullptr;
+                for(auto obj : m_apoObjects)
+                {
+                    if(obj->GetUID() == gs_go->player_uid())
+                    {
+                        winner = dynamic_cast<Unit*>(obj);
+                        break;
+                    }
+                }
+                
+                    // game ends!
+                auto winner_inf_pos = cocos2d::ui::RelativeLayoutParameter::create();
+                winner_inf_pos->setAlign(cocos2d::ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
+                
+                auto winner_info = cocos2d::ui::Text::create(cocos2d::StringUtils::format("%s escaped... others didn't",
+                                                                                          winner->GetName().c_str()),
+                                                             "fonts/alagard.ttf",
+                                                             30);
+                winner_info->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1);
+                winner_info->setLayoutParameter(winner_inf_pos);
+                m_pUI->addChild(winner_info);
+                
+                this->setCascadeOpacityEnabled(true); // TODO: should be placed in init
+                auto fade_out = cocos2d::FadeOut::create(5.0f);
+                auto pop_scene = cocos2d::CallFunc::create([this]()
+                                                           {
+                                                               this->release();
+                                                               cocos2d::Director::getInstance()->popScene();
+                                                           });
+                auto seq = cocos2d::Sequence::create(fade_out,
+                                                     cocos2d::DelayTime::create(2.0f),
+                                                     pop_scene,
+                                                     nullptr);
+                this->runAction(seq);
                 
                 break;
             }

@@ -92,4 +92,14 @@ public:
     virtual void stop() override;
 };
 
+class RespawnInvulnerability : public Effect
+{
+public:
+    RespawnInvulnerability(float duration);
+    
+    virtual void start() override;
+    virtual void update(float) override;
+    virtual void stop() override;
+};
+
 #endif /* effect_hpp */

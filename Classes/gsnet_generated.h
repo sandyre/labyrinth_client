@@ -74,6 +74,8 @@ namespace GameEvent {
     
     struct SVSpawnConstr;
     
+    struct CLRequestWin;
+    
     struct SVGameEnd;
     
     struct Message;
@@ -305,13 +307,14 @@ namespace GameEvent {
         Events_SVActionDuel = 17,
         Events_CLActionSpell = 18,
         Events_SVActionSpell = 19,
-        Events_SVActionDeath = 20,
-        Events_SVSpawnPlayer = 21,
-        Events_SVRespawnPlayer = 22,
-        Events_SVSpawnMonster = 23,
-        Events_SVSpawnItem = 24,
-        Events_SVSpawnConstr = 25,
-        Events_SVGameEnd = 26,
+        Events_CLRequestWin = 20,
+        Events_SVActionDeath = 21,
+        Events_SVSpawnPlayer = 22,
+        Events_SVRespawnPlayer = 23,
+        Events_SVSpawnMonster = 24,
+        Events_SVSpawnItem = 25,
+        Events_SVSpawnConstr = 26,
+        Events_SVGameEnd = 27,
         Events_MIN = Events_NONE,
         Events_MAX = Events_SVGameEnd
     };
@@ -338,6 +341,7 @@ namespace GameEvent {
             "SVActionDuel",
             "CLActionSpell",
             "SVActionSpell",
+            "CLRequestWin",
             "SVActionDeath",
             "SVSpawnPlayer",
             "SVRespawnPlayer",
@@ -433,6 +437,10 @@ namespace GameEvent {
     
     template<> struct EventsTraits<SVActionSpell> {
         static const Events enum_value = Events_SVActionSpell;
+    };
+    
+    template<> struct EventsTraits<CLRequestWin> {
+        static const Events enum_value = Events_CLRequestWin;
     };
     
     template<> struct EventsTraits<SVActionDeath> {
@@ -2253,6 +2261,46 @@ namespace GameEvent {
         return builder_.Finish();
     }
     
+    struct CLRequestWin FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_PLAYER_UID = 4
+        };
+        uint32_t player_uid() const {
+            return GetField<uint32_t>(VT_PLAYER_UID, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_PLAYER_UID) &&
+            verifier.EndTable();
+        }
+    };
+    
+    struct CLRequestWinBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_player_uid(uint32_t player_uid) {
+            fbb_.AddElement<uint32_t>(CLRequestWin::VT_PLAYER_UID, player_uid, 0);
+        }
+        CLRequestWinBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        CLRequestWinBuilder &operator=(const CLRequestWinBuilder &);
+        flatbuffers::Offset<CLRequestWin> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<CLRequestWin>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<CLRequestWin> CreateCLRequestWin(
+                                                                flatbuffers::FlatBufferBuilder &_fbb,
+                                                                uint32_t player_uid = 0) {
+        CLRequestWinBuilder builder_(_fbb);
+        builder_.add_player_uid(player_uid);
+        return builder_.Finish();
+    }
+    
     struct SVGameEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4
@@ -2471,6 +2519,10 @@ namespace GameEvent {
             }
             case Events_SVActionSpell: {
                 auto ptr = reinterpret_cast<const SVActionSpell *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Events_CLRequestWin: {
+                auto ptr = reinterpret_cast<const CLRequestWin *>(obj);
                 return verifier.VerifyTable(ptr);
             }
             case Events_SVActionDeath: {

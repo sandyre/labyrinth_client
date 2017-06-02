@@ -14,6 +14,7 @@
 #include "gameconfig.hpp"
 #include "netsystem.hpp"
 #include "msnet_generated.h"
+#include <audio/include/AudioEngine.h>
 #include <regex>
 #include <fstream>
 #include <iostream>
@@ -138,6 +139,11 @@ MainMenuScene::init()
     m_pUI = new UIMainMenuScene();
     this->addChild(m_pUI);
     
+        // play background sound
+    auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/main_theme.mp3",
+                                                            true,
+                                                            0.1f);
+    
         // listener to get into login page
     m_pUI->m_pStartPage->m_pStartButton->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
                                                                {
@@ -220,6 +226,8 @@ MainMenuScene::init()
                                                              {
                                                                  if(type == ui::Widget::TouchEventType::ENDED)
                                                                  {
+                                                                         // stop music
+                                                                     cocos2d::experimental::AudioEngine::stopAll();
                                                                      Director::getInstance()->pushScene(PreGameScene::createScene());
                                                                  }
                                                              });

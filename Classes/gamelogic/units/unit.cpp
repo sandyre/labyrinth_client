@@ -13,6 +13,7 @@
 #include "../effect.hpp"
 
 #include <cocos2d.h>
+#include <audio/include/AudioEngine.h>
 
 Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),
@@ -257,6 +258,10 @@ void
 Unit::Respawn(cocos2d::Vec2 log_pos)
 {
     this->Spawn(log_pos);
+    
+    RespawnInvulnerability * pRespInv = new RespawnInvulnerability(5.0);
+    pRespInv->SetTargetUnit(this);
+    this->ApplyEffect(pRespInv);
 }
 
     // TODO: seems like it doesn't work
@@ -289,6 +294,7 @@ Unit::TakeDamage(int16_t damage,
     
     m_nHealth -= damage_taken;
     
+        // animated text
     auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
                                           "fonts/alagard.ttf",
                                           12);
@@ -394,6 +400,15 @@ Unit::Move(const GameEvent::SVActionMove* mov)
                                           LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
     moveTo->setTag(5);
     this->runAction(moveTo);
+    
+        // sound
+    auto distance = m_poGameWorld->GetLocalPlayer()->GetLogicalPosition().distance(this->GetLogicalPosition());
+    if(distance <= 10.0)
+    {
+        auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
+                                                                false,
+                                                                1.0f / distance);
+    }
 }
 
 void

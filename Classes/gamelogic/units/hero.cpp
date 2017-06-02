@@ -10,6 +10,7 @@
 
 #include "gsnet_generated.h"
 #include "../gameworld.hpp"
+#include "../construction.hpp"
 
 #include "cocos2d/cocos/ui/CocosGUI.h"
 
@@ -103,6 +104,43 @@ Hero::ApplyInputEvent(InputEvent event)
                 ++next_pos.x;
             }
             
+                // check that we have key
+            bool has_key = false;
+            for(auto& item : m_aInventory)
+            {
+                if(item->GetType() == Item::Type::KEY)
+                {
+                    has_key = true;
+                    break;
+                }
+            }
+            
+                // check that we are to leave the labyrinth
+            if(has_key)
+            {
+                for(auto obj : m_poGameWorld->m_apoObjects)
+                {
+                    if(obj->GetObjType() == GameObject::Type::CONSTRUCTION &&
+                       static_cast<Construction*>(obj)->GetType() == Construction::Type::DOOR)
+                    {
+                        if(obj->GetLogicalPosition() == next_pos)
+                        {
+                                // we are ready to leave
+                            flatbuffers::FlatBufferBuilder builder;
+                            auto req_win = GameEvent::CreateCLRequestWin(builder,
+                                                                         this->GetUID());
+                            auto msg = GameEvent::CreateMessage(builder,
+                                                                GameEvent::Events_CLRequestWin,
+                                                                req_win.Union());
+                            builder.Finish(msg);
+                            m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                                                builder.GetBufferPointer() + builder.GetSize());
+                            return;
+                        }
+                    }
+                }
+            }
+            
                 // check that there is no opponent in path
             bool duel_enter = false;
             if(m_nUnitAttributes & Unit::Attributes::DUELABLE)
@@ -119,17 +157,13 @@ Hero::ApplyInputEvent(InputEvent event)
                         {
                             RequestStartDuel(unit);
                             duel_enter = true;
-                            break;
+                            return;
                         }
                     }
                 }
             }
             
-            if(!duel_enter)
-            {
-                    // FIXME: potential disaster if we change InputEvent or MoveDirection consts
-                RequestMove((MoveDirection)event);
-            }
+            RequestMove((MoveDirection)event);
             break;
         }
         case Unit::State::DUEL:
