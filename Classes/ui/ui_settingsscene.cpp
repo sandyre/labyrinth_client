@@ -81,8 +81,8 @@ UISettingsScene::UISettingsScene()
     auto back_butt_pos = ui::RelativeLayoutParameter::create();
     back_butt_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
     
-    m_pBackButton = ui::Button::create("res/button_normal.png",
-                                       "res/button_pressed.png");
+    m_pBackButton = ui::Button::create("res/ui/buttons/b_big_1.png",
+                                       "res/ui/buttons/b_big_1_pressed.png");
     m_pBackButton->setLayoutParameter(back_butt_pos);
     m_pBackButton->setTitleText("Back");
     m_pBackButton->setTitleFontName(TitleFont);

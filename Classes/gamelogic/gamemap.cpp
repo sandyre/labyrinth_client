@@ -235,7 +235,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
         {
             if(tmp_map[i][j] == MapBlockType::WALL)
             {
-                auto block = WallBlock::create("res/wall_1.png");
+                auto block = WallBlock::create("res/wall.png");
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
@@ -251,7 +251,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
             }
             else if(tmp_map[i][j] == MapBlockType::BORDER)
             {
-                auto block = BorderBlock::create("res/wall_1.png");
+                auto block = BorderBlock::create("res/wall.png");
                 
                 cocos2d::Vec2 log_coords(i,j);
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,

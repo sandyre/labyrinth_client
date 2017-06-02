@@ -13,7 +13,7 @@
 Monster::Monster()
 {
     m_eUnitType = Unit::Type::MONSTER;
-    m_sName = "Default monster";
+    m_sName = "Skeleton";
     
     m_nBaseDamage = m_nActualDamage = 10;
     m_nMHealth = m_nHealth = 50;

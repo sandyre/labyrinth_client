@@ -194,3 +194,35 @@ DuelInvulnerability::stop()
 {
     m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
 }
+
+RespawnInvulnerability::RespawnInvulnerability(float duration)
+{
+    m_nADuration = duration;
+}
+
+void
+RespawnInvulnerability::start()
+{
+    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
+    m_pTargetUnit->m_nObjAttributes &= ~(GameObject::Attributes::PASSABLE);
+}
+
+void
+RespawnInvulnerability::update(float delta)
+{
+    if(m_eEffState == Effect::State::ACTIVE)
+    {
+        m_nADuration -= delta;
+        if(m_nADuration < 0.0f)
+        {
+            m_eEffState = Effect::State::OVER;
+        }
+    }
+}
+
+void
+RespawnInvulnerability::stop()
+{
+    m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
+    m_pTargetUnit->m_nObjAttributes |= GameObject::Attributes::PASSABLE;
+}

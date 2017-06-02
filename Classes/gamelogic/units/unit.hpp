@@ -21,6 +21,7 @@ class WarriorArmorUp;
 class RogueInvisibility;
 class MageFreeze;
 class DuelInvulnerability;
+class RespawnInvulnerability;
 
 class Unit : public GameObject
 {
@@ -148,6 +149,7 @@ protected:
     friend RogueInvisibility;
     friend MageFreeze;
     friend DuelInvulnerability;
+    friend RespawnInvulnerability;
 };
 
 #endif /* unit_hpp */

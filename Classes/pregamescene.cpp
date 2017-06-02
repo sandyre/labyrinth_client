@@ -1,10 +1,10 @@
-    //
-    //  pregamescene.cpp
-    //  labyrinth
-    //
-    //  Created by Aleksandr Borzikh on 07.02.17.
-    //
-    //
+//
+//  pregamescene.cpp
+//  labyrinth
+//
+//  Created by Aleksandr Borzikh on 07.02.17.
+//
+//
 
 #include "pregamescene.hpp"
 
@@ -89,6 +89,7 @@ PreGameScene::init()
         }
     };
     left_hero_button->addTouchEventListener(left_button_callback);
+    left_hero_button->setEnabled(false);
     
     auto& right_hero_button = m_pUI->m_pHeroPick->m_pRightChange;
     auto right_button_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
@@ -122,6 +123,7 @@ PreGameScene::init()
         }
     };
     right_hero_button->addTouchEventListener(right_button_callback);
+    right_hero_button->setEnabled(false);
     
     this->scheduleUpdate();
     return true;
@@ -299,6 +301,8 @@ PreGameScene::update(float delta)
                 else if(gs_event->event_type() == GameEvent::Events_SVHeroPickStage)
                 {
                     m_eStatus = Status::HERO_PICK_STAGE;
+                    m_pUI->m_pHeroPick->m_pLeftChange->setEnabled(true);
+                    m_pUI->m_pHeroPick->m_pRightChange->setEnabled(true);
                     m_pUI->m_pStatusText->setString("HERO PICK STAGE");
                 }
             }
