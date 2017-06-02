@@ -318,6 +318,7 @@ UIAction::UIAction()
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setContentSize(layout_size);
     this->setBackGroundImage("res/ui/battle/btl_tape.png");
+    this->setCascadeOpacityEnabled(true);
     
         // init tape
     auto tape_img_pos = ui::RelativeLayoutParameter::create();

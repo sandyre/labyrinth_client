@@ -140,7 +140,7 @@ UILoginPage::UILoginPage()
                                          0,
                                          0));
     
-    m_pMailField = ui::TextField::create(" ",
+    m_pMailField = ui::TextField::create("example@gmail.com",
                                          TitleFont,
                                          30);
     m_pMailField->setMaxLengthEnabled(true);
@@ -174,7 +174,7 @@ UILoginPage::UILoginPage()
                                              0,
                                              0));
     
-    m_pPasswordField = ui::TextField::create(" ",
+    m_pPasswordField = ui::TextField::create("somepassword",
                                              TitleFont,
                                              30);
     m_pPasswordField->setMaxLengthEnabled(true);
