@@ -1,5 +1,8 @@
 <!-- Game configuration file. Do not modify it yourself. -->
 <settings>
+	<graphics>
+		<screensize width="540" height="960"/>
+	</graphics>
 	<network>
 		<masterserver host="93.100.183.205" port="1930"/>
 	</network>

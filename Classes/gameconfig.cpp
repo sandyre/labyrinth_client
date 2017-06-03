@@ -11,6 +11,7 @@
 #include <cocos2d.h>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <Poco/XML/XMLWriter.h>
 #include <Poco/SAX/AttributesImpl.h>
 #include <Poco/SAX/SAXParser.h>
@@ -52,6 +53,16 @@ GameConfiguraton::Load()
     
     NodeIterator it(m_pConfDoc, NodeFilter::SHOW_ELEMENT);
     Node * pRootNode = it.nextNode();
+    
+        // graphics parsing
+    {
+        auto graph_node = pRootNode->getNodeByPath("graphics");
+        auto screensize_node = graph_node->getNodeByPath("screensize");
+        
+        auto screensize_elem = static_cast<Element*>(screensize_node);
+        m_stScreenSize.width = std::atoi(screensize_elem->getAttribute("width").c_str());
+        m_stScreenSize.height = std::atoi(screensize_elem->getAttribute("height").c_str());
+    }
     
         // network parsing
     {

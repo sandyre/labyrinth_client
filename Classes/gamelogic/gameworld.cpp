@@ -121,7 +121,7 @@ GameWorld::ReceiveInputNetEvents()
                 monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
                                              gs_spawn->y()));
                 m_apoObjects.push_back(monster);
-                this->addChild(monster, 1);
+                this->addChild(monster, 10);
                 break;
             }
                 
@@ -166,22 +166,6 @@ GameWorld::ReceiveInputNetEvents()
                 
                 switch(gs_spawn->constr_type())
                 {
-                    case Construction::Type::SWAMP:
-                    {
-                        auto swamp = Swamp::create("res/swamp.png");
-                        
-                        cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                                 gs_spawn->y());
-                        cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                                    swamp->getContentSize());
-                        
-                        swamp->SetLogicalPosition(log_coords);
-                        swamp->setPosition(spritePos);
-                        m_apoObjects.push_back(swamp);
-                        this->addChild(swamp, 0);
-                        break;
-                    }
-                        
                     case Construction::Type::GRAVEYARD:
                     {
                         auto grave = Graveyard::create("res/constructions/construction_graveyard.png");
@@ -330,33 +314,6 @@ GameWorld::ReceiveInputNetEvents()
                             first->StartDuel(second);
                             second->StartDuel(first);
                         }
-                        break;
-                    }
-                        
-                    case GameEvent::ActionDuelType_KILL:
-                    {
-                            // player killed
-                        Unit * first = nullptr;
-                        Unit * second = nullptr;
-                        
-                        for(auto object : m_apoObjects)
-                        {
-                            if(object->GetUID() == sv_duel->target1_uid())
-                            {
-                                first = static_cast<Unit*>(object);
-                            }
-                            else if(object->GetUID() == sv_duel->target2_uid())
-                            {
-                                second = static_cast<Unit*>(object);
-                            }
-                        }
-                        
-                        first->EndDuel();
-                        second->EndDuel();
-                        second->Die(first);
-                        
-                        m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s was killed",
-                                                                                         second->GetName().c_str()));
                         break;
                     }
                         

@@ -317,13 +317,13 @@ Unit::TakeDamage(int16_t damage,
 void
 Unit::Die(Unit * killer)
 {
+    if(m_pDuelTarget != nullptr)
+        EndDuel();
+    
     m_eState = Unit::State::DEAD;
     m_nHealth = 0;
     m_nObjAttributes = GameObject::Attributes::PASSABLE;
     m_nUnitAttributes = 0;
-    
-    if(m_pDuelTarget != nullptr)
-        EndDuel();
     
         // drop items
     while(!m_aInventory.empty())

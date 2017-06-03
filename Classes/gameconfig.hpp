@@ -55,6 +55,11 @@ public:
         return m_nUID;
     }
     
+    const cocos2d::Size GetScreenSize() const
+    {
+        return m_stScreenSize;
+    }
+    
 private:
     GameConfiguraton();
     
@@ -65,6 +70,8 @@ private:
     std::string m_sPlayerPassword;
     std::string m_sPlayerName;
     uint32_t    m_nUID;
+    
+    cocos2d::Size m_stScreenSize;
     
     std::string m_sConfigFilepath;
     
