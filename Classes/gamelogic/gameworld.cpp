@@ -38,22 +38,22 @@ GameWorld::AddPlayer(PlayerInfo player)
     {
         case Hero::Type::WARRIOR:
         {
-            pHero = Warrior::create("res/units/warrior/unit_warrior.png");
+            pHero = Warrior::create("unit_warrior.png");
             break;
         }
         case Hero::Type::MAGE:
         {
-            pHero = Mage::create("res/units/mage/unit_mage.png");
+            pHero = Mage::create("unit_mage.png");
             break;
         }
         case Hero::Type::ROGUE:
         {
-            pHero = Rogue::create("res/units/rogue/down.png");
+            pHero = Rogue::create("unit_rogue.png");
             break;
         }
         case Hero::Type::PRIEST:
         {
-            pHero = Priest::create("res/units/priest/down.png");
+            pHero = Priest::create("unit_priest.png");
             break;
         }
         default:
@@ -115,7 +115,7 @@ GameWorld::ReceiveInputNetEvents()
             {
                 auto gs_spawn = static_cast<const GameEvent::SVSpawnMonster*>(gs_event->event());
                 
-                auto monster = Monster::create("res/units/skeleton/unit_skeleton.png");
+                auto monster = Monster::create("unit_skeleton.png");
                 monster->SetGameWorld(this);
                 monster->SetUID(gs_spawn->monster_uid());
                 monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
@@ -133,7 +133,7 @@ GameWorld::ReceiveInputNetEvents()
                 {
                     case Item::Type::KEY:
                     {
-                        auto key = Key::create("res/items/item_key.png");
+                        auto key = Key::create("item_key.png");
                         key->SetUID(gs_spawn->item_uid());
                         key->SetCarrierID(0);
                         
@@ -168,7 +168,7 @@ GameWorld::ReceiveInputNetEvents()
                 {
                     case Construction::Type::GRAVEYARD:
                     {
-                        auto grave = Graveyard::create("res/constructions/construction_graveyard.png");
+                        auto grave = Graveyard::create("construction_graveyard.png");
                         
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());
@@ -184,7 +184,7 @@ GameWorld::ReceiveInputNetEvents()
                         
                     case Construction::Type::DOOR:
                     {
-                        auto door = Door::create("res/constructions/construction_door.png");
+                        auto door = Door::create("construction_door.png");
                         
                         cocos2d::Vec2 log_coords(gs_spawn->x(),
                                                  gs_spawn->y());

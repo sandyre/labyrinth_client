@@ -87,7 +87,7 @@ UIGameScene::UIGameScene()
     auto frame_pos = ui::RelativeLayoutParameter::create();
     frame_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
     
-    m_pItemFrame = ui::ImageView::create("res/frame.png");
+    m_pItemFrame = ui::ImageView::create("res/graphics/frame.png");
     m_pItemFrame->setLayoutParameter(frame_pos);
     this->addChild(m_pItemFrame);
     
@@ -99,7 +99,7 @@ UIGameScene::UIGameScene()
     auto take_item_pos = ui::RelativeLayoutParameter::create();
     take_item_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
     
-    m_pTakeItemButton = ui::Button::create("res/take_item.png");
+    m_pTakeItemButton = ui::Button::create("res/graphics/take_item.png");
     m_pTakeItemButton->setLayoutParameter(take_item_pos);
     this->addChild(m_pTakeItemButton);
     
@@ -136,40 +136,40 @@ UIGameScene::ConfigureForHero(Hero * player)
     {
             // init skills panel
             // init dash
-        m_poSkillsPanel->CreateSpell("res/units/warrior/spell_1_icon.png");
+        m_poSkillsPanel->CreateSpell("res/graphics/warrior_spell_1.png");
         
             // init battleview
         auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/units/warrior/atk_icon.png");
+        atk_action->SetIcon("res/graphics/warrior_spell_2.png");
         
         auto dash_action = m_poBattleView->m_poActionsView->CreateAction();
-        dash_action->SetIcon("res/units/warrior/spell_2_icon.png");
+        dash_action->SetIcon("res/graphics/warrior_spell_3.png");
     }
     else if(player->GetHero() == Hero::Type::MAGE)
     {
             // init skills panel
             // init teleport
-        m_poSkillsPanel->CreateSpell("res/units/mage/spell_1_icon.png");
+        m_poSkillsPanel->CreateSpell("res/graphics/mage_spell_1.png");
         
             // init battleview
         auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/units/mage/atk_icon.png");
+        atk_action->SetIcon("res/graphics/mage_spell_2.png");
         
         auto freeze_act = m_poBattleView->m_poActionsView->CreateAction();
-        freeze_act->SetIcon("res/units/mage/spell_2_icon.png");
+        freeze_act->SetIcon("res/graphics/mage_spell_3.png");
     }
     else if(player->GetHero() == Hero::Type::ROGUE)
     {
             // init skills panel
             // init invisibility
-        m_poSkillsPanel->CreateSpell("res/units/rogue/spell_1_icon.png");
+        m_poSkillsPanel->CreateSpell("res/graphics/rogue_spell_1.png");
         
             // init battleview
         auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/units/rogue/atk_icon.png");
+        atk_action->SetIcon("res/graphics/rogue_spell_2.png");
         
         auto poisondagg_act = m_poBattleView->m_poActionsView->CreateAction();
-        poisondagg_act->SetIcon("res/units/rogue/spell_2_icon.png");
+        poisondagg_act->SetIcon("res/graphics/rogue_spell_3.png");
     }
     else if(player->GetHero() == Hero::Type::PRIEST)
     {

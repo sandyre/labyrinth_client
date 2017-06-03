@@ -43,7 +43,7 @@ Key::create(const std::string& filename)
 {
     Key * pKey = new Key();
     
-    if(pKey->initWithFile(filename))
+    if(pKey->initWithSpriteFrameName(filename))
     {
         pKey->autorelease();
         return pKey;
@@ -84,7 +84,7 @@ Sword::create(const std::string& filename)
 {
     Sword * pSword = new Sword();
     
-    if(pSword->initWithFile(filename))
+    if(pSword->initWithSpriteFrameName(filename))
     {
         pSword->autorelease();
         return pSword;

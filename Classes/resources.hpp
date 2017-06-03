@@ -14,12 +14,20 @@
 static const std::string TitleFont = "fonts/alagard.ttf";
 static const std::string TextFont = "fonts/pw_extended.ttf";
 
+static const std::array<std::string, 4> HeroPortraits
+{
+    "res/graphics/unit_warrior.png",
+    "res/graphics/unit_mage.png",
+    "res/graphics/unit_rogue.png",
+    "res/graphics/unit_priest.png"
+};
+
 static const std::array<std::string, 4> HeroIcons
 {
-    "res/units/warrior/icon.png",
-    "res/units/mage/icon.png",
-    "res/units/rogue/icon.png",
-    "res/units/priest/icon.png"
+    "res/graphics/warrior_icon.png",
+    "res/graphics/mage_icon.png",
+    "res/graphics/rogue_icon.png",
+    "res/graphics/priest_icon.png"
 };
 
 static const std::array<std::string, 3> SoundEffects

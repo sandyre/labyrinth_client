@@ -3,6 +3,7 @@
 #include "mainmenuscene.hpp"
 
 #include "gameconfig.hpp"
+#include "resourcemanager.hpp"
 
 USING_NS_CC;
 
@@ -65,6 +66,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     
         // Load game configuration
     GameConfiguraton::Instance().Load();
+        // Load game resources
+    ResourceManager::Instance().PreloadTextures();
+    ResourceManager::Instance().PreloadSounds();
 
     register_all_packages();
     

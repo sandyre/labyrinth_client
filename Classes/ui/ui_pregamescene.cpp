@@ -87,7 +87,7 @@ UIHeroPick::UIHeroPick()
             auto hero_img_pos = ui::RelativeLayoutParameter::create();
             hero_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
             
-            auto hero_img = ui::ImageView::create(HeroIcons[i]);
+            auto hero_img = ui::ImageView::create(HeroPortraits[i]);
             hero_img->setLayoutParameter(hero_img_pos);
             hero_layout->addChild(hero_img);
             

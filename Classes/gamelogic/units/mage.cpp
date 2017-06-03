@@ -47,7 +47,7 @@ Mage::create(const std::string& filename)
 {
     Mage * pMage = new Mage();
     
-    if(pMage->initWithFile(filename))
+    if(pMage->initWithSpriteFrameName(filename))
     {
         pMage->autorelease();
         return pMage;

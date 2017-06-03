@@ -30,7 +30,7 @@ NoBlock::create(const std::string& filename)
 {
     NoBlock * pBlock = new NoBlock();
     
-    if(pBlock->initWithFile(filename))
+    if(pBlock->initWithSpriteFrameName(filename))
     {
         pBlock->autorelease();
         return pBlock;
@@ -50,7 +50,7 @@ WallBlock::create(const std::string& filename)
 {
     WallBlock * pBlock = new WallBlock();
     
-    if(pBlock->initWithFile(filename))
+    if(pBlock->initWithSpriteFrameName(filename))
     {
         pBlock->autorelease();
         return pBlock;
@@ -70,7 +70,7 @@ BorderBlock::create(const std::string& filename)
 {
     BorderBlock * pBlock = new BorderBlock();
     
-    if(pBlock->initWithFile(filename))
+    if(pBlock->initWithSpriteFrameName(filename))
     {
         pBlock->autorelease();
         return pBlock;

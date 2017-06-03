@@ -25,7 +25,7 @@ Monster::create(const std::string& filename)
 {
     Monster * pMonster = new Monster();
     
-    if(pMonster->initWithFile(filename))
+    if(pMonster->initWithSpriteFrameName(filename))
     {
         pMonster->autorelease();
         return pMonster;

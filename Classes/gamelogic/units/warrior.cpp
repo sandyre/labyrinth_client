@@ -46,7 +46,7 @@ Warrior::create(const std::string& filename)
 {
     Warrior * pWar = new Warrior();
     
-    if(pWar->initWithFile(filename))
+    if(pWar->initWithSpriteFrameName(filename))
     {
         pWar->autorelease();
         return pWar;

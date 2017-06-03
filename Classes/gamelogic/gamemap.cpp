@@ -212,7 +212,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 	{
 		for (auto j = size - 1; j >= 0; --j)
 		{
-			auto block = NoBlock::create("res/floor.png");
+			auto block = NoBlock::create("floor.png");
 			cocos2d::Vec2 log_coords(i, j);
 			cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
 				block->getContentSize());
@@ -251,7 +251,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				wall_numb += 1;
 			if (tmp_map[i][j] == MapBlockType::WALL)
 			{
-				auto shadow = WallBlock::create("res/wall_shadow.png");
+				auto shadow = WallBlock::create("wall_shadow.png");
 				cocos2d::Vec2 shd_log_coords(i, j);
 				cocos2d::Vec2 shd_spritePos = LOG_TO_PHYS_COORD(shd_log_coords,
 					shadow->getContentSize());
@@ -265,8 +265,8 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				world->addChild(shadow, 1);
 				++current_block_uid;
 
-				int rand = (int)m_oRandDistr(m_oRandGen) > 700 ? 0 : 1;
-				std::string file = "res/walls/wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
+				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
+				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 				auto block = WallBlock::create(file);
 				cocos2d::Vec2 log_coords(i, j);
 				cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
@@ -283,7 +283,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
 			{
 				int rand = (int)m_oRandDistr(m_oRandGen) > 700 ? 0 : 1;
-				std::string file = "res/walls/wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
+				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 				auto block = BorderBlock::create(file);
 
 				cocos2d::Vec2 log_coords(i, j);

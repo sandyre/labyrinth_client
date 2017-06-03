@@ -41,7 +41,7 @@ Door::create(const std::string& filename)
 {
     Door * pDoor = new Door();
     
-    if(pDoor->initWithFile(filename))
+    if(pDoor->initWithSpriteFrameName(filename))
     {
         pDoor->autorelease();
         return pDoor;
@@ -69,7 +69,7 @@ Graveyard::create(const std::string& filename)
 {
     Graveyard * pGrave = new Graveyard();
     
-    if(pGrave->initWithFile(filename))
+    if(pGrave->initWithSpriteFrameName(filename))
     {
         pGrave->autorelease();
         return pGrave;
@@ -97,7 +97,7 @@ Swamp::create(const std::string& filename)
 {
     Swamp * pSwamp = new Swamp();
     
-    if(pSwamp->initWithFile(filename))
+    if(pSwamp->initWithSpriteFrameName(filename))
     {
         pSwamp->autorelease();
         return pSwamp;
