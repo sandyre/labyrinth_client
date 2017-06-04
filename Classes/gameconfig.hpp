@@ -9,6 +9,7 @@
 #ifndef gameconfig_hpp
 #define gameconfig_hpp
 
+#include <cocos2d.h>
 #include <Poco/DOM/AutoPtr.h>
 #include <Poco/DOM/Document.h>
 

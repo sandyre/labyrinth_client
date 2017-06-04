@@ -8,11 +8,11 @@
 
 #include "hero.hpp"
 
-#include "gsnet_generated.h"
 #include "../gameworld.hpp"
 #include "../construction.hpp"
+#include "../../gsnet_generated.h"
 
-#include <cocos/ui/CocosGUI.h>
+#include <UI/CocosGUI.h>
 
 Hero::Hero() :
 m_eHero(Hero::Type::FIRST_HERO),
