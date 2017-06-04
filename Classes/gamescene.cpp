@@ -63,6 +63,7 @@ GameScene::init()
         // init UI (aka HUD)
     m_pUI = new UIGameScene();
     m_pUI->m_poBattleView->setActive(false);
+    m_pUI->setGlobalZOrder(100);
     this->addChild(m_pUI);
     
     m_pUI->ConfigureForHero(m_pGWorld->GetLocalPlayer());

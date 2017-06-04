@@ -33,10 +33,9 @@ GameConfiguraton::Instance()
 }
 
 GameConfiguraton::GameConfiguraton() :
-m_sConfigFilepath("res/gameconfig.xml"),
 m_bPlayerAutologin(false)
 {
-    
+    m_sConfigFilepath = cocos2d::FileUtils::getInstance()->fullPathForFilename("res/gameconfig.xml");
 }
 
 void
