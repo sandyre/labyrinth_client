@@ -253,6 +253,16 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				wall_numb += 1;
 			if (tmp_map[i][j] == MapBlockType::WALL)
 			{
+                    // add shadow
+                auto shadow = cocos2d::Sprite::createWithSpriteFrameName("wall_shadow.png");
+                cocos2d::Vec2 shadowlogPos(i, j);
+                cocos2d::Vec2 shadow_spritePos = LOG_TO_PHYS_COORD(shadowlogPos,
+                                                                   shadow->getContentSize());
+                shadow_spritePos.x = shadow_spritePos.x * 2 / 3;
+                shadow_spritePos.y = shadow_spritePos.y * 2 / 3;
+                shadow->setPosition(shadow_spritePos);
+                world->addChild(shadow, 1);
+                
 				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 				auto block = WallBlock::create(file);
@@ -265,13 +275,6 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				world->m_apoObjects.emplace_back(block);
 				world->addChild(block, 2);
 				++current_block_uid;
-                
-                    // add shadow
-                auto shadow = cocos2d::Sprite::createWithSpriteFrameName("wall_shadow.png");
-                shadow->setPosition(-block->getContentSize().width/4,
-                                    -block->getContentSize().height/6);
-                shadow->setAnchorPoint(cocos2d::Vec2::ZERO);
-                block->addChild(shadow, -1);
 			}
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
 			{
