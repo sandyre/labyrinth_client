@@ -9,8 +9,9 @@
 #ifndef gameobject_hpp
 #define gameobject_hpp
 
+#include "../globals.h"
+
 #include <cocos2d.h>
-#include "globals.h"
 
 class GameWorld;
 

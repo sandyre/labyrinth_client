@@ -9,9 +9,10 @@
 #ifndef mainmenuscene_hpp
 #define mainmenuscene_hpp
 
+#include "ui/ui_mainmenuscene.hpp"
+
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
-#include "ui/ui_mainmenuscene.hpp"
 
 class MainMenuScene : public cocos2d::Layer
 {

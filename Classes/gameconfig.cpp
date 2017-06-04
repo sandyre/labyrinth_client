@@ -9,21 +9,21 @@
 #include "gameconfig.hpp"
 
 #include <cocos2d.h>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <Poco/XML/XMLWriter.h>
 #include <Poco/SAX/AttributesImpl.h>
 #include <Poco/SAX/SAXParser.h>
-
-#include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/AutoPtr.h>
 #include <Poco/DOM/Document.h>
+#include <Poco/DOM/DOMParser.h>
 #include <Poco/DOM/NodeIterator.h>
 #include <Poco/DOM/NamedNodeMap.h>
 #include <Poco/DOM/NodeFilter.h>
-#include <Poco/DOM/AutoPtr.h>
 #include <Poco/DOM/DOMWriter.h>
 #include <Poco/SAX/InputSource.h>
+#include <Poco/XML/XMLWriter.h>
+
+#include <fstream>
+#include <iostream>
+#include <string>
 
 GameConfiguraton&
 GameConfiguraton::Instance()

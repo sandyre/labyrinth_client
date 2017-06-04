@@ -9,13 +9,14 @@
 #ifndef gameworld_hpp
 #define gameworld_hpp
 
-#include "../globals.h"
 #include "gamemap.hpp"
-#include "gsnet_generated.h"
 #include "units/units_inc.hpp"
+#include "../globals.h"
+#include "../gsnet_generated.h"
 #include "../ui/ui_gamescene.hpp"
 
 #include <cocos2d.h>
+
 #include <vector>
 #include <queue>
 

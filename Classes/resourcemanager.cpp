@@ -9,6 +9,7 @@
 #include "resourcemanager.hpp"
 
 #include "resources.hpp"
+
 #include <SimpleAudioEngine.h>
 
 ResourceManager::ResourceManager()

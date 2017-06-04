@@ -7,6 +7,7 @@
 //
 
 #include "effect.hpp"
+
 #include "units/warrior.hpp"
 
 #include <cocos2d.h>

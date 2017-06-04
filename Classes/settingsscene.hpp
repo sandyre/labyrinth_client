@@ -9,8 +9,9 @@
 #ifndef settingsscene_hpp
 #define settingsscene_hpp
 
-#include <cocos2d.h>
 #include "ui/ui_settingsscene.hpp"
+
+#include <cocos2d.h>
 
 class SettingsScene : public cocos2d::Layer
 {

@@ -12,9 +12,10 @@
 #include "globals.h"
 #include "gamescene.hpp"
 #include "ui/ui_pregamescene.hpp"
+
 #include <cocos2d.h>
-#include <UI/CocosGUI.h>
 #include <Poco/Net/SocketAddress.h>
+#include <UI/CocosGUI.h>
 
 class PreGameScene : public cocos2d::Layer
 {

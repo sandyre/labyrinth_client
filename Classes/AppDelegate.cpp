@@ -1,8 +1,8 @@
 #include "AppDelegate.h"
-#include "gamescene.hpp"
-#include "mainmenuscene.hpp"
 
+#include "gamescene.hpp"
 #include "gameconfig.hpp"
+#include "mainmenuscene.hpp"
 #include "resourcemanager.hpp"
 
 USING_NS_CC;

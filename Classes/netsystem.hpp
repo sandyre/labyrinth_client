@@ -9,9 +9,10 @@
 #ifndef netsystem_hpp
 #define netsystem_hpp
 
+#include <Poco/Net/DatagramSocket.h>
+
 #include <array>
 #include <chrono>
-#include <Poco/Net/DatagramSocket.h>
 using namespace std::chrono;
 
 class NetSystem

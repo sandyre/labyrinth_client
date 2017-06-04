@@ -9,10 +9,12 @@
 #ifndef item_hpp
 #define item_hpp
 
-#include <array>
-#include "cocos2d.h"
 #include "gameobject.hpp"
-#include "globals.h"
+#include "../globals.h"
+
+#include <cocos2d.h>
+
+#include <array>
 
 class Item : public GameObject
 {

@@ -8,12 +8,12 @@
 
 #include "unit.hpp"
 
+#include "../effect.hpp"
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
-#include "../effect.hpp"
 
-#include <cocos2d.h>
 #include <audio/include/AudioEngine.h>
+#include <cocos2d.h>
 
 Unit::Unit() :
 m_eUnitType(Unit::Type::UNDEFINED),

@@ -9,13 +9,13 @@
 #ifndef player_hpp
 #define player_hpp
 
-#include "cocos2d.h"
 #include "globals.h"
+#include "unit.hpp"
 #include "../item.hpp"
 #include "../../gsnet_generated.h"
 #include "../../ui/ui_gamescene.hpp"
 
-#include "unit.hpp"
+#include <cocos2d.h>
 
 struct InputSequence
 {

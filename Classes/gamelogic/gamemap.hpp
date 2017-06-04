@@ -10,7 +10,9 @@
 #define gamemap_hpp
 
 #include "gameobject.hpp"
-#include "globals.h"
+
+#include "../globals.h"
+
 #include <stack>
 #include <vector>
 

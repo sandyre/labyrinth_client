@@ -10,7 +10,7 @@
 #define mapblock_hpp
 
 #include "gameobject.hpp"
-#include "globals.h"
+#include "../globals.h"
 
 class MapBlock : public GameObject
 {

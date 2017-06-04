@@ -8,36 +8,35 @@
 
 #include "mainmenuscene.hpp"
 
+#include "gameconfig.hpp"
+#include "msnet_generated.h"
+#include "netsystem.hpp"
 #include "pregamescene.hpp"
 #include "settingsscene.hpp"
 
-#include "gameconfig.hpp"
-#include "netsystem.hpp"
-#include "msnet_generated.h"
 #include <audio/include/AudioEngine.h>
-#include <regex>
-#include <fstream>
-#include <iostream>
-#include <istream>
-#include <streambuf>
-#include <string>
-#include <Poco/Net/DatagramSocket.h>
 #include <network/HttpRequest.h>
 #include <network/HttpResponse.h>
 #include <network/HttpClient.h>
-
-#include <Poco/XML/XMLWriter.h>
-#include <Poco/SAX/AttributesImpl.h>
-#include <Poco/SAX/SAXParser.h>
-
-#include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/AutoPtr.h>
 #include <Poco/DOM/Document.h>
+#include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/DOMWriter.h>
 #include <Poco/DOM/NodeIterator.h>
 #include <Poco/DOM/NamedNodeMap.h>
 #include <Poco/DOM/NodeFilter.h>
-#include <Poco/DOM/AutoPtr.h>
-#include <Poco/DOM/DOMWriter.h>
+#include <Poco/Net/DatagramSocket.h>
+#include <Poco/SAX/AttributesImpl.h>
 #include <Poco/SAX/InputSource.h>
+#include <Poco/SAX/SAXParser.h>
+#include <Poco/XML/XMLWriter.h>
+
+#include <fstream>
+#include <iostream>
+#include <istream>
+#include <regex>
+#include <streambuf>
+#include <string>
 
 using namespace MasterEvent;
 USING_NS_CC;

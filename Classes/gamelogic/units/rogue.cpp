@@ -10,7 +10,7 @@
 
 #include "../effect.hpp"
 #include "../gameworld.hpp"
-#include "gsnet_generated.h"
+#include "../../gsnet_generated.h"
 
 Rogue::Rogue()
 {

@@ -8,8 +8,9 @@
 
 #include "netsystem.hpp"
 
-#include <fstream>
 #include "gameconfig.hpp"
+
+#include <fstream>
 
 NetSystem::NetChannel::NetChannel() :
 m_eCState(ChannelState::DR_DONE)

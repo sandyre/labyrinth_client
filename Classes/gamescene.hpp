@@ -9,11 +9,11 @@
 #ifndef gamescene_hpp
 #define gamescene_hpp
 
-#include "cocos2d.h"
 #include "gamelogic/gameworld.hpp"
+#include "gsnet_generated.h"
 #include "ui/ui_gamescene.hpp"
 
-#include "gsnet_generated.h"
+#include <cocos2d.h>
 
 class GameScene : public cocos2d::Layer
 {

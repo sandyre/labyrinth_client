@@ -8,7 +8,7 @@
 
 #include "monster.hpp"
 
-#include "cocos2d.h"
+#include <cocos2d.h>
 
 Monster::Monster()
 {

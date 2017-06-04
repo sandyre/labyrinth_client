@@ -8,11 +8,13 @@
 
 #include "gamemap.hpp"
 
-#include <random>
-#include "mapblock.hpp"
-#include "globals.h"
 #include "gameworld.hpp"
-#include "cocos2d.h"
+#include "mapblock.hpp"
+#include "../globals.h"
+
+#include <cocos2d.h>
+
+#include <random>
 
 GameMap::GameMap()
 {

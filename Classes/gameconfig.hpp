@@ -9,9 +9,10 @@
 #ifndef gameconfig_hpp
 #define gameconfig_hpp
 
-#include <string>
-#include <Poco/DOM/Document.h>
 #include <Poco/DOM/AutoPtr.h>
+#include <Poco/DOM/Document.h>
+
+#include <string>
 
 class GameConfiguraton
 {
