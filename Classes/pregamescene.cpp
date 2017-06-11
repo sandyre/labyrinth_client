@@ -8,16 +8,16 @@
 
 #include "pregamescene.hpp"
 
-#include <sstream>
 #include "gameconfig.hpp"
 #include "gamescene.hpp"
-#include <netsystem.hpp>
-#include "msnet_generated.h"
-#include "gsnet_generated.h"
-#include "resourcemanager.hpp"
-#include "resources.hpp"
-
 #include "gamelogic/units/units_inc.hpp"
+#include "gsnet_generated.h"
+#include "msnet_generated.h"
+#include "netsystem.hpp"
+#include "resources.hpp"
+#include "resourcemanager.hpp"
+
+#include <sstream>
 
 template < typename T > std::string to_string( const T& n )
 {

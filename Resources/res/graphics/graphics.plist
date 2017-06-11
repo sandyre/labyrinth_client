@@ -46,13 +46,13 @@
 		<key>frame.png</key>
 		<dict>
 			<key>frame</key>
-			<string>{{448, 320}, {64, 64}}</string>
+			<string>{{256, 448}, {64, 64}}</string>
 			<key>offset</key>
 			<string>{0,0}</string>
 			<key>rotated</key>
 			<false/>
 			<key>sourceColorRect</key>
-			<string>{{448, 320}, {64, 64}}</string>
+			<string>{{256, 448}, {64, 64}}</string>
 			<key>sourceSize</key>
 			<string>{64, 64}</string>
 		</dict>
@@ -69,55 +69,68 @@
 			<key>sourceSize</key>
 			<string>{128, 256}</string>
 		</dict>
-		<key>mage_spell_1.png</key>
+		<key>mage_icon.png</key>
 		<dict>
 			<key>frame</key>
-			<string>{{612, 896}, {100, 100}}</string>
+			<string>{{964, 896}, {100, 100}}</string>
 			<key>offset</key>
 			<string>{0,0}</string>
 			<key>rotated</key>
 			<false/>
 			<key>sourceColorRect</key>
-			<string>{{612, 896}, {100, 100}}</string>
+			<string>{{964, 896}, {100, 100}}</string>
+			<key>sourceSize</key>
+			<string>{100, 100}</string>
+		</dict>
+		<key>mage_spell_1.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{864, 896}, {100, 100}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{864, 896}, {100, 100}}</string>
 			<key>sourceSize</key>
 			<string>{100, 100}</string>
 		</dict>
 		<key>mage_spell_2.png</key>
 		<dict>
 			<key>frame</key>
-			<string>{{512, 896}, {100, 100}}</string>
+			<string>{{764, 896}, {100, 100}}</string>
 			<key>offset</key>
 			<string>{0,0}</string>
 			<key>rotated</key>
 			<false/>
 			<key>sourceColorRect</key>
-			<string>{{512, 896}, {100, 100}}</string>
+			<string>{{764, 896}, {100, 100}}</string>
 			<key>sourceSize</key>
 			<string>{100, 100}</string>
 		</dict>
 		<key>mage_spell_3.png</key>
 		<dict>
 			<key>frame</key>
-			<string>{{512, 384}, {100, 100}}</string>
+			<string>{{664, 896}, {100, 100}}</string>
 			<key>offset</key>
 			<string>{0,0}</string>
 			<key>rotated</key>
 			<false/>
 			<key>sourceColorRect</key>
-			<string>{{512, 384}, {100, 100}}</string>
+			<string>{{664, 896}, {100, 100}}</string>
 			<key>sourceSize</key>
 			<string>{100, 100}</string>
 		</dict>
 		<key>take_item.png</key>
 		<dict>
 			<key>frame</key>
-			<string>{{448, 256}, {64, 64}}</string>
+			<string>{{448, 352}, {64, 64}}</string>
 			<key>offset</key>
 			<string>{0,0}</string>
 			<key>rotated</key>
 			<false/>
 			<key>sourceColorRect</key>
-			<string>{{448, 256}, {64, 64}}</string>
+			<string>{{448, 352}, {64, 64}}</string>
 			<key>sourceSize</key>
 			<string>{64, 64}</string>
 		</dict>
@@ -159,6 +172,110 @@
 			<string>{{0, 0}, {128, 256}}</string>
 			<key>sourceSize</key>
 			<string>{128, 256}</string>
+		</dict>
+		<key>unit_warrior_move_1.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{720, 996}, {68, 88}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{720, 996}, {68, 88}}</string>
+			<key>sourceSize</key>
+			<string>{68, 88}</string>
+		</dict>
+		<key>unit_warrior_move_2.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{648, 996}, {72, 92}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{648, 996}, {72, 92}}</string>
+			<key>sourceSize</key>
+			<string>{72, 92}</string>
+		</dict>
+		<key>unit_warrior_move_3.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{584, 896}, {80, 100}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{584, 896}, {80, 100}}</string>
+			<key>sourceSize</key>
+			<string>{80, 100}</string>
+		</dict>
+		<key>unit_warrior_move_4.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{1064, 896}, {80, 96}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{1064, 896}, {80, 96}}</string>
+			<key>sourceSize</key>
+			<string>{80, 96}</string>
+		</dict>
+		<key>unit_warrior_move_5.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{580, 996}, {68, 92}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{580, 996}, {68, 92}}</string>
+			<key>sourceSize</key>
+			<string>{68, 92}</string>
+		</dict>
+		<key>unit_warrior_move_6.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{448, 256}, {64, 96}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{448, 256}, {64, 96}}</string>
+			<key>sourceSize</key>
+			<string>{64, 96}</string>
+		</dict>
+		<key>unit_warrior_move_7.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{512, 896}, {72, 100}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{512, 896}, {72, 100}}</string>
+			<key>sourceSize</key>
+			<string>{72, 100}</string>
+		</dict>
+		<key>unit_warrior_move_8.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{512, 996}, {68, 92}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{512, 996}, {68, 92}}</string>
+			<key>sourceSize</key>
+			<string>{68, 92}</string>
 		</dict>
 		<key>wall_0_0.png</key>
 		<dict>
@@ -589,6 +706,19 @@
 			<key>sourceSize</key>
 			<string>{192, 192}</string>
 		</dict>
+		<key>warrior_icon.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{512, 384}, {100, 100}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{512, 384}, {100, 100}}</string>
+			<key>sourceSize</key>
+			<string>{100, 100}</string>
+		</dict>
 		<key>warrior_spell_1.png</key>
 		<dict>
 			<key>frame</key>
@@ -634,7 +764,7 @@
 		<key>format</key>
 		<integer>2</integer>
 		<key>hash</key>
-		<string>f0e4c09255</string>
+		<string>ff6643fbdb</string>
 		<key>name</key>
 		<string>graphics</string>
 		<key>realTextureFileName</key>

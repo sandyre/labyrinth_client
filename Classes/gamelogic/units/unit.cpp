@@ -171,8 +171,8 @@ void
 Unit::RequestMove(MoveDirection dir)
 {
         // detect if player is already moving
-    auto action = this->getActionByTag(5);
-    if(action != nullptr)
+    auto actions_num = this->getNumberOfRunningActions();
+    if(actions_num != 0)
         return;
     
     flatbuffers::FlatBufferBuilder builder;

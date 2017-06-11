@@ -214,7 +214,7 @@ UIBattleLogs::UIBattleLogs()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.width *= 0.4;
+    layout_size.width *= 0.5;
     layout_size.height *= 0.4;
     
     this->setLayoutType(ui::Layout::Type::RELATIVE);
@@ -237,7 +237,7 @@ UIBattleLogs::AddLogMessage(const std::string& msg)
 {
     auto text_msg = ui::Text::create(msg,
                                      "fonts/pw_extended.ttf",
-                                     12);
+                                     14);
     text_msg->setCameraMask((unsigned short)CameraFlag::USER1);
     text_msg->setOpacity(0);
     m_pListView->insertCustomItem(text_msg, 0);

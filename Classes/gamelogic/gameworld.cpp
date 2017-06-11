@@ -8,11 +8,10 @@
 
 #include "gameworld.hpp"
 
-#include "../netsystem.hpp"
-#include "item.hpp"
 #include "construction.hpp"
+#include "item.hpp"
 #include "units/units_inc.hpp"
-
+#include "../netsystem.hpp"
 #include "../gameconfig.hpp"
 
 GameWorld::GameWorld() :
@@ -122,6 +121,9 @@ GameWorld::ReceiveInputNetEvents()
                                              gs_spawn->y()));
                 m_apoObjects.push_back(monster);
                 this->addChild(monster, 10);
+                
+                m_pUI->m_pBattleLogs->AddLogMessage("Skeleton spawned");
+                
                 break;
             }
                 
@@ -250,28 +252,10 @@ GameWorld::ReceiveInputNetEvents()
                     {
                         item->AnimationTaken();
                         player->TakeItem(item);
-                        break;
-                    }
                         
-                    case GameEvent::ActionItemType_DROP:
-                    {
-                        item->AnimationDropped();
-                        item->SetCarrierID(0);
-                        item->SetLogicalPosition(player->GetLogicalPosition());
-                        item->setPosition(
-                                          LOG_TO_PHYS_COORD(player->GetLogicalPosition(),
-                                                            item->getContentSize()));
-                        
-                            // delete item from players inventory
-                        for(auto it = player->GetInventory().begin();
-                            it != player->GetInventory().end();
-                            ++it)
+                        if(item->GetType() == Item::Type::KEY)
                         {
-                            if((*it)->GetUID() == item->GetUID())
-                            {
-                                player->GetInventory().erase(it);
-                                break;
-                            }
+                            m_pUI->m_pBattleLogs->AddLogMessage("Someone took the key");
                         }
                         
                         break;
@@ -388,10 +372,10 @@ GameWorld::ReceiveInputNetEvents()
                 auto winner_inf_pos = cocos2d::ui::RelativeLayoutParameter::create();
                 winner_inf_pos->setAlign(cocos2d::ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
                 
-                auto winner_info = cocos2d::ui::Text::create(cocos2d::StringUtils::format("%s escaped... others didn't",
+                auto winner_info = cocos2d::ui::Text::create(cocos2d::StringUtils::format("%s escaped... but others didn't",
                                                                                           winner->GetName().c_str()),
                                                              "fonts/alagard.ttf",
-                                                             30);
+                                                             24);
                 winner_info->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1);
                 winner_info->setLayoutParameter(winner_inf_pos);
                 m_pUI->addChild(winner_info);

@@ -21,6 +21,8 @@ public:
     
     virtual void                RequestSpellCast(int index) override;
     virtual void                SpellCast(const GameEvent::SVActionSpell*) override;
+    
+    virtual void                Move(const GameEvent::SVActionMove*) override;
 protected:
     Warrior();
     

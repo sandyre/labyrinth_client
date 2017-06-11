@@ -12,6 +12,8 @@
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
 
+#include <cocos/audio/include/AudioEngine.h>
+
 Warrior::Warrior()
 {
     m_eHero = Hero::Type::WARRIOR;
@@ -150,4 +152,76 @@ void
 Warrior::update(float delta)
 {
     Hero::update(delta);
+}
+
+void
+Warrior::Move(const GameEvent::SVActionMove* mov)
+{
+    Orientation new_orient = (Orientation)mov->mov_dir();
+    MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
+    cocos2d::Vec2 new_pos = m_stLogPosition;
+    if(mov_dir == MoveDirection::UP)
+    {
+        ++new_pos.y;
+    }
+    else if(mov_dir == MoveDirection::DOWN)
+    {
+        --new_pos.y;
+    }
+    else if(mov_dir == MoveDirection::LEFT)
+    {
+        --new_pos.x;
+    }
+    else if(mov_dir == MoveDirection::RIGHT)
+    {
+        ++new_pos.x;
+    }
+    
+        // change orientation properly
+    if(m_eOrientation != new_orient)
+    {
+        if(new_orient == Orientation::LEFT)
+        {
+            this->setFlippedX(true);
+        }
+        else if(new_orient == Orientation::RIGHT)
+        {
+            this->setFlippedX(false);
+        }
+    }
+    
+    m_eOrientation = new_orient;
+    
+    if(new_pos != cocos2d::Vec2(mov->x(),
+                                mov->y()))
+    {
+        new_pos = cocos2d::Vec2(mov->x(),
+                                mov->y());
+    }
+    
+    m_stLogPosition = new_pos;
+    
+        // animation
+    auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_move");
+    animation->setRestoreOriginalFrame(true);
+    animation->setLoops(1);
+    auto mov_animation = cocos2d::Animate::create(animation);
+    mov_animation->setDuration(1.0/m_nMoveSpeed);
+    
+    auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
+                                          LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
+    
+    auto spawn = cocos2d::Spawn::create(mov_animation,
+                                        moveTo,
+                                        nullptr);
+    this->runAction(spawn);
+    
+        // sound
+    auto distance = m_poGameWorld->GetLocalPlayer()->GetLogicalPosition().distance(this->GetLogicalPosition());
+    if(distance <= 10.0)
+    {
+        auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
+                                                                false,
+                                                                1.0f / distance);
+    }
 }

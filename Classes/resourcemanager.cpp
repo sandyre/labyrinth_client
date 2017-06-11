@@ -27,6 +27,7 @@ ResourceManager::PreloadTextures()
 {
     cocos2d::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("res/graphics/graphics.plist",
                                                                       "res/graphics/graphics.png");
+    cocos2d::AnimationCache::getInstance()->addAnimationsWithFile("res/graphics/animations.plist");
 }
 
 void

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>animations</key>
+	<dict>
+		<key>unit_warrior_move</key>
+		<dict>
+			<key>frames</key>
+			<array>
+				<string>unit_warrior_move_1.png</string>
+				<string>unit_warrior_move_2.png</string>
+				<string>unit_warrior_move_3.png</string>
+				<string>unit_warrior_move_4.png</string>
+				<string>unit_warrior_move_5.png</string>
+				<string>unit_warrior_move_6.png</string>
+				<string>unit_warrior_move_7.png</string>
+				<string>unit_warrior_move_8.png</string>
+			</array>
+			<key>delay</key>
+			<integer>5</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>
