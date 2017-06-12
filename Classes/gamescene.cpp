@@ -82,23 +82,23 @@ GameScene::init()
     {
         if(keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SWIPE_LEFT);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_LEFT);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SWIPE_RIGHT);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_RIGHT);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SWIPE_UP);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_UP);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SWIPE_DOWN);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_DOWN);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_Q)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_0_CLICK);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListener, this);
@@ -107,7 +107,7 @@ GameScene::init()
     {
         if(type == ui::Widget::TouchEventType::ENDED)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::TAKE_ITEM_BUTTON_CLICK);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::TAKE_ITEM_BUTTON_CLICK);
         }
     };
     m_pUI->m_pTakeItemButton->addTouchEventListener(take_button_callback);
@@ -117,7 +117,7 @@ GameScene::init()
     {
         if(type == ui::Widget::TouchEventType::ENDED)
         {
-            m_pGWorld->GetLocalPlayer()->ApplyInputEvent(InputEvent::SPELL_CAST_0_CLICK);
+            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
     m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->addTouchEventListener(skill_1_callback);

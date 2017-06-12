@@ -71,7 +71,7 @@ public:
     
         // sets HUD and configures it for current hero
     void                        SetHUD(UIGameScene* ui);
-    virtual void                ApplyInputEvent(InputEvent) override;
+    virtual void                EnqueueInputEvent(InputEvent) override;
     
     virtual void                StartDuel(Unit *) override;
     virtual void                EndDuel() override;
@@ -88,6 +88,8 @@ protected:
     bool    m_bIsLocalPlayer;
     
     UIGameScene * m_pUI;
+    
+    std::deque<std::pair<float, InputEvent>> m_qEventsQueue;
 };
 
 #endif /* player_hpp */

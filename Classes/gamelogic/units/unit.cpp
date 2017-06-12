@@ -170,11 +170,6 @@ Unit::UpdateCDs(float delta)
 void
 Unit::RequestMove(MoveDirection dir)
 {
-        // detect if player is already moving
-    auto actions_num = this->getNumberOfRunningActions();
-    if(actions_num != 0)
-        return;
-    
     flatbuffers::FlatBufferBuilder builder;
     auto move = GameEvent::CreateCLActionMove(builder,
                                               this->GetUID(),
@@ -398,7 +393,6 @@ Unit::Move(const GameEvent::SVActionMove* mov)
         // animation
     auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
-    moveTo->setTag(5);
     this->runAction(moveTo);
     
         // sound

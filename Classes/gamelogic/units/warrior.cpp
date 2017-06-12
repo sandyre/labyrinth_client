@@ -210,10 +210,10 @@ Warrior::Move(const GameEvent::SVActionMove* mov)
     
     auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
                                           LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
-    
     auto spawn = cocos2d::Spawn::create(mov_animation,
                                         moveTo,
                                         nullptr);
+    spawn->setTag(5);
     this->runAction(spawn);
     
         // sound

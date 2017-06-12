@@ -109,7 +109,7 @@ public:
     virtual void    ApplyEffect(Effect*);
     
         // Received from scenes event listeners
-    virtual void    ApplyInputEvent(InputEvent) {}
+    virtual void    EnqueueInputEvent(InputEvent) {}
 protected:
     Unit();
     
