@@ -155,6 +155,7 @@ Hero::update(float delta)
                                 auto req_win = GameEvent::CreateCLRequestWin(builder,
                                                                              this->GetUID());
                                 auto msg = GameEvent::CreateMessage(builder,
+                                                                    this->GetUID(),
                                                                     GameEvent::Events_CLRequestWin,
                                                                     req_win.Union());
                                 builder.Finish(msg);
@@ -197,6 +198,7 @@ Hero::update(float delta)
             }
             case Unit::State::DUEL:
             {
+                m_qEventsQueue.pop_front();
                 if(m_nCurrentSequence != -1)
                 {
                     auto& seq = m_aCastSequences[m_nCurrentSequence];

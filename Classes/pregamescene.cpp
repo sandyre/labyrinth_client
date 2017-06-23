@@ -79,6 +79,7 @@ PreGameScene::init()
                                                             player->nUID,
                                                             (GameEvent::HeroType)player->nHeroIndex);
                 auto msg = GameEvent::CreateMessage(builder,
+                                                    GameConfiguraton::Instance().GetUID(),
                                                     GameEvent::Events_CLHeroPick,
                                                     heropick.Union());
                 builder.Finish(msg);
@@ -113,6 +114,7 @@ PreGameScene::init()
                                                             player->nUID,
                                                             (GameEvent::HeroType)player->nHeroIndex);
                 auto msg = GameEvent::CreateMessage(builder,
+                                                    GameConfiguraton::Instance().GetUID(),
                                                     GameEvent::Events_CLHeroPick,
                                                     heropick.Union());
                 builder.Finish(msg);
@@ -174,6 +176,7 @@ PreGameScene::update(float delta)
                 else
                 {
                     m_pUI->m_pStatusText->setString("SERVER REFUSED CONNECTION:\nINCOMPATIBLE VERSIONS");
+                    Director::getInstance()->popScene();
                 }
             }
             break;
@@ -206,6 +209,7 @@ PreGameScene::update(float delta)
                                                           GameConfiguraton::Instance().GetUID(),
                                                           nickname);
             auto gs_event = GameEvent::CreateMessage(builder,
+                                                     GameConfiguraton::Instance().GetUID(),
                                                      GameEvent::Events_CLConnection,
                                                      con_info.Union());
             builder.Finish(gs_event);
@@ -293,6 +297,7 @@ PreGameScene::update(float delta)
                                                                                           auto ready_msg = GameEvent::CreateCLReadyToStart(builder,
                                                                                                                                            player_inf->m_stPlayerInfo.nUID);
                                                                                           auto msg = GameEvent::CreateMessage(builder,
+                                                                                                                              GameConfiguraton::Instance().GetUID(),
                                                                                                                               GameEvent::Events_CLReadyToStart,
                                                                                                                               ready_msg.Union());
                                                                                           builder.Finish(msg);
@@ -379,6 +384,7 @@ PreGameScene::update(float delta)
             auto gen_ok = GameEvent::CreateCLMapGenerated(builder,
                                                           GameConfiguraton::Instance().GetUID());
             auto cl_event = GameEvent::CreateMessage(builder,
+                                                     GameConfiguraton::Instance().GetUID(),
                                                      GameEvent::Events_CLMapGenerated,
                                                      gen_ok.Union());
             builder.Finish(cl_event);

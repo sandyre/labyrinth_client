@@ -46,7 +46,7 @@ m_nBonusMovespeed(bonus_movespeed)
 void
 WarriorDash::start()
 {
-    m_pTargetUnit->m_nMoveSpeed -= m_nBonusMovespeed;
+    m_pTargetUnit->m_nMoveSpeed += m_nBonusMovespeed;
 }
 
 void
@@ -65,7 +65,7 @@ WarriorDash::update(float delta)
 void
 WarriorDash::stop()
 {
-    m_pTargetUnit->m_nMoveSpeed += m_nBonusMovespeed;
+    m_pTargetUnit->m_nMoveSpeed -= m_nBonusMovespeed;
 }
 
 void
