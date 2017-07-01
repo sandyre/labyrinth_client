@@ -8,10 +8,6 @@
 
 #include "construction.hpp"
 
-/*
- * <Construction class implementation>
- */
-
 Construction::Construction()
 {
     m_eObjType = GameObject::Type::CONSTRUCTION;
@@ -23,18 +19,14 @@ Construction::GetType() const
     return m_eType;
 }
 
-/*
- * </Construction class implementation>
- */
-
-/*
- * <Door class implementation>
- */
-
 Door::Door()
 {
     m_eType = Construction::Type::DOOR;
+<<<<<<< HEAD
 	m_nObjAttributes |= Attributes::PASSABLE;
+=======
+    m_nObjAttributes |= GameObject::Attributes::PASSABLE;
+>>>>>>> 34283364dfc2fd7f8fd1a7083b16b799cec29802
 }
 
 Door *
@@ -52,18 +44,14 @@ Door::create(const std::string& filename)
     return nullptr;
 }
 
-/*
- * </Door class implementation>
- */
-
-/*
- * <Graveyard class implementation>
- */
-
 Graveyard::Graveyard()
 {
     m_eType = Construction::Type::GRAVEYARD;
+<<<<<<< HEAD
 	m_nObjAttributes |= Attributes::PASSABLE;
+=======
+    m_nObjAttributes |= GameObject::Attributes::PASSABLE;
+>>>>>>> 34283364dfc2fd7f8fd1a7083b16b799cec29802
 }
 
 Graveyard *
@@ -80,14 +68,6 @@ Graveyard::create(const std::string& filename)
     CC_SAFE_DELETE(pGrave);
     return nullptr;
 }
-
-/*
- * </Graveyard class implementation>
- */
-
-/*
- * <Swamp class implementation>
- */
 
 Swamp::Swamp()
 {
@@ -108,7 +88,3 @@ Swamp::create(const std::string& filename)
     CC_SAFE_DELETE(pSwamp);
     return nullptr;
 }
-
-/*
- * </Swamp class implementation>
- */

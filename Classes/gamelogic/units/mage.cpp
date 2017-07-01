@@ -68,6 +68,7 @@ Mage::RequestSpellCast(int index)
                                                      this->GetUID(),
                                                      0);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);
@@ -83,6 +84,7 @@ Mage::RequestSpellCast(int index)
                                                      this->GetUID(),
                                                      1);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);
@@ -104,6 +106,7 @@ Mage::RequestSpellCast(int index)
                                                        2,
                                                        spell);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               cl_spell.Union());
         builder.Finish(event);

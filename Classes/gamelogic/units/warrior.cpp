@@ -69,6 +69,7 @@ Warrior::RequestSpellCast(int index)
                                                      this->GetUID(),
                                                      0);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);
@@ -84,6 +85,7 @@ Warrior::RequestSpellCast(int index)
                                                      this->GetUID(),
                                                      1);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);
@@ -99,6 +101,7 @@ Warrior::RequestSpellCast(int index)
                                                      this->GetUID(),
                                                      2);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);

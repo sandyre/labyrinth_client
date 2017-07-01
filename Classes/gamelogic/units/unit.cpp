@@ -175,6 +175,7 @@ Unit::RequestMove(MoveDirection dir)
                                               this->GetUID(),
                                               (char)dir);
     auto event = GameEvent::CreateMessage(builder,
+                                          this->GetUID(),
                                           GameEvent::Events_CLActionMove,
                                           move.Union());
     builder.Finish(event);
@@ -195,6 +196,7 @@ Unit::RequestTakeItem(Item * item)
                                                   item->GetUID(),
                                                   GameEvent::ActionItemType_TAKE);
         auto event = GameEvent::CreateMessage(builder,
+                                              this->GetUID(),
                                               GameEvent::Events_CLActionItem,
                                               take.Union());
         builder.Finish(event);
@@ -213,6 +215,7 @@ Unit::RequestStartDuel(Unit * enemy)
                                               enemy->GetUID(),
                                               GameEvent::ActionDuelType_STARTED);
     auto event = GameEvent::CreateMessage(builder,
+                                          this->GetUID(),
                                           GameEvent::Events_CLActionDuel,
                                           take.Union());
     builder.Finish(event);
