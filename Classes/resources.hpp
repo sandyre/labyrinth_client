@@ -24,8 +24,8 @@ static const std::array<std::string, 4> HeroPortraits
 
 static const std::array<std::string, 4> HeroIcons
 {
-    "res/graphics/warrior_icon.png",
-    "res/graphics/mage_icon.png",
+    "res/graphics/ui_icon_warrior.png",
+    "res/graphics/ui_icon_mage.png",
     "res/graphics/rogue_icon.png",
     "res/graphics/priest_icon.png"
 };

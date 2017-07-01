@@ -39,8 +39,8 @@ static int register_all_packages()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
-    auto screensize = cocos2d::Size(405,
-                                    720);
+	auto screensize = cocos2d::Size(405,
+		720);
 //    auto screensize = designResolutionSize;
     
     // initialize director
