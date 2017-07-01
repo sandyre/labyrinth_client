@@ -34,6 +34,7 @@ Construction::GetType() const
 Door::Door()
 {
     m_eType = Construction::Type::DOOR;
+	m_nObjAttributes |= Attributes::PASSABLE;
 }
 
 Door *
@@ -62,6 +63,7 @@ Door::create(const std::string& filename)
 Graveyard::Graveyard()
 {
     m_eType = Construction::Type::GRAVEYARD;
+	m_nObjAttributes |= Attributes::PASSABLE;
 }
 
 Graveyard *

@@ -12,7 +12,7 @@
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
 
-#include <cocos/audio/include/AudioEngine.h>
+#include <cocos2d/cocos/audio/include/AudioEngine.h>
 
 Warrior::Warrior()
 {
