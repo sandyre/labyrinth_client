@@ -55,6 +55,7 @@ UIStartPage::UIStartPage()
                                     TitleFont,
                                     70);
     m_pGameTitle->setLayoutParameter(title_pos);
+    m_pGameTitle->enableOutline(Color4B::BLACK);
     this->addChild(m_pGameTitle);
     
         // init 'start' button

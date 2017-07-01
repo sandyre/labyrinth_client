@@ -15,7 +15,7 @@
 
 #include <cocos2d.h>
 #include <Poco/Net/SocketAddress.h>
-#include <UI/CocosGUI.h>
+#include <ui/CocosGUI.h>
 
 class PreGameScene : public cocos2d::Layer
 {
@@ -39,7 +39,8 @@ public:
     
 protected:
     Status           m_eStatus;
-    Poco::Net::SocketAddress m_stGSAddr;
+    
+    std::shared_ptr<NetChannel> _channel;
     
     std::vector<PlayerInfo> m_aLobbyPlayers;
     GameMap::Configuration m_stMapConfig;

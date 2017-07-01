@@ -10,9 +10,10 @@
 #define mainmenuscene_hpp
 
 #include "ui/ui_mainmenuscene.hpp"
+#include "netsystem.hpp"
 
 #include <cocos2d.h>
-#include <UI/CocosGUI.h>
+#include <ui/CocosGUI.h>
 
 class MainMenuScene : public cocos2d::Layer
 {
@@ -23,6 +24,7 @@ public:
         LOGIN_PAGE,
         MAIN_PAGE
     };
+    
 public:
     static cocos2d::Scene * createScene();
     
@@ -33,10 +35,13 @@ public:
     
 protected:
     void    UpdateNewsWidget();
+
 protected:
     SceneState m_eSceneState;
     float      m_fTimer;
     UIMainMenuScene * m_pUI;
+    
+    std::shared_ptr<NetChannel> _channel;
 };
 
 #endif /* mainmenuscene_hpp */

@@ -12,84 +12,71 @@
 
 #include <fstream>
 
-NetSystem::NetChannel::NetChannel() :
-m_eCState(ChannelState::DR_DONE)
+NetChannel::NetChannel(const Poco::Net::SocketAddress& addr)
+ : Task("Channel")
 {
-    m_oDSocket.setReceiveTimeout(Poco::Timespan(1, 0));
+    _socket.connect(addr);
 }
 
-NetSystem::ChannelState
-NetSystem::NetChannel::GetState() const
+NetChannel::~NetChannel()
 {
-    return m_eCState;
+    cancel();
+    _socket.close();
 }
 
-const std::array<uint8_t, 512>&
-NetSystem::NetChannel::GetBuffer() const
+bool
+NetChannel::Available() const
 {
-    return m_aDBuffer;
-}
-
-const Poco::Net::SocketAddress&
-NetSystem::NetChannel::GetAddress() const
-{
-    return m_oSockAddr;
+    std::lock_guard<std::mutex> lock(_mutex);
+    return !_packetsDeque.empty();
 }
 
 void
-NetSystem::NetChannel::SetAddress(Poco::Net::SocketAddress addr)
+NetChannel::runTask()
 {
-    m_oSockAddr = addr;
+    while(true)
+    {
+        size_t len = _socket.receiveBytes(_buffer.data(),
+                                          _buffer.size());
+        std::lock_guard<std::mutex> lock(_mutex);
+        _packetsDeque.emplace_back(_buffer.data(),
+                                   _buffer.data() + len);
+    }
 }
 
-int
-NetSystem::NetChannel::DataAvailable() const
+std::vector<uint8_t>
+NetChannel::PopPacket()
 {
-    return m_oDSocket.available();
-}
-
-int
-NetSystem::NetChannel::SendBytes(const void * buf,
-                                 int size)
-{
-    return m_oDSocket.sendTo(buf, size, m_oSockAddr);
+    std::lock_guard<std::mutex> lock(_mutex);
+    std::vector<uint8_t> pack = _packetsDeque.front();
+    _packetsDeque.pop_front();
+    return pack;
 }
 
 void
-NetSystem::NetChannel::ReceiveBytes()
+NetChannel::PushPacket(const std::vector<uint8_t> &data)
 {
-    try
-    {
-        m_oDSocket.receiveBytes(m_aDBuffer.data(), m_aDBuffer.size());
-        m_eCState = ChannelState::DR_DONE;
-    }
-    catch(std::exception& e)
-    {
-        m_eCState = ChannelState::DR_TIMEOUT;
-    }
+    _socket.sendBytes(data.data(),
+                      data.size());
 }
 
-NetSystem::NetSystem()
+void
+NetSystem::CreateChannel(const std::string& name, const Poco::Net::SocketAddress& adr)
 {
-        // create 2 netchannels (1 = MS, 2 = GS)
-    m_aChannels.push_back(NetChannel());
+    std::shared_ptr<NetChannel> channel = std::make_shared<NetChannel>(adr);
+    _channels.insert(std::make_pair(name, channel));
     
-        // read MS addr and setup channel
-    Poco::Net::SocketAddress ms_addr(GameConfiguraton::Instance().GetServerAddress());
-    m_aChannels.front().SetAddress(ms_addr);
-    
-    m_aChannels.push_back(NetChannel());
+    _taskManager.start(channel.get());
 }
 
-NetSystem&
-NetSystem::Instance()
+std::shared_ptr<NetChannel>
+NetSystem::GetChannel(const std::string& name)
 {
-    static NetSystem ns;
-    return ns;
+    return _channels[name];
 }
 
-NetSystem::NetChannel&
-NetSystem::GetChannel(size_t index)
+void
+NetSystem::RemoveChannel(const std::string& name)
 {
-    return m_aChannels[index];
+    _channels.erase(name);
 }

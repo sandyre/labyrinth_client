@@ -138,6 +138,19 @@ MainMenuScene::init()
     m_pUI = new UIMainMenuScene();
     this->addChild(m_pUI);
     
+        // Get channel
+    _channel = NetSystem::Instance().GetChannel("masterserver");
+    
+    flatbuffers::FlatBufferBuilder builder;
+    auto ping = CreateCLPing(builder);
+    auto msg = CreateMessage(builder,
+                             Messages_CLPing,
+                             ping.Union());
+    builder.Finish(msg);
+    _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
+                                              builder.GetBufferPointer() + builder.GetSize()));
+    builder.Clear();
+    
         // play background sound
     auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/main_theme.mp3",
                                                             true,
@@ -197,39 +210,33 @@ MainMenuScene::init()
                                             log_msg.Union());
             builder.Finish(msg);
             
-            NetSystem::Instance().GetChannel(0).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            
-            NetSystem::Instance().GetChannel(0).ReceiveBytes();
-            auto rmsg = GetMessage(NetSystem::Instance().GetChannel(0).GetBuffer().data());
-            if(rmsg->message_type() == Messages_SVLogin)
-            {
-                auto response = static_cast<const SVLogin*>(rmsg->message());
-                
-                if(response->response() == LoginStatus_SUCCESS)
-                {
-                    m_eSceneState = SceneState::MAIN_PAGE;
-                    m_pUI->m_pPageView->scrollToPage(2);
-                }
-                else
-                {
-                    MessageBox("Error", "Wrong email or password");
-                }
-            }
+            _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
+                                                      builder.GetBufferPointer() + builder.GetSize()));
         }
     };
     m_pUI->m_pLoginPage->m_pLogInButton->addTouchEventListener(login_button_callback);
     
         // listener to get into play pregamescene
     m_pUI->m_pMainPage->m_pPlayButton->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
-                                                             {
-                                                                 if(type == ui::Widget::TouchEventType::ENDED)
-                                                                 {
-                                                                         // stop music
-                                                                     cocos2d::experimental::AudioEngine::stopAll();
-                                                                     Director::getInstance()->pushScene(PreGameScene::createScene());
-                                                                 }
-                                                             });
+    {
+        if(type == ui::Widget::TouchEventType::ENDED)
+        {
+            flatbuffers::FlatBufferBuilder builder;
+            auto req_lobby = CreateCLFindGame(builder,
+                                              GameConfiguraton::Instance().GetUID(),
+                                              GAMEVERSION_MAJOR,
+                                              GAMEVERSION_MINOR,
+                                              GAMEVERSION_BUILD);
+            auto ms_event = CreateMessage(builder,
+                                          Messages_CLFindGame
+                                          ,
+                                          req_lobby.Union());
+            builder.Finish(ms_event);
+            
+            _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
+                                                      builder.GetBufferPointer() + builder.GetSize()));
+        }
+    });
     
         // listener to registration button
     auto reg_button_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
@@ -250,24 +257,8 @@ MainMenuScene::init()
                                             reg_msg.Union());
             builder.Finish(msg);
             
-            NetSystem::Instance().GetChannel(0).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            
-            NetSystem::Instance().GetChannel(0).ReceiveBytes();
-            auto rmsg = GetMessage(NetSystem::Instance().GetChannel(0).GetBuffer().data());
-            if(rmsg->message_type() == Messages_SVRegister)
-            {
-                auto response = static_cast<const SVRegister*>(rmsg->message());
-                
-                if(response->response() == RegistrationStatus_SUCCESS)
-                {
-                    MessageBox("Success", "Registration done, check email");
-                }
-                else
-                {
-                    MessageBox("Error", "Email has been taken, please take another one");
-                }
-            }
+            _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
+                                                      builder.GetBufferPointer() + builder.GetSize()));
         }
     };
     m_pUI->m_pLoginPage->m_pRegButton->addTouchEventListener(reg_button_callback);
@@ -312,26 +303,85 @@ MainMenuScene::update(float delta)
 {
     if(m_eSceneState == SceneState::START_PAGE)
     {
-        m_fTimer += delta;
-        
-        if(m_fTimer >= 5.0f)
+        if(_channel->Available())
         {
-            m_fTimer = 0.0f;
+            m_pUI->m_pStartPage->m_pStartButton->setEnabled(true);
+            m_pUI->m_pStartPage->m_pStartButton->setTitleText("Begin");
+        }
+    }
+    else if(m_eSceneState == SceneState::LOGIN_PAGE)
+    {
+        if(_channel->Available())
+        {
+            std::vector<uint8_t> packet = _channel->PopPacket();
             
-            flatbuffers::FlatBufferBuilder builder;
-            auto ping = CreateCLPing(builder);
-            auto msg = CreateMessage(builder,
-                                     Messages_CLPing,
-                                     ping.Union());
-            builder.Finish(msg);
-            NetSystem::Instance().GetChannel(0).SendBytes(builder.GetBufferPointer(),
-                                                          builder.GetSize());
-            NetSystem::Instance().GetChannel(0).ReceiveBytes();
-            if(NetSystem::Instance().GetChannel(0).GetState() == NetSystem::ChannelState::DR_DONE)
+            auto rmsg = GetMessage(packet.data());
+            
+            switch(rmsg->message_type())
             {
-                m_pUI->m_pStartPage->m_pStartButton->setEnabled(true);
-                m_pUI->m_pStartPage->m_pStartButton->setTitleText("Begin");
+            case MasterEvent::Messages_SVRegister:
+            {
+                auto response = static_cast<const SVRegister*>(rmsg->message());
+                
+                if(response->response() == RegistrationStatus_SUCCESS)
+                {
+                    MessageBox("Success", "Registration done, check email");
+                }
+                else
+                {
+                    MessageBox("Error", "Email has been taken, please take another one");
+                }
+                
+                break;
+            }
+                
+            case MasterEvent::Messages_SVLogin:
+            {
+                auto response = static_cast<const SVLogin*>(rmsg->message());
+                
+                if(response->response() == LoginStatus_SUCCESS)
+                {
+                    m_eSceneState = SceneState::MAIN_PAGE;
+                    m_pUI->m_pPageView->scrollToPage(2);
+                }
+                else
+                {
+                    MessageBox("Error", "Wrong email or password");
+                }
+                
+                break;
+            }
+                
             }
         }
     }
+    else if(m_eSceneState == SceneState::MAIN_PAGE)
+    {
+        if(_channel->Available())
+        {
+            std::vector<uint8_t> packet = _channel->PopPacket();
+            
+            auto rmsg = GetMessage(packet.data());
+            
+            switch(rmsg->message_type())
+            {
+                    
+            case MasterEvent::Messages_SVGameFound:
+            {
+                auto gs_info = static_cast<const SVGameFound*>(rmsg->message());
+                
+                Poco::Net::SocketAddress adr(GameConfiguraton::Instance().GetServerAddress());
+                NetSystem::Instance().CreateChannel("gameserver",
+                                                    Poco::Net::SocketAddress(adr.host(),
+                                                                             gs_info->gs_port()));
+                
+                Director::getInstance()->pushScene(PreGameScene::createScene());
+                
+                break;
+            }
+                    
+            }
+                    
+            }
+        }
 }

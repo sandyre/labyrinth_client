@@ -69,6 +69,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
         // Load game resources
     ResourceManager::Instance().PreloadTextures();
     ResourceManager::Instance().PreloadSounds();
+    
+    NetSystem::Instance().CreateChannel("masterserver",
+                                        Poco::Net::SocketAddress(GameConfiguraton::Instance().GetServerAddress()));
 
     register_all_packages();
     

@@ -12,6 +12,7 @@
 #include "gamemap.hpp"
 #include "units/units_inc.hpp"
 #include "../globals.h"
+#include "../netsystem.hpp"
 #include "../gsnet_generated.h"
 #include "../ui/ui_gamescene.hpp"
 
@@ -42,7 +43,8 @@ protected:
     GameMap::Configuration  m_stMapConf;
     
         // contains outgoing events
-    std::queue<std::vector<char>> m_aOutEvents;
+    std::shared_ptr<NetChannel>     _channel; // gameserver channel
+    std::queue<std::vector<uint8_t>> m_aOutEvents;
     flatbuffers::FlatBufferBuilder builder;
     
         // basicly contains all objects on scene

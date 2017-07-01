@@ -11,7 +11,6 @@
 #include "construction.hpp"
 #include "item.hpp"
 #include "units/units_inc.hpp"
-#include "../netsystem.hpp"
 #include "../gameconfig.hpp"
 
 GameWorld::GameWorld() :
@@ -69,19 +68,18 @@ GameWorld::AddPlayer(PlayerInfo player)
         m_poLocalPlayer = pHero;
         pHero->SetIsLocalPlayer(true);
     }
+    
+    _channel = NetSystem::Instance().GetChannel("gameserver");
 }
 
 void
 GameWorld::ReceiveInputNetEvents()
 {
-    auto& socket = NetSystem::Instance().GetChannel(1);
-    unsigned char buf[512];
-    
-    while(socket.DataAvailable())
+    while(_channel->Available())
     {
-        socket.ReceiveBytes();
+        std::vector<uint8_t> packet = _channel->PopPacket();
         
-        auto gs_event = GameEvent::GetMessage(socket.GetBuffer().data());
+        auto gs_event = GameEvent::GetMessage(packet.data());
         
         switch(gs_event->event_type())
         {
@@ -426,8 +424,7 @@ GameWorld::SendOutgoingNetEvents()
     while(!m_aOutEvents.empty())
     {
         auto& event = m_aOutEvents.back();
-        NetSystem::Instance().GetChannel(1).SendBytes(event.data(),
-                                                      event.size());
+        _channel->PushPacket(event);
         m_aOutEvents.pop();
     }
 }

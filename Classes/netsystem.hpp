@@ -10,46 +10,56 @@
 #define netsystem_hpp
 
 #include <Poco/Net/DatagramSocket.h>
+#include <Poco/Runnable.h>
+#include <Poco/TaskManager.h>
+#include <Poco/Thread.h>
 
 #include <array>
 #include <chrono>
-using namespace std::chrono;
+#include <mutex>
+
+class NetChannel : public Poco::Task
+{
+public:
+    NetChannel(const Poco::Net::SocketAddress&);
+    ~NetChannel();
+    
+    virtual void            runTask() override;
+    
+    bool                    Available() const;
+    void                    PushPacket(const std::vector<uint8_t>& data);
+    std::vector<uint8_t>    PopPacket();
+
+private:
+    mutable std::mutex                  _mutex;
+    std::array<uint8_t, 512>            _buffer;
+    std::deque<std::vector<uint8_t>>    _packetsDeque;
+    
+    Poco::Net::DatagramSocket           _socket;
+};
 
 class NetSystem
 {
 public:
-    enum ChannelState
+    static NetSystem&   Instance()
     {
-        DR_DONE,
-        DR_FAILED,
-        DR_TIMEOUT
-    };
-    class NetChannel
+        static NetSystem ns;
+        return ns;
+    }
+    ~NetSystem()
     {
-    public:
-        NetChannel();
-        
-        ChannelState    GetState() const;
-        
-        void            SetAddress(Poco::Net::SocketAddress);
-        const Poco::Net::SocketAddress& GetAddress() const;
-        int             DataAvailable() const;
-        int             SendBytes(const void*, int);
-        void            ReceiveBytes();
-        
-        const std::array<uint8_t, 512>& GetBuffer() const;
-    protected:
-        ChannelState                m_eCState;
-        std::array<uint8_t, 512>    m_aDBuffer;
-        Poco::Net::SocketAddress    m_oSockAddr;
-        Poco::Net::DatagramSocket   m_oDSocket;
-    };
-public:
-    static NetSystem&   Instance();
-    NetChannel&         GetChannel(size_t);
+        _taskManager.cancelAll();
+    }
+    
+    void                                CreateChannel(const std::string& name,
+                                                      const Poco::Net::SocketAddress& adr);
+    void                                RemoveChannel(const std::string& name);
+    
+    std::shared_ptr<NetChannel>         GetChannel(const std::string& name);
+
 protected:
-    NetSystem();
-    std::vector<NetChannel> m_aChannels;
+    Poco::TaskManager                                   _taskManager;
+    std::map<std::string, std::shared_ptr<NetChannel>>  _channels;
 };
 
 #endif /* netsystem_hpp */
