@@ -410,6 +410,23 @@ GameWorld::ReceiveInputNetEvents()
                 
                 break;
             }
+
+            case GameEvent::Events_SVPing:
+            {
+                auto ping = GameEvent::CreateCLPing(builder,
+                                                    m_poLocalPlayer->GetUID());
+                auto msg = GameEvent::CreateMessage(builder,
+                                                    m_poLocalPlayer->GetUID(),
+                                                    GameEvent::Events_CLPing,
+                                                    ping.Union());
+                builder.Finish(msg);
+
+                m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                     builder.GetBufferPointer() + builder.GetSize());
+
+                builder.Clear();
+                break;
+            }
                 
             default:
                 assert(false);
