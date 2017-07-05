@@ -13,15 +13,12 @@
 #include <fstream>
 
 NetChannel::NetChannel(const Poco::Net::SocketAddress& addr)
- : Task("Channel")
+ : _running(true)
 {
     _socket.connect(addr);
-}
+    _socket.setReceiveTimeout(Poco::Timespan(0, 100000));
 
-NetChannel::~NetChannel()
-{
-    cancel();
-    _socket.close();
+    _listeningThread.start(*this);
 }
 
 bool
@@ -32,15 +29,25 @@ NetChannel::Available() const
 }
 
 void
-NetChannel::runTask()
+NetChannel::run()
 {
-    while(true)
+    while(_running)
     {
-        size_t len = _socket.receiveBytes(_buffer.data(),
-                                          _buffer.size());
-        std::lock_guard<std::mutex> lock(_mutex);
-        _packetsDeque.emplace_back(_buffer.data(),
-                                   _buffer.data() + len);
+        if(_socket.available())
+        {
+            try
+            {
+                size_t len = _socket.receiveBytes(_buffer.data(),
+                                                  _buffer.size());
+                std::lock_guard<std::mutex> lock(_mutex);
+                _packetsDeque.emplace_back(_buffer.data(),
+                                           _buffer.data() + len);
+            }
+            catch(const std::exception& e) { }
+
+        }
+        else
+            _listeningThread.sleep(10);
     }
 }
 
@@ -65,8 +72,6 @@ NetSystem::CreateChannel(const std::string& name, const Poco::Net::SocketAddress
 {
     std::shared_ptr<NetChannel> channel = std::make_shared<NetChannel>(adr);
     _channels.insert(std::make_pair(name, channel));
-    
-    _taskManager.start(channel.get());
 }
 
 std::shared_ptr<NetChannel>

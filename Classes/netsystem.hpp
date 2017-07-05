@@ -18,23 +18,31 @@
 #include <chrono>
 #include <mutex>
 
-class NetChannel : public Poco::Task
+class NetChannel : public Poco::Runnable
 {
 public:
     NetChannel(const Poco::Net::SocketAddress&);
-    ~NetChannel();
-    
-    virtual void            runTask() override;
+    ~NetChannel()
+    {
+        _running = false;
+        _listeningThread.join();
+        _socket.close();
+    }
     
     bool                    Available() const;
     void                    PushPacket(const std::vector<uint8_t>& data);
     std::vector<uint8_t>    PopPacket();
 
 private:
+    void run();
+
+private:
     mutable std::mutex                  _mutex;
     std::array<uint8_t, 512>            _buffer;
     std::deque<std::vector<uint8_t>>    _packetsDeque;
-    
+
+    bool                                _running;
+    Poco::Thread                        _listeningThread;
     Poco::Net::DatagramSocket           _socket;
 };
 
@@ -48,7 +56,6 @@ public:
     }
     ~NetSystem()
     {
-        _taskManager.cancelAll();
     }
     
     void                                CreateChannel(const std::string& name,
@@ -58,7 +65,6 @@ public:
     std::shared_ptr<NetChannel>         GetChannel(const std::string& name);
 
 protected:
-    Poco::TaskManager                                   _taskManager;
     std::map<std::string, std::shared_ptr<NetChannel>>  _channels;
 };
 
