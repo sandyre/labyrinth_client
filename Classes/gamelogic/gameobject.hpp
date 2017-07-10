@@ -25,6 +25,7 @@ public:
         static const int DAMAGABLE = 0x04;
         static const int PASSABLE = 0x08;
     };
+
 public:
     enum Type
     {
@@ -48,9 +49,10 @@ public:
     
     cocos2d::Vec2   GetLogicalPosition() const;
     void            SetLogicalPosition(cocos2d::Vec2);
+
 protected:
         // no need for automatic memory management, gameworld will outlive GO anyway
-    GameWorld *     m_poGameWorld;
+    GameWorld *         m_poGameWorld;
     
     GameObject::Type    m_eObjType;
     uint32_t            m_nObjAttributes;

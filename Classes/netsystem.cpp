@@ -13,9 +13,9 @@
 #include <fstream>
 
 NetChannel::NetChannel(const Poco::Net::SocketAddress& addr)
- : _running(true)
+: _running(true),
+  _address(addr)
 {
-    _socket.connect(addr);
     _socket.setReceiveTimeout(Poco::Timespan(0, 100000));
 
     _listeningThread.start(*this);
@@ -63,8 +63,9 @@ NetChannel::PopPacket()
 void
 NetChannel::PushPacket(const std::vector<uint8_t> &data)
 {
-    _socket.sendBytes(data.data(),
-                      data.size());
+    _socket.sendTo(data.data(),
+                   data.size(),
+                   _address);
 }
 
 void

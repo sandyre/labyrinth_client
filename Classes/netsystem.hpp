@@ -43,6 +43,7 @@ private:
 
     bool                                _running;
     Poco::Thread                        _listeningThread;
+    Poco::Net::SocketAddress            _address;
     Poco::Net::DatagramSocket           _socket;
 };
 

@@ -199,15 +199,16 @@ MainMenuScene::init()
             auto& log_form = m_pUI->m_pLoginPage;
             
             flatbuffers::FlatBufferBuilder builder;
-            
+
             auto email_of = builder.CreateString(log_form->m_pMailField->getString());
             auto pass_of = builder.CreateString(log_form->m_pPasswordField->getString());
+
             auto log_msg = CreateCLLogin(builder,
-                                                email_of,
-                                                pass_of);
+                                         email_of,
+                                         pass_of);
             auto msg = CreateMessage(builder,
-                                            Messages_CLLogin,
-                                            log_msg.Union());
+                                     Messages_CLLogin,
+                                     log_msg.Union());
             builder.Finish(msg);
             
             _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
