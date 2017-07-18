@@ -66,8 +66,8 @@ UIStartPage::UIStartPage()
                                            0,
                                            visibleSize.height * 0.3125));
     
-    m_pStartButton = ui::Button::create("res/ui/buttons/b_big_1.png",
-                                        "res/ui/buttons/b_big_1_press.png");
+    m_pStartButton = ui::Button::create("res/ui/ui_buttons/b_big_1.png",
+                                        "res/ui/ui_buttons/b_big_1_press.png");
     m_pStartButton->setLayoutParameter(start_button_pos);
     m_pStartButton->setTitleText("Offline");
     m_pStartButton->setTitleFontName(TitleFont);
@@ -116,7 +116,7 @@ UILoginPage::UILoginPage()
     m_pFormLayout->setLayoutType(ui::Layout::Type::RELATIVE);
     m_pFormLayout->setLayoutParameter(form_pos);
     m_pFormLayout->setContentSize(form_size);
-    m_pFormLayout->setBackGroundImage("res/ui/plates/p_login.png");
+    m_pFormLayout->setBackGroundImage("res/ui/ui_plates/p_login.png");
     this->addChild(m_pFormLayout);
     
         // init 'mail' label
@@ -197,8 +197,8 @@ UILoginPage::UILoginPage()
                                            form_size.width * 0.0357,
                                            form_size.height * 0.0769));
     
-    m_pLogInButton = ui::Button::create("res/ui/buttons/b_small_1.png",
-                                        "res/ui/buttons/b_small_1_press.png");
+    m_pLogInButton = ui::Button::create("res/ui/ui_buttons/b_small_1.png",
+                                        "res/ui/ui_buttons/b_small_1_press.png");
     m_pLogInButton->setLayoutParameter(login_button_pos);
     m_pLogInButton->setTitleText("Log me in");
     m_pLogInButton->setTitleFontName(TitleFont);
@@ -213,8 +213,8 @@ UILoginPage::UILoginPage()
                                          0,
                                          form_size.height * 0.0769));
     
-    m_pRegButton = ui::Button::create("res/ui/buttons/b_small_2.png",
-                                      "res/ui/buttons/b_small_2.png");
+    m_pRegButton = ui::Button::create("res/ui/ui_buttons/b_small_2.png",
+                                      "res/ui/ui_buttons/b_small_2.png");
     m_pRegButton->setLayoutParameter(reg_button_pos);
     m_pRegButton->setTitleText("Register");
     m_pRegButton->setTitleFontName(TitleFont);
@@ -260,8 +260,8 @@ UIMainMenuPage::UIMainMenuPage()
     auto play_but_pos = ui::LinearLayoutParameter::create();
     play_but_pos->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     
-    m_pPlayButton = ui::Button::create("res/ui/buttons/b_mid_1.png",
-                                       "res/ui/buttons/b_mid_1_press.png");
+    m_pPlayButton = ui::Button::create("res/ui/ui_buttons/b_mid_1.png",
+                                       "res/ui/ui_buttons/b_mid_1_press.png");
     m_pPlayButton->setTitleText("Play");
     m_pPlayButton->setTitleFontName(TitleFont);
     m_pPlayButton->setTitleFontSize(50);
@@ -276,8 +276,8 @@ UIMainMenuPage::UIMainMenuPage()
                                              0,
                                              0));
     
-    m_pCollectionButton = ui::Button::create("res/ui/buttons/b_mid_2.png",
-                                             "res/ui/buttons/b_mid_2_press.png");
+    m_pCollectionButton = ui::Button::create("res/ui/ui_buttons/b_mid_2.png",
+                                             "res/ui/ui_buttons/b_mid_2_press.png");
     m_pCollectionButton->setTitleText("Collection");
     m_pCollectionButton->setTitleFontName(TitleFont);
     m_pCollectionButton->setTitleFontSize(50);
@@ -292,8 +292,8 @@ UIMainMenuPage::UIMainMenuPage()
                                        visibleSize.width * 0.15,
                                        visibleSize.height * 0.09));
     
-    m_pSettingsButton = ui::Button::create("res/ui/buttons/b_rect_b_2.png",
-                                           "res/ui/buttons/b_rect_b_2_press.png");
+    m_pSettingsButton = ui::Button::create("res/ui/ui_buttons/b_rect_b_2.png",
+                                           "res/ui/ui_buttons/b_rect_b_2_press.png");
     m_pSettingsButton->setLayoutParameter(sett_but_pos);
     this->addChild(m_pSettingsButton);
     
@@ -305,8 +305,8 @@ UIMainMenuPage::UIMainMenuPage()
                                        0,
                                        visibleSize.height * 0.09));
     
-    m_pShopButton = ui::Button::create("res/ui/buttons/b_rect_b_1.png",
-                                       "res/ui/buttons/b_rect_b_1_press.png");
+    m_pShopButton = ui::Button::create("res/ui/ui_buttons/b_rect_b_1.png",
+                                       "res/ui/ui_buttons/b_rect_b_1_press.png");
     m_pShopButton->setLayoutParameter(shop_but_pos);
     this->addChild(m_pShopButton);
 }
@@ -319,7 +319,7 @@ UINewsLayout::UINewsLayout()
     layout_size.height *= 0.375;
     
     this->setLayoutType(ui::Layout::Type::RELATIVE);
-    this->setBackGroundImage("res/ui/plates/p_news.png");
+    this->setBackGroundImage("res/ui/ui_plates/p_news.png");
     this->setContentSize(layout_size);
     this->setPosition(Vec2::ZERO);
     
@@ -341,8 +341,8 @@ UINewsLayout::UINewsLayout()
     auto reload_button_pos = ui::RelativeLayoutParameter::create();
     reload_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_RIGHT);
     
-    m_pReloadButton = ui::Button::create("res/ui/buttons/b_rect_s_1.png",
-                                         "res/ui/buttons/b_rect_s_1_press.png");
+    m_pReloadButton = ui::Button::create("res/ui/ui_buttons/b_rect_s_1.png",
+                                         "res/ui/ui_buttons/b_rect_s_1_press.png");
     m_pReloadButton->setLayoutParameter(reload_button_pos);
     this->addChild(m_pReloadButton);
     

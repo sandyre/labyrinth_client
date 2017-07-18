@@ -27,79 +27,17 @@ UIGameScene::UIGameScene()
     
     auto stats_pos = ui::RelativeLayoutParameter::create();
     stats_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
-    
-    m_pStatsLayout = ui::Layout::create();
-    m_pStatsLayout->setLayoutType(ui::Layout::Type::RELATIVE);
-    m_pStatsLayout->setContentSize(stats_size);
-    this->addChild(m_pStatsLayout);
-    
-        // init hp
-    auto hp_bar_b_pos = ui::RelativeLayoutParameter::create();
-    hp_bar_b_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
-    
-    m_pHPBarBack = ui::ImageView::create("res/ui/bars/bar_hp_back.png");
-    m_pHPBarBack->setLayoutParameter(hp_bar_b_pos);
-    m_pStatsLayout->addChild(m_pHPBarBack);
-    
-    auto hp_bar_pos = ui::RelativeLayoutParameter::create();
-    hp_bar_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
-    hp_bar_pos->setMargin(ui::Margin(visible_size.width * 0.098,
-                                     visible_size.height * 0.0083,
-                                     0,
-                                     0));
-    
-    m_pHPBar = ui::LoadingBar::create("res/ui/bars/bar_hp.png");
-    m_pHPBar->setLayoutParameter(hp_bar_pos);
-    m_pHPBar->setPercent(100.0);
-    m_pStatsLayout->addChild(m_pHPBar);
-    
-    auto hp_text_pos = ui::RelativeLayoutParameter::create();
-    hp_text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
-    hp_text_pos->setMargin(ui::Margin(visible_size.width * 0.43,
-                                      visible_size.height * 0.0083,
-                                      0,
-                                      0));
-    
-    m_pHPText = ui::Text::create(" ",
-                             TitleFont,
-                             30);
-    m_pHPText->setAnchorPoint(Vec2::ZERO);
-    m_pHPText->setLayoutParameter(hp_text_pos);
-    
-    m_pStatsLayout->addChild(m_pHPText);
-    
-        // init dmg
-    auto arm_pos = ui::RelativeLayoutParameter::create();
-    arm_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
-    arm_pos->setMargin(ui::Margin(10,
-                                  40,
-                                  0,
-                                  0)); // FIXME: calculate the margin
-    
-    m_pArmor = ui::Text::create("Armor: ",
-                                TitleFont,
-                                30);
-    m_pArmor->setAnchorPoint(Vec2::ZERO);
-    m_pArmor->setLayoutParameter(arm_pos);
-    m_pStatsLayout->addChild(m_pArmor);
-    
-        // init selected item
-    auto frame_pos = ui::RelativeLayoutParameter::create();
-    frame_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
-    
-    m_pItemFrame = ui::ImageView::create("res/graphics/frame.png");
-    m_pItemFrame->setLayoutParameter(frame_pos);
-    this->addChild(m_pItemFrame);
-    
-    m_pSelectedItem = ui::ImageView::create();
-    m_pSelectedItem->setLayoutParameter(frame_pos);
-    this->addChild(m_pSelectedItem);
-    
+
+    _heroStats = new UIHeroStats();
+    _heroStats->setLayoutParameter(stats_pos);
+
+    this->addChild(_heroStats);
+
         // init take item button
     auto take_item_pos = ui::RelativeLayoutParameter::create();
-    take_item_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_BOTTOM);
+    take_item_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pTakeItemButton = ui::Button::create("res/graphics/take_item.png");
+    m_pTakeItemButton = ui::Button::create("res/ui/ui_icons/ui_icon_ability_takeItem.png");
     m_pTakeItemButton->setLayoutParameter(take_item_pos);
     this->addChild(m_pTakeItemButton);
     
@@ -121,7 +59,11 @@ UIGameScene::UIGameScene()
     
         // init 'battleview'
     auto battle_view_pos = ui::RelativeLayoutParameter::create();
-    battle_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+    battle_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+    battle_view_pos->setMargin(ui::Margin(0,
+                                          visible_size.height * 0.14,
+                                          0,
+                                          0));
     
     m_poBattleView = new UIBattleView();
     m_poBattleView->setLayoutParameter(battle_view_pos);
@@ -136,52 +78,214 @@ UIGameScene::ConfigureForHero(Hero * player)
     {
             // init skills panel
             // init dash
-        m_poSkillsPanel->CreateSpell("res/graphics/warrior_spell_1.png");
+        m_poSkillsPanel->CreateSpell("res/ui/ui_icons/ui_icon_ability_warrior_speedUp.png");
         
             // init battleview
         auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/graphics/warrior_spell_2.png");
+        atk_action->SetIcon("res/ui/ui_icons/ui_icon_ability_warrior_attack.png");
         
         auto dash_action = m_poBattleView->m_poActionsView->CreateAction();
-        dash_action->SetIcon("res/graphics/warrior_spell_3.png");
+        dash_action->SetIcon("res/ui/ui_icons/ui_icon_ability_warrior_block.png");
     }
     else if(player->GetHero() == Hero::Type::MAGE)
     {
             // init skills panel
             // init teleport
-        m_poSkillsPanel->CreateSpell("res/graphics/mage_spell_1.png");
+        m_poSkillsPanel->CreateSpell("res/ui/ui_icons/ui_icon_ability_mage_teleport.png");
         
             // init battleview
         auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/graphics/mage_spell_2.png");
+        atk_action->SetIcon("res/ui/ui_icons/ui_icon_ability_mage_attack.png");
         
         auto freeze_act = m_poBattleView->m_poActionsView->CreateAction();
-        freeze_act->SetIcon("res/graphics/mage_spell_3.png");
-    }
-    else if(player->GetHero() == Hero::Type::ROGUE)
-    {
-            // init skills panel
-            // init invisibility
-        m_poSkillsPanel->CreateSpell("res/graphics/rogue_spell_1.png");
-        
-            // init battleview
-        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/graphics/rogue_spell_2.png");
-        
-        auto poisondagg_act = m_poBattleView->m_poActionsView->CreateAction();
-        poisondagg_act->SetIcon("res/graphics/rogue_spell_3.png");
-    }
-    else if(player->GetHero() == Hero::Type::PRIEST)
-    {
-            // init skills panel
-            // init blinding light
-        m_poSkillsPanel->CreateSpell("res/units/priest/spell_1_icon.png");
-        
-            // init battleview
-        auto atk_action = m_poBattleView->m_poActionsView->CreateAction();
-        atk_action->SetIcon("res/units/rogue/atk_icon.png");
+        freeze_act->SetIcon("res/ui/ui_icons/ui_icon_ability_mage_freeze.png");
     }
 }
+
+UIHeroStats::UIHeroStats()
+{
+    auto visible_size = Director::getInstance()->getVisibleSize();
+
+    auto layout_size = visible_size;
+    layout_size.width *= 0.55;
+    layout_size.height *= 0.137;
+
+    this->setLayoutType(ui::Layout::Type::RELATIVE);
+    this->setContentSize(layout_size);
+
+        // HP
+    {
+        auto back_pos = ui::RelativeLayoutParameter::create();
+        back_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+
+        _hpBarBack = ui::ImageView::create("res/ui/ui_bars/bar_hp_back.png");
+        _hpBarBack->setLayoutParameter(back_pos);
+
+        this->addChild(_hpBarBack);
+
+        auto front_pos = ui::RelativeLayoutParameter::create();
+        front_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+        front_pos->setMargin(ui::Margin(visible_size.width * 0.11,
+                                        visible_size.height * 0.0083,
+                                        0,
+                                        0));
+
+        _hpBarFront = ui::LoadingBar::create("res/ui/ui_bars/bar_hp.png");
+        _hpBarFront->setLayoutParameter(front_pos);
+
+        this->addChild(_hpBarFront);
+
+        auto text_pos = ui::RelativeLayoutParameter::create();
+        text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_LEFT);
+        text_pos->setMargin(ui::Margin(visible_size.width * 0.29,
+                                       visible_size.height * 0.01,
+                                       0,
+                                       0));
+
+        _hpBarText = ui::Text::create("0/0",
+                                      TempestaFive,
+                                      26);
+        _hpBarText->enableShadow();
+        _hpBarText->setLayoutParameter(text_pos);
+
+        this->addChild(_hpBarText);
+    }
+
+        // Phys damage
+    {
+        auto icon_pos = ui::RelativeLayoutParameter::create();
+        icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        icon_pos->setMargin(ui::Margin(0,
+                                       0,
+                                       0,
+                                       visible_size.height * 0.039));
+
+        _physDamageIcon = ui::ImageView::create("res/ui/ui_icons/ui_stats_icon_atk.png");
+        _physDamageIcon->setLayoutParameter(icon_pos);
+
+        this->addChild(_physDamageIcon);
+
+        auto text_pos = ui::RelativeLayoutParameter::create();
+        text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        text_pos->setMargin(ui::Margin(visible_size.width * 0.069,
+                                       0,
+                                       0,
+                                       visible_size.height * 0.039));
+
+        _physDamageText = ui::Text::create("0",
+                                           TempestaFive,
+                                           22);
+        _physDamageText->setLayoutParameter(text_pos);
+
+        this->addChild(_physDamageText);
+    }
+
+        // Mag damage
+    {
+        auto icon_pos = ui::RelativeLayoutParameter::create();
+        icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+
+        _magDamageIcon = ui::ImageView::create("res/ui/ui_icons/ui_stats_icon_spl.png");
+        _magDamageIcon->setLayoutParameter(icon_pos);
+
+        this->addChild(_magDamageIcon);
+
+        auto text_pos = ui::RelativeLayoutParameter::create();
+        text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        text_pos->setMargin(ui::Margin(visible_size.width * 0.069,
+                                       0,
+                                       0,
+                                       0));
+
+        _magDamageText = ui::Text::create("0",
+                                          TempestaFive,
+                                          22);
+        _magDamageText->setLayoutParameter(text_pos);
+
+        this->addChild(_magDamageText);
+    }
+
+        // Armor
+    {
+        auto icon_pos = ui::RelativeLayoutParameter::create();
+        icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        icon_pos->setMargin(ui::Margin(visible_size.width * 0.22,
+                                       0,
+                                       0,
+                                       visible_size.height * 0.039));
+
+        _armorIcon = ui::ImageView::create("res/ui/ui_icons/ui_stats_icon_def.png");
+        _armorIcon->setLayoutParameter(icon_pos);
+
+        this->addChild(_armorIcon);
+
+        auto text_pos = ui::RelativeLayoutParameter::create();
+        text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        text_pos->setMargin(ui::Margin(visible_size.width * 0.29,
+                                       0,
+                                       0,
+                                       visible_size.height * 0.039));
+
+        _armorText = ui::Text::create("0",
+                                      TempestaFive,
+                                      22);
+        _armorText->setLayoutParameter(text_pos);
+
+        this->addChild(_armorText);
+    }
+
+        // Mag resistance
+    {
+        auto icon_pos = ui::RelativeLayoutParameter::create();
+        icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        icon_pos->setMargin(ui::Margin(visible_size.width * 0.22,
+                                       0,
+                                       0,
+                                       0));
+
+        _magResistIcon = ui::ImageView::create("res/ui/ui_icons/ui_stats_icon_rst.png");
+        _magResistIcon->setLayoutParameter(icon_pos);
+
+        this->addChild(_magResistIcon);
+
+        auto text_pos = ui::RelativeLayoutParameter::create();
+        text_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_BOTTOM);
+        text_pos->setMargin(ui::Margin(visible_size.width * 0.29,
+                                       0,
+                                       0,
+                                       0));
+
+        _magResistText = ui::Text::create("0",
+                                          TempestaFive,
+                                          22);
+        _magResistText->setLayoutParameter(text_pos);
+
+        this->addChild(_magResistText);
+    }
+}
+
+void
+UIHeroStats::SetHP(int val, int max)
+{
+    _hpBarText->setString(StringUtils::format("%d/%d", val, max));
+    _hpBarFront->setPercent((float)val/max * 100.0f);
+}
+
+void
+UIHeroStats::SetArmor(int val)
+{ _armorText->setString(std::to_string(val)); }
+
+void
+UIHeroStats::SetMagResistance(int val)
+{ _magResistText->setString(std::to_string(val)); }
+
+void
+UIHeroStats::SetPhysicalDamage(int val)
+{ _physDamageText->setString(std::to_string(val)); }
+
+void
+UIHeroStats::SetMagicalDamage(int val)
+{ _magDamageText->setString(std::to_string(val)); }
 
 UISpellsPanel::UISpellsPanel()
 {
@@ -214,7 +318,7 @@ UIBattleLogs::UIBattleLogs()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.width *= 0.5;
+    layout_size.width *= 0.44;
     layout_size.height *= 0.4;
     
     this->setLayoutType(ui::Layout::Type::RELATIVE);
@@ -237,7 +341,7 @@ UIBattleLogs::AddLogMessage(const std::string& msg)
 {
     auto text_msg = ui::Text::create(msg,
                                      "fonts/pw_extended.ttf",
-                                     14);
+                                     12);
     text_msg->setCameraMask((unsigned short)CameraFlag::USER1);
     text_msg->setOpacity(0);
     m_pListView->insertCustomItem(text_msg, 0);
@@ -264,10 +368,6 @@ UIBattleView::UIBattleView()
         // init 'actionsview'
     auto act_view_pos = ui::RelativeLayoutParameter::create();
     act_view_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
-    act_view_pos->setMargin(ui::Margin(0,
-                                       visible_size.height * 0.120,
-                                       0,
-                                       0));
     
     m_poActionsView = new UIActionsView();
     m_poActionsView->setLayoutParameter(act_view_pos);
@@ -287,7 +387,7 @@ UIActionsView::UIActionsView()
     
         // layout init
     auto layout_size = visible_size;
-    layout_size.height *= 0.4;
+    layout_size.height *= 0.18;
     
     this->setLayoutType(ui::Layout::Type::VERTICAL);
     this->setContentSize(layout_size);
@@ -319,14 +419,32 @@ UIAction::UIAction()
     this->setContentSize(layout_size);
     this->setBackGroundImage("res/ui/battle/btl_tape.png");
     this->setCascadeOpacityEnabled(true);
-    
-        // init tape
+
+        // init icon back
+    auto icon_back_pos = ui::RelativeLayoutParameter::create();
+    icon_back_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
+
+    _iconBack = ui::ImageView::create("res/ui/ui_combo/ui_combo_skill.png");
+    _iconBack->setLayoutParameter(icon_back_pos);
+
+    this->addChild(_iconBack);
+
+        // init main frame
     auto tape_img_pos = ui::RelativeLayoutParameter::create();
     tape_img_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
-    
-    m_pTapeImage = ui::ImageView::create("res/ui/battle/btl_mainTape.png");
-    m_pTapeImage->setLayoutParameter(tape_img_pos);
-    this->addChild(m_pTapeImage);
+
+    _mainFrame = ui::ImageView::create("res/ui/ui_combo/ui_combo_mainFrame.png");
+    _mainFrame->setLayoutParameter(tape_img_pos);
+
+    this->addChild(_mainFrame);
+
+    auto rightframe_pos = ui::RelativeLayoutParameter::create();
+    rightframe_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
+
+    _rightFrame = ui::ImageView::create("res/ui/ui_combo/ui_combo_rightFrame.png");
+    _rightFrame->setLayoutParameter(rightframe_pos);
+
+    this->addChild(_rightFrame);
     
         // init sequence
     auto seq_lay_pos = ui::RelativeLayoutParameter::create();
@@ -342,8 +460,14 @@ UIAction::UIAction()
 void
 UIAction::SetIcon(const std::string& filename)
 {
+    auto visible_size = Director::getInstance()->getVisibleSize();
+
     auto icon_pos = ui::RelativeLayoutParameter::create();
     icon_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
+    icon_pos->setMargin(ui::Margin(visible_size.width * 0.0139,
+                                   0,
+                                   0,
+                                   0));
     
     m_pIcon = ui::ImageView::create(filename);
     m_pIcon->setLayoutParameter(icon_pos);
@@ -353,14 +477,7 @@ UIAction::SetIcon(const std::string& filename)
 void
 UIAction::SetHighlighted(bool val)
 {
-    if(val)
-    {
-        this->setOpacity(255);
-    }
-    else
-    {
-        this->setOpacity(50);
-    }
+    this->setOpacity(val ? 255 : 50);
 }
 
 void
@@ -370,7 +487,7 @@ UIAction::ShiftLeft()
     for(auto symb : m_pSequenceSymbols)
     {
         auto move_left = cocos2d::MoveBy::create(0.2,
-                                                 cocos2d::Vec2(-visibleSize.width * 0.2,
+                                                 cocos2d::Vec2(-visibleSize.width * 0.139,
                                                                0));
         symb->runAction(move_left);
     }
@@ -402,6 +519,6 @@ UIAction::Fill(InputSequence seq)
         m_pSequenceLayout->addChild(symbol);
         m_pSequenceSymbols.push_back(symbol);
         
-        current_symbol_pos.width += (visibleSize.width * 0.2);
+        current_symbol_pos.width += (visibleSize.width * 0.139);
     }
 }

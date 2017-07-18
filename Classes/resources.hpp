@@ -13,6 +13,7 @@
 
 static const std::string TitleFont = "fonts/alagard.ttf";
 static const std::string TextFont = "fonts/pw_extended.ttf";
+static const std::string TempestaFive = "res/ui/ui_fonts/pf_tempesta_five.ttf";
 
 static const std::array<std::string, 4> HeroPortraits
 {
@@ -24,8 +25,8 @@ static const std::array<std::string, 4> HeroPortraits
 
 static const std::array<std::string, 4> HeroIcons
 {
-    "res/graphics/ui_icon_warrior.png",
-    "res/graphics/ui_icon_mage.png",
+    "res/ui/ui_icons/ui_icon_warrior.png",
+    "res/ui/ui_icons/ui_icon_mage.png",
     "res/graphics/rogue_icon.png",
     "res/graphics/priest_icon.png"
 };

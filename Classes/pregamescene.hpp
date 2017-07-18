@@ -11,11 +11,28 @@
 
 #include "globals.h"
 #include "gamescene.hpp"
-#include "ui/ui_pregamescene.hpp"
+
+#include "gamescene.hpp"
 
 #include <cocos2d.h>
 #include <Poco/Net/SocketAddress.h>
 #include <ui/CocosGUI.h>
+
+class UIPregameScene;
+
+struct GameSessionDescriptor
+{
+    struct Player
+    {
+        uint32_t Uid;
+        std::string Name;
+        uint16_t Hero;
+    };
+
+    GameMap::Configuration  MapConf;
+    Player                  LocalPlayer;
+    std::vector<Player>     Players;
+};
 
 class PreGameScene : public cocos2d::Layer
 {
@@ -31,6 +48,7 @@ public:
         GENERATING_LEVEL,
         WAITING_SERVER_START
     };
+
 public:
     static cocos2d::Scene * createScene();
     
@@ -42,7 +60,7 @@ protected:
     
     std::shared_ptr<NetChannel> _channel;
     
-    std::vector<PlayerInfo> m_aLobbyPlayers;
+    GameSessionDescriptor   _sessionDescriptor;
     GameMap::Configuration m_stMapConfig;
     GameScene * m_pGameScene; // building
     

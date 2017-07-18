@@ -19,10 +19,10 @@ class Rogue : public Hero
 public:
     static Rogue* create(const std::string&);
     
-    virtual void                RequestSpellCast(int index) override;
-    virtual void                SpellCast(const GameEvent::SVActionSpell*) override;
+    virtual void RequestSpellCast(int index) override;
+    virtual void SpellCast(const GameMessage::SVActionSpell*) override;
 
-    virtual void                TakeItem(Item*) override;
+    virtual void TakeItem(Item*) override;
 protected:
     Rogue();
     

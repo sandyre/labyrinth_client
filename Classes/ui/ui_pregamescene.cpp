@@ -24,7 +24,7 @@ UIPregameScene::UIPregameScene()
     auto status_bar_pos = ui::RelativeLayoutParameter::create();
     status_bar_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
     
-    auto status_bar = ui::ImageView::create("res/ui/plates/p_lobbyHeader.png");
+    auto status_bar = ui::ImageView::create("res/ui/ui_plates/p_lobbyHeader.png");
     status_bar->setLayoutParameter(status_bar_pos);
     this->addChild(status_bar);
     
@@ -109,8 +109,8 @@ UIHeroPick::UIHeroPick()
     auto right_button_pos = ui::RelativeLayoutParameter::create();
     right_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
-    m_pRightChange = ui::Button::create("res/ui/buttons/b_vert_m_2.png",
-                                        "res/ui/buttons/b_vert_m_2_press.png");
+    m_pRightChange = ui::Button::create("res/ui/ui_buttons/b_vert_m_2.png",
+                                        "res/ui/ui_buttons/b_vert_m_2_press.png");
     m_pRightChange->setLayoutParameter(right_button_pos);
     this->addChild(m_pRightChange);
     
@@ -118,8 +118,8 @@ UIHeroPick::UIHeroPick()
     auto left_button_pos = ui::RelativeLayoutParameter::create();
     left_button_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
-    m_pLeftChange = ui::Button::create("res/ui/buttons/b_vert_m_1.png",
-                                       "res/ui/buttons/b_vert_m_1_press.png");
+    m_pLeftChange = ui::Button::create("res/ui/ui_buttons/b_vert_m_1.png",
+                                       "res/ui/ui_buttons/b_vert_m_1_press.png");
     m_pLeftChange->setLayoutParameter(left_button_pos);
     this->addChild(m_pLeftChange);
 }
@@ -128,7 +128,7 @@ UIPlayerInfo::UIPlayerInfo()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
     this->setPosition(Vec2::ZERO);
-    this->setBackGroundImage("res/ui/plates/p_playerItem.png");
+    this->setBackGroundImage("res/ui/ui_plates/p_playerItem.png");
     
     auto vis_size = Director::getInstance()->getVisibleSize();
     vis_size.height *= 0.094;
@@ -156,8 +156,8 @@ UIPlayerInfo::UIPlayerInfo()
     auto ready_param = ui::RelativeLayoutParameter::create();
     ready_param->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
     
-    m_pReadyStatus = ui::CheckBox::create("res/ui/buttons/b_rect_m_3.png",
-                                          "res/ui/buttons/b_rect_m_1.png");
+    m_pReadyStatus = ui::CheckBox::create("res/ui/ui_buttons/b_rect_m_3.png",
+                                          "res/ui/ui_buttons/b_rect_m_1.png");
     m_pReadyStatus->setLayoutParameter(ready_param);
     m_pReadyStatus->setEnabled(false);
     this->addChild(m_pReadyStatus);
@@ -166,7 +166,7 @@ UIPlayerInfo::UIPlayerInfo()
 UIPlayersList::UIPlayersList()
 {
     this->setLayoutType(ui::Layout::Type::RELATIVE);
-    this->setBackGroundImage("res/ui/plates/p_playersList.png");
+    this->setBackGroundImage("res/ui/ui_plates/p_playersList.png");
     
     auto vis_size = Director::getInstance()->getVisibleSize();
     vis_size.height *= 0.46875;
@@ -198,13 +198,13 @@ UIPlayersList::UIPlayersList()
 }
 
 void
-UIPlayersList::AddPlayer(const PlayerInfo& player)
+UIPlayersList::AddPlayer(const GameSessionDescriptor::Player& player)
 {
     UIPlayerInfo * pPlayer = new UIPlayerInfo();
     pPlayer->m_stPlayerInfo = player;
     pPlayer->m_pPlayerName->setString(StringUtils::format("%s#%d",
-                                                          player.sNickname.c_str(),
-                                                          player.nUID));
+                                                          player.Name.c_str(),
+                                                          player.Uid));
     m_pListView->pushBackCustomItem(pPlayer);
     m_aPlayers.push_back(pPlayer);
 }

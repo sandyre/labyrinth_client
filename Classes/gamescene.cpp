@@ -21,16 +21,6 @@
 
 USING_NS_CC;
 
-GameScene::GameScene()
-{
-    m_pGWorld = new GameWorld;
-}
-
-GameScene::~GameScene()
-{
-    
-}
-
 void
 GameScene::onExit()
 {
@@ -40,10 +30,12 @@ GameScene::onExit()
 /*
  * BUILDER API
  */
-GameWorld *
-GameScene::GetGameWorld()
+
+void
+GameScene::InitWorld(GameSessionDescriptor& descr)
 {
-    return m_pGWorld;
+    m_pGWorld = new GameWorld(descr);
+    m_pGWorld->retain();
 }
 
 bool

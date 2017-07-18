@@ -16,10 +16,10 @@ class Monster : public Unit
 public:
     static Monster* create(const std::string&);
     
-    virtual void                RequestSpellCast(int) override {}
-    virtual void                SpellCast(const GameEvent::SVActionSpell*);
+    virtual void RequestSpellCast(int) override {}
+    virtual void SpellCast(const GameMessage::SVActionSpell*);
 protected:
-    virtual void    update(float) override {}
+    virtual void update(float) override {}
     
     Monster();
 };

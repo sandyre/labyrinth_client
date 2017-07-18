@@ -35,12 +35,11 @@ Hero::update(float delta)
     
     if(m_bIsLocalPlayer)
     {
-        m_pUI->m_pHPText->setString(cocos2d::StringUtils::format("%d",
-                                                                 this->GetHealth()));
-        m_pUI->m_pHPBar->setPercent(((float)this->GetHealth() / this->GetMaxHealth()) * 100.0f);
-        m_pUI->m_pArmor->setString(cocos2d::StringUtils::format("Resist P/%d M/%d",
-                                                                this->GetArmor(),
-                                                                this->GetMagicResistance()));
+        m_pUI->_heroStats->SetHP(this->GetHealth(), this->GetMaxHealth());
+        m_pUI->_heroStats->SetArmor(this->GetArmor());
+        m_pUI->_heroStats->SetMagicalDamage(this->GetArmor());
+        m_pUI->_heroStats->SetPhysicalDamage(this->GetDamage());
+        m_pUI->_heroStats->SetMagicalDamage(0);
         
         if(std::get<0>(m_aSpellCDs[0]) == true)
             m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);
@@ -152,11 +151,11 @@ Hero::update(float delta)
                             {
                                     // we are ready to leave
                                 flatbuffers::FlatBufferBuilder builder;
-                                auto req_win = GameEvent::CreateCLRequestWin(builder,
+                                auto req_win = GameMessage::CreateCLRequestWin(builder,
                                                                              this->GetUID());
-                                auto msg = GameEvent::CreateMessage(builder,
+                                auto msg = GameMessage::CreateMessage(builder,
                                                                     this->GetUID(),
-                                                                    GameEvent::Events_CLRequestWin,
+                                                                    GameMessage::Messages_CLRequestWin,
                                                                     req_win.Union());
                                 builder.Finish(msg);
                                 m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),

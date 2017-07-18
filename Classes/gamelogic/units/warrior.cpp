@@ -11,6 +11,7 @@
 #include "../effect.hpp"
 #include "../gameworld.hpp"
 #include "../../gsnet_generated.h"
+#include "../../gameconfig.hpp"
 
 #include <cocos/audio/include/AudioEngine.h>
 
@@ -65,13 +66,14 @@ Warrior::RequestSpellCast(int index)
     if(index == 0)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                     this->GetUID(),
-                                                     0);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              spell1.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
+                                                       this->GetUID(),
+                                                       0);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                spell1.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -81,13 +83,14 @@ Warrior::RequestSpellCast(int index)
     else if(index == 1)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                     this->GetUID(),
-                                                     1);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              spell1.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
+                                                       this->GetUID(),
+                                                       1);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                spell1.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -97,13 +100,14 @@ Warrior::RequestSpellCast(int index)
     else if(index == 2)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
                                                      this->GetUID(),
                                                      2);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              spell1.Union());
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                spell1.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -112,7 +116,7 @@ Warrior::RequestSpellCast(int index)
 }
 
 void
-Warrior::SpellCast(const GameEvent::SVActionSpell* spell)
+Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
 {
         // spell0 == dash
     if(spell->spell_id() == 0)
@@ -158,7 +162,7 @@ Warrior::update(float delta)
 }
 
 void
-Warrior::Move(const GameEvent::SVActionMove* mov)
+Warrior::Move(const GameMessage::SVActionMove* mov)
 {
     Orientation new_orient = (Orientation)mov->mov_dir();
     MoveDirection mov_dir = (MoveDirection)mov->mov_dir();

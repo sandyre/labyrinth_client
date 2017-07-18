@@ -91,9 +91,9 @@ public:
     
         // Able to do
     virtual void    RequestSpellCast(int index) = 0;
-    virtual void    SpellCast(const GameEvent::SVActionSpell*) = 0;
+    virtual void    SpellCast(const GameMessage::SVActionSpell*) = 0;
     virtual void    RequestMove(MoveDirection);
-    virtual void    Move(const GameEvent::SVActionMove*);
+    virtual void    Move(const GameMessage::SVActionMove*);
     virtual void    RequestStartDuel(Unit*);
     virtual void    StartDuel(Unit*);
     

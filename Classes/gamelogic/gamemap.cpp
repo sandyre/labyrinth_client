@@ -10,21 +10,10 @@
 
 #include "gameworld.hpp"
 #include "mapblock.hpp"
-#include "../globals.h"
 
 #include <cocos2d.h>
 
 #include <random>
-
-GameMap::GameMap()
-{
-
-}
-
-GameMap::~GameMap()
-{
-
-}
 
 void
 GameMap::GenerateMap(const Configuration& settings, GameWorld * world)

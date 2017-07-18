@@ -11,10 +11,10 @@
 
 #include "gameobject.hpp"
 
-#include "../globals.h"
-
 #include <stack>
 #include <vector>
+
+class GameWorld;
 
 class GameMap
 {
@@ -24,6 +24,7 @@ class GameMap
         WALL    = 0x01,
         BORDER  = 0x02
     };
+    
 public:
     struct Configuration
     {
@@ -32,10 +33,7 @@ public:
         uint32_t nSeed;
     };
     
-    GameMap();
-    ~GameMap();
-    
-    void    GenerateMap(const Configuration&, GameWorld*);
+    void GenerateMap(const Configuration&, GameWorld*);
 };
 
 #endif /* gamemap_hpp */

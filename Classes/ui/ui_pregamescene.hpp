@@ -11,6 +11,7 @@
 
 #include "../globals.h"
 #include "../gamelogic/units/hero.hpp"
+#include "../pregamescene.hpp"
 #include <cocos2d.h>
 #include <UI/CocosGUI.h>
 
@@ -47,7 +48,7 @@ public:
     cocos2d::ui::Text      *    m_pPlayerName;
     cocos2d::ui::CheckBox  *    m_pReadyStatus;
     
-    PlayerInfo  m_stPlayerInfo;
+    GameSessionDescriptor::Player  m_stPlayerInfo;
 };
 
 class UIPlayersList : public cocos2d::ui::Layout
@@ -55,7 +56,7 @@ class UIPlayersList : public cocos2d::ui::Layout
 public:
     UIPlayersList();
     
-    void    AddPlayer(const PlayerInfo&);
+    void    AddPlayer(const GameSessionDescriptor::Player&);
     void    RemovePlayer(uint32_t uid);
 
     cocos2d::ui::Text *         m_pPlayersLabel;

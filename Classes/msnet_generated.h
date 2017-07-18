@@ -7,35 +7,43 @@
 #include <mflatbuffers/flatbuffers.h>
 
 
-namespace MasterEvent {
-    
+namespace MasterMessage {
+
     struct CLPing;
-    
+
     struct SVPing;
-    
+
     struct CLRegister;
-    
+
     struct SVRegister;
-    
+
     struct CLLogin;
-    
+
     struct SVLogin;
-    
+
     struct CLFindGame;
-    
+
     struct SVFindGame;
-    
+
     struct SVGameFound;
-    
+
+    struct CL_ADM_Stats;
+
+    struct SV_ADM_Stats;
+
+    struct CL_ADM_Shutdown;
+
+    struct SV_ADM_Shutdown;
+
     struct Message;
-    
+
     enum RegistrationStatus {
         RegistrationStatus_SUCCESS = 0,
         RegistrationStatus_EMAIL_TAKEN = 1,
         RegistrationStatus_MIN = RegistrationStatus_SUCCESS,
         RegistrationStatus_MAX = RegistrationStatus_EMAIL_TAKEN
     };
-    
+
     inline const char **EnumNamesRegistrationStatus() {
         static const char *names[] = {
             "SUCCESS",
@@ -44,19 +52,19 @@ namespace MasterEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameRegistrationStatus(RegistrationStatus e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesRegistrationStatus()[index];
     }
-    
+
     enum LoginStatus {
         LoginStatus_SUCCESS = 0,
         LoginStatus_WRONG_INPUT = 1,
         LoginStatus_MIN = LoginStatus_SUCCESS,
         LoginStatus_MAX = LoginStatus_WRONG_INPUT
     };
-    
+
     inline const char **EnumNamesLoginStatus() {
         static const char *names[] = {
             "SUCCESS",
@@ -65,19 +73,19 @@ namespace MasterEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameLoginStatus(LoginStatus e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesLoginStatus()[index];
     }
-    
+
     enum ConnectionResponse {
         ConnectionResponse_ACCEPTED = 0,
         ConnectionResponse_REFUSED = 1,
         ConnectionResponse_MIN = ConnectionResponse_ACCEPTED,
         ConnectionResponse_MAX = ConnectionResponse_REFUSED
     };
-    
+
     inline const char **EnumNamesConnectionResponse() {
         static const char *names[] = {
             "ACCEPTED",
@@ -86,12 +94,12 @@ namespace MasterEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameConnectionResponse(ConnectionResponse e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesConnectionResponse()[index];
     }
-    
+
     enum Messages {
         Messages_NONE = 0,
         Messages_CLPing = 1,
@@ -103,10 +111,14 @@ namespace MasterEvent {
         Messages_CLFindGame = 7,
         Messages_SVFindGame = 8,
         Messages_SVGameFound = 9,
+        Messages_CL_ADM_Stats = 10,
+        Messages_SV_ADM_Stats = 11,
+        Messages_CL_ADM_Shutdown = 12,
+        Messages_SV_ADM_Shutdown = 13,
         Messages_MIN = Messages_NONE,
-        Messages_MAX = Messages_SVGameFound
+        Messages_MAX = Messages_SV_ADM_Shutdown
     };
-    
+
     inline const char **EnumNamesMessages() {
         static const char *names[] = {
             "NONE",
@@ -119,66 +131,86 @@ namespace MasterEvent {
             "CLFindGame",
             "SVFindGame",
             "SVGameFound",
+            "CL_ADM_Stats",
+            "SV_ADM_Stats",
+            "CL_ADM_Shutdown",
+            "SV_ADM_Shutdown",
             nullptr
         };
         return names;
     }
-    
+
     inline const char *EnumNameMessages(Messages e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesMessages()[index];
     }
-    
+
     template<typename T> struct MessagesTraits {
         static const Messages enum_value = Messages_NONE;
     };
-    
+
     template<> struct MessagesTraits<CLPing> {
         static const Messages enum_value = Messages_CLPing;
     };
-    
+
     template<> struct MessagesTraits<SVPing> {
         static const Messages enum_value = Messages_SVPing;
     };
-    
+
     template<> struct MessagesTraits<CLRegister> {
         static const Messages enum_value = Messages_CLRegister;
     };
-    
+
     template<> struct MessagesTraits<SVRegister> {
         static const Messages enum_value = Messages_SVRegister;
     };
-    
+
     template<> struct MessagesTraits<CLLogin> {
         static const Messages enum_value = Messages_CLLogin;
     };
-    
+
     template<> struct MessagesTraits<SVLogin> {
         static const Messages enum_value = Messages_SVLogin;
     };
-    
+
     template<> struct MessagesTraits<CLFindGame> {
         static const Messages enum_value = Messages_CLFindGame;
     };
-    
+
     template<> struct MessagesTraits<SVFindGame> {
         static const Messages enum_value = Messages_SVFindGame;
     };
-    
+
     template<> struct MessagesTraits<SVGameFound> {
         static const Messages enum_value = Messages_SVGameFound;
     };
-    
+
+    template<> struct MessagesTraits<CL_ADM_Stats> {
+        static const Messages enum_value = Messages_CL_ADM_Stats;
+    };
+
+    template<> struct MessagesTraits<SV_ADM_Stats> {
+        static const Messages enum_value = Messages_SV_ADM_Stats;
+    };
+
+    template<> struct MessagesTraits<CL_ADM_Shutdown> {
+        static const Messages enum_value = Messages_CL_ADM_Shutdown;
+    };
+
+    template<> struct MessagesTraits<SV_ADM_Shutdown> {
+        static const Messages enum_value = Messages_SV_ADM_Shutdown;
+    };
+
     bool VerifyMessages(flatbuffers::Verifier &verifier, const void *obj, Messages type);
     bool VerifyMessagesVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
-    
+
     struct CLPing FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct CLPingBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -193,20 +225,20 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLPing> CreateCLPing(
                                                     flatbuffers::FlatBufferBuilder &_fbb) {
         CLPingBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct SVPing FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct SVPingBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -221,13 +253,13 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVPing> CreateSVPing(
                                                     flatbuffers::FlatBufferBuilder &_fbb) {
         SVPingBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct CLRegister FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_EMAIL = 4,
@@ -248,7 +280,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLRegisterBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -269,7 +301,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLRegister> CreateCLRegister(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             flatbuffers::Offset<flatbuffers::String> email = 0,
@@ -279,7 +311,7 @@ namespace MasterEvent {
         builder_.add_email(email);
         return builder_.Finish();
     }
-    
+
     inline flatbuffers::Offset<CLRegister> CreateCLRegisterDirect(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   const char *email = nullptr,
@@ -289,7 +321,7 @@ namespace MasterEvent {
                                 email ? _fbb.CreateString(email) : 0,
                                 password ? _fbb.CreateString(password) : 0);
     }
-    
+
     struct SVRegister FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_RESPONSE = 4
@@ -303,7 +335,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVRegisterBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -321,7 +353,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVRegister> CreateSVRegister(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             RegistrationStatus response = RegistrationStatus_SUCCESS) {
@@ -329,7 +361,7 @@ namespace MasterEvent {
         builder_.add_response(response);
         return builder_.Finish();
     }
-    
+
     struct CLLogin FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_EMAIL = 4,
@@ -350,7 +382,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLLoginBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -371,7 +403,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLLogin> CreateCLLogin(
                                                       flatbuffers::FlatBufferBuilder &_fbb,
                                                       flatbuffers::Offset<flatbuffers::String> email = 0,
@@ -381,7 +413,7 @@ namespace MasterEvent {
         builder_.add_email(email);
         return builder_.Finish();
     }
-    
+
     inline flatbuffers::Offset<CLLogin> CreateCLLoginDirect(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             const char *email = nullptr,
@@ -391,7 +423,7 @@ namespace MasterEvent {
                              email ? _fbb.CreateString(email) : 0,
                              password ? _fbb.CreateString(password) : 0);
     }
-    
+
     struct SVLogin FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_RESPONSE = 4
@@ -405,7 +437,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVLoginBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -423,7 +455,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVLogin> CreateSVLogin(
                                                       flatbuffers::FlatBufferBuilder &_fbb,
                                                       LoginStatus response = LoginStatus_SUCCESS) {
@@ -431,7 +463,7 @@ namespace MasterEvent {
         builder_.add_response(response);
         return builder_.Finish();
     }
-    
+
     struct CLFindGame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -460,7 +492,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLFindGameBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -487,7 +519,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLFindGame> CreateCLFindGame(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
@@ -501,7 +533,7 @@ namespace MasterEvent {
         builder_.add_cl_version_major(cl_version_major);
         return builder_.Finish();
     }
-    
+
     struct SVFindGame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -520,7 +552,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVFindGameBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -541,7 +573,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVFindGame> CreateSVFindGame(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
@@ -551,7 +583,7 @@ namespace MasterEvent {
         builder_.add_response(response);
         return builder_.Finish();
     }
-    
+
     struct SVGameFound FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_GS_PORT = 4
@@ -565,7 +597,7 @@ namespace MasterEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVGameFoundBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -583,7 +615,7 @@ namespace MasterEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVGameFound> CreateSVGameFound(
                                                               flatbuffers::FlatBufferBuilder &_fbb,
                                                               uint32_t gs_port = 0) {
@@ -591,23 +623,207 @@ namespace MasterEvent {
         builder_.add_gs_port(gs_port);
         return builder_.Finish();
     }
-    
-    struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+
+    struct CL_ADM_Stats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
-            VT_MESSAGE_TYPE = 4,
-            VT_MESSAGE = 6
+            VT_ADM_KEY = 4
         };
-        Messages message_type() const {
-            return static_cast<Messages>(GetField<uint8_t>(VT_MESSAGE_TYPE, 0));
-        }
-        const void *message() const {
-            return GetPointer<const void *>(VT_MESSAGE);
+        uint32_t adm_key() const {
+            return GetField<uint32_t>(VT_ADM_KEY, 0);
         }
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
-            VerifyField<uint8_t>(verifier, VT_MESSAGE_TYPE) &&
-            VerifyField<flatbuffers::uoffset_t>(verifier, VT_MESSAGE) &&
-            VerifyMessages(verifier, message(), message_type()) &&
+            VerifyField<uint32_t>(verifier, VT_ADM_KEY) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct CL_ADM_StatsBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_adm_key(uint32_t adm_key) {
+            fbb_.AddElement<uint32_t>(CL_ADM_Stats::VT_ADM_KEY, adm_key, 0);
+        }
+        CL_ADM_StatsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        CL_ADM_StatsBuilder &operator=(const CL_ADM_StatsBuilder &);
+        flatbuffers::Offset<CL_ADM_Stats> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<CL_ADM_Stats>(end);
+            return o;
+        }
+    };
+
+    inline flatbuffers::Offset<CL_ADM_Stats> CreateCL_ADM_Stats(
+                                                                flatbuffers::FlatBufferBuilder &_fbb,
+                                                                uint32_t adm_key = 0) {
+        CL_ADM_StatsBuilder builder_(_fbb);
+        builder_.add_adm_key(adm_key);
+        return builder_.Finish();
+    }
+
+    struct SV_ADM_Stats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_RESPONSE = 4
+        };
+        const flatbuffers::String *response() const {
+            return GetPointer<const flatbuffers::String *>(VT_RESPONSE);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_RESPONSE) &&
+            verifier.Verify(response()) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct SV_ADM_StatsBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_response(flatbuffers::Offset<flatbuffers::String> response) {
+            fbb_.AddOffset(SV_ADM_Stats::VT_RESPONSE, response);
+        }
+        SV_ADM_StatsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        SV_ADM_StatsBuilder &operator=(const SV_ADM_StatsBuilder &);
+        flatbuffers::Offset<SV_ADM_Stats> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<SV_ADM_Stats>(end);
+            return o;
+        }
+    };
+
+    inline flatbuffers::Offset<SV_ADM_Stats> CreateSV_ADM_Stats(
+                                                                flatbuffers::FlatBufferBuilder &_fbb,
+                                                                flatbuffers::Offset<flatbuffers::String> response = 0) {
+        SV_ADM_StatsBuilder builder_(_fbb);
+        builder_.add_response(response);
+        return builder_.Finish();
+    }
+
+    inline flatbuffers::Offset<SV_ADM_Stats> CreateSV_ADM_StatsDirect(
+                                                                      flatbuffers::FlatBufferBuilder &_fbb,
+                                                                      const char *response = nullptr) {
+        return CreateSV_ADM_Stats(
+                                  _fbb,
+                                  response ? _fbb.CreateString(response) : 0);
+    }
+
+    struct CL_ADM_Shutdown FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_ADM_KEY = 4
+        };
+        uint32_t adm_key() const {
+            return GetField<uint32_t>(VT_ADM_KEY, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_ADM_KEY) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct CL_ADM_ShutdownBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_adm_key(uint32_t adm_key) {
+            fbb_.AddElement<uint32_t>(CL_ADM_Shutdown::VT_ADM_KEY, adm_key, 0);
+        }
+        CL_ADM_ShutdownBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        CL_ADM_ShutdownBuilder &operator=(const CL_ADM_ShutdownBuilder &);
+        flatbuffers::Offset<CL_ADM_Shutdown> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<CL_ADM_Shutdown>(end);
+            return o;
+        }
+    };
+
+    inline flatbuffers::Offset<CL_ADM_Shutdown> CreateCL_ADM_Shutdown(
+                                                                      flatbuffers::FlatBufferBuilder &_fbb,
+                                                                      uint32_t adm_key = 0) {
+        CL_ADM_ShutdownBuilder builder_(_fbb);
+        builder_.add_adm_key(adm_key);
+        return builder_.Finish();
+    }
+
+    struct SV_ADM_Shutdown FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_RESPONSE = 4
+        };
+        const flatbuffers::String *response() const {
+            return GetPointer<const flatbuffers::String *>(VT_RESPONSE);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_RESPONSE) &&
+            verifier.Verify(response()) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct SV_ADM_ShutdownBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_response(flatbuffers::Offset<flatbuffers::String> response) {
+            fbb_.AddOffset(SV_ADM_Shutdown::VT_RESPONSE, response);
+        }
+        SV_ADM_ShutdownBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        SV_ADM_ShutdownBuilder &operator=(const SV_ADM_ShutdownBuilder &);
+        flatbuffers::Offset<SV_ADM_Shutdown> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<SV_ADM_Shutdown>(end);
+            return o;
+        }
+    };
+    
+    inline flatbuffers::Offset<SV_ADM_Shutdown> CreateSV_ADM_Shutdown(
+                                                                      flatbuffers::FlatBufferBuilder &_fbb,
+                                                                      flatbuffers::Offset<flatbuffers::String> response = 0) {
+        SV_ADM_ShutdownBuilder builder_(_fbb);
+        builder_.add_response(response);
+        return builder_.Finish();
+    }
+    
+    inline flatbuffers::Offset<SV_ADM_Shutdown> CreateSV_ADM_ShutdownDirect(
+                                                                            flatbuffers::FlatBufferBuilder &_fbb,
+                                                                            const char *response = nullptr) {
+        return CreateSV_ADM_Shutdown(
+                                     _fbb,
+                                     response ? _fbb.CreateString(response) : 0);
+    }
+    
+    struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_SENDER_ID = 4,
+            VT_PAYLOAD_TYPE = 6,
+            VT_PAYLOAD = 8
+        };
+        const flatbuffers::String *sender_id() const {
+            return GetPointer<const flatbuffers::String *>(VT_SENDER_ID);
+        }
+        Messages payload_type() const {
+            return static_cast<Messages>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
+        }
+        const void *payload() const {
+            return GetPointer<const void *>(VT_PAYLOAD);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_SENDER_ID) &&
+            verifier.Verify(sender_id()) &&
+            VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_PAYLOAD) &&
+            VerifyMessages(verifier, payload(), payload_type()) &&
             verifier.EndTable();
         }
     };
@@ -615,11 +831,14 @@ namespace MasterEvent {
     struct MessageBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
-        void add_message_type(Messages message_type) {
-            fbb_.AddElement<uint8_t>(Message::VT_MESSAGE_TYPE, static_cast<uint8_t>(message_type), 0);
+        void add_sender_id(flatbuffers::Offset<flatbuffers::String> sender_id) {
+            fbb_.AddOffset(Message::VT_SENDER_ID, sender_id);
         }
-        void add_message(flatbuffers::Offset<void> message) {
-            fbb_.AddOffset(Message::VT_MESSAGE, message);
+        void add_payload_type(Messages payload_type) {
+            fbb_.AddElement<uint8_t>(Message::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
+        }
+        void add_payload(flatbuffers::Offset<void> payload) {
+            fbb_.AddOffset(Message::VT_PAYLOAD, payload);
         }
         MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -627,7 +846,7 @@ namespace MasterEvent {
         }
         MessageBuilder &operator=(const MessageBuilder &);
         flatbuffers::Offset<Message> Finish() {
-            const auto end = fbb_.EndTable(start_, 2);
+            const auto end = fbb_.EndTable(start_, 3);
             auto o = flatbuffers::Offset<Message>(end);
             return o;
         }
@@ -635,12 +854,26 @@ namespace MasterEvent {
     
     inline flatbuffers::Offset<Message> CreateMessage(
                                                       flatbuffers::FlatBufferBuilder &_fbb,
-                                                      Messages message_type = Messages_NONE,
-                                                      flatbuffers::Offset<void> message = 0) {
+                                                      flatbuffers::Offset<flatbuffers::String> sender_id = 0,
+                                                      Messages payload_type = Messages_NONE,
+                                                      flatbuffers::Offset<void> payload = 0) {
         MessageBuilder builder_(_fbb);
-        builder_.add_message(message);
-        builder_.add_message_type(message_type);
+        builder_.add_payload(payload);
+        builder_.add_sender_id(sender_id);
+        builder_.add_payload_type(payload_type);
         return builder_.Finish();
+    }
+    
+    inline flatbuffers::Offset<Message> CreateMessageDirect(
+                                                            flatbuffers::FlatBufferBuilder &_fbb,
+                                                            const char *sender_id = nullptr,
+                                                            Messages payload_type = Messages_NONE,
+                                                            flatbuffers::Offset<void> payload = 0) {
+        return CreateMessage(
+                             _fbb,
+                             sender_id ? _fbb.CreateString(sender_id) : 0,
+                             payload_type,
+                             payload);
     }
     
     inline bool VerifyMessages(flatbuffers::Verifier &verifier, const void *obj, Messages type) {
@@ -684,6 +917,22 @@ namespace MasterEvent {
                 auto ptr = reinterpret_cast<const SVGameFound *>(obj);
                 return verifier.VerifyTable(ptr);
             }
+            case Messages_CL_ADM_Stats: {
+                auto ptr = reinterpret_cast<const CL_ADM_Stats *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Messages_SV_ADM_Stats: {
+                auto ptr = reinterpret_cast<const SV_ADM_Stats *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Messages_CL_ADM_Shutdown: {
+                auto ptr = reinterpret_cast<const CL_ADM_Shutdown *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Messages_SV_ADM_Shutdown: {
+                auto ptr = reinterpret_cast<const SV_ADM_Shutdown *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
             default: return false;
         }
     }
@@ -699,21 +948,22 @@ namespace MasterEvent {
         return true;
     }
     
-    inline const MasterEvent::Message *GetMessage(const void *buf) {
-        return flatbuffers::GetRoot<MasterEvent::Message>(buf);
+    inline const MasterMessage::Message *GetMessage(const void *buf) {
+        return flatbuffers::GetRoot<MasterMessage::Message>(buf);
     }
     
     inline bool VerifyMessageBuffer(
                                     flatbuffers::Verifier &verifier) {
-        return verifier.VerifyBuffer<MasterEvent::Message>(nullptr);
+        return verifier.VerifyBuffer<MasterMessage::Message>(nullptr);
     }
     
     inline void FinishMessageBuffer(
                                     flatbuffers::FlatBufferBuilder &fbb,
-                                    flatbuffers::Offset<MasterEvent::Message> root) {
+                                    flatbuffers::Offset<MasterMessage::Message> root) {
         fbb.Finish(root);
     }
     
-}  // namespace MasterEvent
+}  // namespace MasterMessage
 
-#endif  // FLATBUFFERS_GENERATED_MSNET_MASTEREVENT_H_
+#endif  // FLATBUFFERS_GENERATED_MASTERMESSAGE_MASTERMESSAGE_H_
+

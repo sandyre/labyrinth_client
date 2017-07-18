@@ -10,6 +10,7 @@
 
 #include "../effect.hpp"
 #include "../gameworld.hpp"
+#include "../../gameconfig.hpp"
 #include "../../gsnet_generated.h"
 
 #include <audio/include/AudioEngine.h>
@@ -171,13 +172,14 @@ void
 Unit::RequestMove(MoveDirection dir)
 {
     flatbuffers::FlatBufferBuilder builder;
-    auto move = GameEvent::CreateCLActionMove(builder,
-                                              this->GetUID(),
-                                              (char)dir);
-    auto event = GameEvent::CreateMessage(builder,
-                                          this->GetUID(),
-                                          GameEvent::Events_CLActionMove,
-                                          move.Union());
+    auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+    auto move = GameMessage::CreateCLActionMove(builder,
+                                                this->GetUID(),
+                                                (char)dir);
+    auto event = GameMessage::CreateMessage(builder,
+                                            uuid,
+                                            GameMessage::Messages_CLActionMove,
+                                            move.Union());
     builder.Finish(event);
     
     m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -191,14 +193,15 @@ Unit::RequestTakeItem(Item * item)
     if(item->GetCarrierID() == 0)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto take = GameEvent::CreateCLActionItem(builder,
-                                                  this->GetUID(),
-                                                  item->GetUID(),
-                                                  GameEvent::ActionItemType_TAKE);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionItem,
-                                              take.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto take = GameMessage::CreateCLActionItem(builder,
+                                                    this->GetUID(),
+                                                    item->GetUID(),
+                                                    GameMessage::ActionItemType_TAKE);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionItem,
+                                                take.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -210,14 +213,15 @@ void
 Unit::RequestStartDuel(Unit * enemy)
 {
     flatbuffers::FlatBufferBuilder builder;
-    auto take = GameEvent::CreateCLActionDuel(builder,
-                                              this->GetUID(),
-                                              enemy->GetUID(),
-                                              GameEvent::ActionDuelType_STARTED);
-    auto event = GameEvent::CreateMessage(builder,
-                                          this->GetUID(),
-                                          GameEvent::Events_CLActionDuel,
-                                          take.Union());
+    auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+    auto take = GameMessage::CreateCLActionDuel(builder,
+                                                this->GetUID(),
+                                                enemy->GetUID(),
+                                                GameMessage::ActionDuelType_STARTED);
+    auto event = GameMessage::CreateMessage(builder,
+                                            uuid,
+                                            GameMessage::Messages_CLActionDuel,
+                                            take.Union());
     builder.Finish(event);
     
     m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -347,7 +351,7 @@ Unit::GetUnitAttributes() const
 }
 
 void
-Unit::Move(const GameEvent::SVActionMove* mov)
+Unit::Move(const GameMessage::SVActionMove* mov)
 {
     Orientation new_orient = (Orientation)mov->mov_dir();
     MoveDirection mov_dir = (MoveDirection)mov->mov_dir();

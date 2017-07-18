@@ -43,10 +43,10 @@ enum class InputEvent
     
 const std::array<std::string, 4> BattleSwipeSprites
 {
-    "res/ui/battle/btl_arrow_1.png",
-    "res/ui/battle/btl_arrow_2.png",
-    "res/ui/battle/btl_arrow_3.png",
-    "res/ui/battle/btl_arrow_4.png"
+    "res/ui/ui_combo/ui_combo_arrow_up.png",
+    "res/ui/ui_combo/ui_combo_arrow_down.png",
+    "res/ui/ui_combo/ui_combo_arrow_left.png",
+    "res/ui/ui_combo/ui_combo_arrow_right.png"
 };
     
 const std::array<std::string, 4> HeroNames
@@ -55,14 +55,6 @@ const std::array<std::string, 4> HeroNames
     "Mage",
     "Rogue",
     "Priest"
-};
-
-struct PlayerInfo
-{
-    uint32_t    nUID;
-    std::string sNickname;
-    int         nHeroIndex;
-        // additional fields
 };
 
 inline

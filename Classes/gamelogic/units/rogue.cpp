@@ -54,12 +54,12 @@ Rogue::RequestSpellCast(int index)
     if(index == 0)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
                                                      this->GetUID(),
                                                      0);
-        auto event = GameEvent::CreateMessage(builder,
+        auto event = GameMessage::CreateMessage(builder,
                                               this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
+                                              GameMessage::Messages_CLActionSpell,
                                               spell1.Union());
         builder.Finish(event);
         
@@ -73,7 +73,7 @@ Rogue::RequestSpellCast(int index)
 }
 
 void
-Rogue::SpellCast(const GameEvent::SVActionSpell* spell)
+Rogue::SpellCast(const GameMessage::SVActionSpell* spell)
 {
         // invisibility cast (0 spell)
     if(spell->spell_id() == 0)

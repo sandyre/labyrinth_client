@@ -16,6 +16,7 @@ class UIBattleView;
 class UISpellsPanel;
 class UIBattleLogs;
 class Hero;
+class UIHeroStats;
 
 struct InputSequence;
 
@@ -24,17 +25,9 @@ class UIGameScene : public cocos2d::ui::Layout
 public:
     UIGameScene();
     
-    void    ConfigureForHero(Hero *);
+    void ConfigureForHero(Hero *);
         // stats (left top)
-    cocos2d::ui::Layout * m_pStatsLayout;
-    cocos2d::ui::ImageView * m_pHPBarBack;
-    cocos2d::ui::LoadingBar * m_pHPBar;
-    cocos2d::ui::Text * m_pHPText;
-    cocos2d::ui::Text * m_pArmor;
-    
-        // left bottom (selected item)
-    cocos2d::ui::ImageView * m_pItemFrame;
-    cocos2d::ui::ImageView * m_pSelectedItem;
+    UIHeroStats * _heroStats;
     
         // right bottom (take item, active button)
     cocos2d::ui::Button * m_pTakeItemButton;
@@ -47,6 +40,35 @@ public:
     
         // Battle view
     UIBattleView * m_poBattleView;
+};
+
+class UIHeroStats : public cocos2d::ui::Layout
+{
+public:
+    UIHeroStats();
+
+    void SetHP(int val, int max);
+    void SetArmor(int val);
+    void SetMagResistance(int val);
+    void SetPhysicalDamage(int val);
+    void SetMagicalDamage(int val);
+    
+private:
+    cocos2d::ui::ImageView *    _hpBarBack;
+    cocos2d::ui::LoadingBar *   _hpBarFront;
+    cocos2d::ui::Text *         _hpBarText;
+
+    cocos2d::ui::ImageView *    _armorIcon;
+    cocos2d::ui::Text *         _armorText;
+
+    cocos2d::ui::ImageView *    _magResistIcon;
+    cocos2d::ui::Text *         _magResistText;
+
+    cocos2d::ui::ImageView *    _physDamageIcon;
+    cocos2d::ui::Text *         _physDamageText;
+
+    cocos2d::ui::ImageView *    _magDamageIcon;
+    cocos2d::ui::Text *         _magDamageText;
 };
 
 class UIBattleLogs : public cocos2d::ui::Layout
@@ -108,7 +130,9 @@ public:
         // action icon
     cocos2d::ui::Layout *       m_pSequenceLayout;
     std::vector<cocos2d::ui::ImageView*>    m_pSequenceSymbols;
-    cocos2d::ui::ImageView *    m_pTapeImage;
+    cocos2d::ui::ImageView *    _mainFrame;
+    cocos2d::ui::ImageView *    _rightFrame;
+    cocos2d::ui::ImageView *    _iconBack;
     cocos2d::ui::ImageView *    m_pIcon;
 };
 

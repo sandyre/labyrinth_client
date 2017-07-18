@@ -37,15 +37,15 @@ SettingsScene::init()
     {
         if(type == ui::Button::TouchEventType::ENDED)
         {
-            GameConfiguraton::Instance().SetPlayerName(m_pUI->m_pNicknameField->getString());
+            GameConfiguration::Instance().SetPlayerName(m_pUI->m_pNicknameField->getString());
             
-            GameConfiguraton::Instance().Save();
+            GameConfiguration::Instance().Save();
             Director::getInstance()->popScene();
         }
     };
     m_pUI->m_pBackButton->addTouchEventListener(back_button_callback);
     
-    auto& config = GameConfiguraton::Instance();
+    auto& config = GameConfiguration::Instance();
     if(config.GetPlayerName() != "")
     {
         m_pUI->m_pNicknameField->setString(config.GetPlayerName());

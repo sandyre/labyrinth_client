@@ -1,10 +1,7 @@
 <!-- Game configuration file. Do not modify it yourself. -->
 <settings>
-	<graphics>
-		<screensize width="540" height="960"/>
-	</graphics>
 	<network>
 		<masterserver host="localhost" port="1930"/>
 	</network>
-	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="vsemprivet"/>
+	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="vsemprivet" uuid=""/>
 </settings>

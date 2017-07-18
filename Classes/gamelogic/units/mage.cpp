@@ -8,10 +8,10 @@
 
 #include "mage.hpp"
 
-#include "../gameworld.hpp"
 #include "gsnet_generated.h"
-
 #include "../effect.hpp"
+#include "../gameworld.hpp"
+#include "../../gameconfig.hpp"
 
 Mage::Mage()
 {
@@ -64,13 +64,14 @@ Mage::RequestSpellCast(int index)
     if(index == 0)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                     this->GetUID(),
-                                                     0);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              spell1.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
+                                                       this->GetUID(),
+                                                       0);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                spell1.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -80,13 +81,14 @@ Mage::RequestSpellCast(int index)
     else if(index == 1)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateCLActionSpell(builder,
-                                                     this->GetUID(),
-                                                     1);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              spell1.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateCLActionSpell(builder,
+                                                       this->GetUID(),
+                                                       1);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                spell1.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -96,19 +98,20 @@ Mage::RequestSpellCast(int index)
     else if(index == 2)
     {
         flatbuffers::FlatBufferBuilder builder;
-        auto spell1 = GameEvent::CreateMageFreeze(builder,
-                                                  m_pDuelTarget->GetUID());
-        auto spell = GameEvent::CreateSpell(builder,
-                                            GameEvent::Spells_MageFreeze,
-                                            spell1.Union());
-        auto cl_spell = GameEvent::CreateCLActionSpell(builder,
-                                                       this->GetUID(),
-                                                       2,
-                                                       spell);
-        auto event = GameEvent::CreateMessage(builder,
-                                              this->GetUID(),
-                                              GameEvent::Events_CLActionSpell,
-                                              cl_spell.Union());
+        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        auto spell1 = GameMessage::CreateMageFreeze(builder,
+                                                    m_pDuelTarget->GetUID());
+        auto spell = GameMessage::CreateSpell(builder,
+                                              GameMessage::Spells_MageFreeze,
+                                              spell1.Union());
+        auto cl_spell = GameMessage::CreateCLActionSpell(builder,
+                                                         this->GetUID(),
+                                                         2,
+                                                         spell);
+        auto event = GameMessage::CreateMessage(builder,
+                                                uuid,
+                                                GameMessage::Messages_CLActionSpell,
+                                                cl_spell.Union());
         builder.Finish(event);
         
         m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
@@ -117,7 +120,7 @@ Mage::RequestSpellCast(int index)
 }
 
 void
-Mage::SpellCast(const GameEvent::SVActionSpell* spell)
+Mage::SpellCast(const GameMessage::SVActionSpell* spell)
 {
         // spell0 == teleport
     if(spell->spell_id() == 0)
@@ -126,8 +129,8 @@ Mage::SpellCast(const GameEvent::SVActionSpell* spell)
         std::get<0>(m_aSpellCDs[spell->spell_id()]) = false;
         std::get<1>(m_aSpellCDs[spell->spell_id()]) = std::get<2>(m_aSpellCDs[spell->spell_id()]);
         
-        auto spells = static_cast<const GameEvent::Spell*>(spell->spell_info());
-        auto spell_info = static_cast<const GameEvent::MageTeleport*>(spells->spell());
+        auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
+        auto spell_info = static_cast<const GameMessage::MageTeleport*>(spells->spell());
         
         this->SetLogicalPosition(cocos2d::Vec2(spell_info->x(),
                                                spell_info->y()));
@@ -150,8 +153,8 @@ Mage::SpellCast(const GameEvent::SVActionSpell* spell)
         std::get<0>(m_aSpellCDs[spell->spell_id()]) = false;
         std::get<1>(m_aSpellCDs[spell->spell_id()]) = std::get<2>(m_aSpellCDs[spell->spell_id()]);
 
-        auto spells = static_cast<const GameEvent::Spell*>(spell->spell_info());
-        auto spell_info = static_cast<const GameEvent::MageAttack*>(spells->spell());
+        auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
+        auto spell_info = static_cast<const GameMessage::MageAttack*>(spells->spell());
         
         m_pDuelTarget->TakeDamage(spell_info->damage(),
                                   Unit::DamageType::MAGICAL,
@@ -164,8 +167,8 @@ Mage::SpellCast(const GameEvent::SVActionSpell* spell)
         std::get<0>(m_aSpellCDs[spell->spell_id()]) = false;
         std::get<1>(m_aSpellCDs[spell->spell_id()]) = std::get<2>(m_aSpellCDs[spell->spell_id()]);
         
-        auto spells = static_cast<const GameEvent::Spell*>(spell->spell_info());
-        auto spell_info = static_cast<const GameEvent::MageFreeze*>(spells->spell());
+        auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
+        auto spell_info = static_cast<const GameMessage::MageFreeze*>(spells->spell());
         
         MageFreeze * pFreeze = new MageFreeze(3.0f);
         pFreeze->SetTargetUnit(m_pDuelTarget);

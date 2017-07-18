@@ -36,7 +36,7 @@ Monster::create(const std::string& filename)
 }
 
 void
-Monster::SpellCast(const GameEvent::SVActionSpell * spell)
+Monster::SpellCast(const GameMessage::SVActionSpell * spell)
 {
     if(spell->spell_id() == 0)
     {

@@ -11,7 +11,7 @@ static cocos2d::Size iphone5Resolution = cocos2d::Size(540, 960);
 static cocos2d::Size iphone7Resolution = cocos2d::Size(750, 1334);
 static cocos2d::Size iphone7PResolution = cocos2d::Size(1242, 2208);
 
-static cocos2d::Size designResolutionSize = iphone5Resolution;
+static cocos2d::Size designResolutionSize = cocos2d::Size(576, 1024);
 
 AppDelegate::AppDelegate()
 {
@@ -39,8 +39,7 @@ static int register_all_packages()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
-	auto screensize = cocos2d::Size(405,
-		720);
+	auto screensize = cocos2d::Size(405, 720);
 //    auto screensize = designResolutionSize;
     
     // initialize director
@@ -65,13 +64,14 @@ bool AppDelegate::applicationDidFinishLaunching() {
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::EXACT_FIT);
     
         // Load game configuration
-    GameConfiguraton::Instance().Load();
+    GameConfiguration::Instance().Load();
+    
         // Load game resources
     ResourceManager::Instance().PreloadTextures();
     ResourceManager::Instance().PreloadSounds();
     
     NetSystem::Instance().CreateChannel("masterserver",
-                                        Poco::Net::SocketAddress(GameConfiguraton::Instance().GetServerAddress()));
+                                        Poco::Net::SocketAddress(GameConfiguration::Instance().GetServerAddress()));
 
     register_all_packages();
     

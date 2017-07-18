@@ -19,10 +19,10 @@ class Warrior : public Hero
 public:
     static Warrior *   create(const std::string&);
     
-    virtual void                RequestSpellCast(int index) override;
-    virtual void                SpellCast(const GameEvent::SVActionSpell*) override;
+    virtual void RequestSpellCast(int index) override;
+    virtual void SpellCast(const GameMessage::SVActionSpell*) override;
     
-    virtual void                Move(const GameEvent::SVActionMove*) override;
+    virtual void Move(const GameMessage::SVActionMove*) override;
 protected:
     Warrior();
     

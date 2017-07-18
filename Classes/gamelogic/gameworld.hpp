@@ -22,16 +22,14 @@
 #include <queue>
 
 class GameObject;
+struct GameSessionDescriptor;
 
 class GameWorld : public cocos2d::Layer
 {
 public:
-    GameWorld();
+    GameWorld(GameSessionDescriptor&);
     
     virtual void update(float);
-    
-    void    AddPlayer(PlayerInfo);
-    void    CreateGameMap(const GameMap::Configuration&);
     
     void    SetHUD(UIGameScene * ui);
     
@@ -39,6 +37,7 @@ public:
 protected:
     void    ReceiveInputNetEvents();
     void    SendOutgoingNetEvents();
+
 protected:
     GameMap::Configuration  m_stMapConf;
     

@@ -19,12 +19,12 @@ class Mage : public Hero
 public:
     static Mage* create(const std::string&);
     
-    virtual void                RequestSpellCast(int index) override;
-    virtual void                SpellCast(const GameEvent::SVActionSpell*) override;
+    virtual void RequestSpellCast(int index) override;
+    virtual void SpellCast(const GameMessage::SVActionSpell*) override;
 protected:
     Mage();
     
-    virtual void    update(float) override;
+    virtual void update(float) override;
 };
 
 #endif /* mage_hpp */

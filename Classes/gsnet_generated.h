@@ -6,91 +6,95 @@
 
 #include <mflatbuffers/flatbuffers.h>
 
-namespace GameEvent {
-    
+namespace GameMessage {
+
     struct CLConnection;
-    
+
+    struct CLDisconnect;
+
     struct SVConnectionStatus;
-    
+
     struct SVPlayerConnected;
-    
+
+    struct SVPlayerDisconnected;
+
     struct SVHeroPickStage;
-    
+
     struct CLHeroPick;
-    
+
     struct SVHeroPick;
-    
+
     struct CLReadyToStart;
-    
+
     struct SVReadyToStart;
-    
+
     struct SVGenerateMap;
-    
+
     struct CLMapGenerated;
-    
+
     struct SVGameStart;
-    
+
     struct CLActionMove;
-    
+
     struct SVActionMove;
-    
+
     struct CLActionItem;
-    
+
     struct SVActionItem;
-    
+
     struct MageAttack;
-    
+
     struct MageTeleport;
-    
+
     struct MageFreeze;
-    
+
     struct WarriorAttack;
-    
+
     struct MonsterAttack;
-    
+
     struct WarriorDash;
-    
+
     struct WarriorArmorUp;
-    
+
     struct Spell;
-    
+
     struct CLActionSpell;
-    
+
     struct SVActionSpell;
-    
+
     struct CLActionDuel;
-    
+
     struct SVActionDuel;
-    
+
     struct SVActionDeath;
-    
+
     struct SVSpawnPlayer;
-    
+
     struct SVSpawnMonster;
-    
+
     struct SVRespawnPlayer;
-    
+
     struct SVSpawnItem;
-    
+
     struct SVSpawnConstr;
-    
+
     struct CLRequestWin;
-    
+
     struct SVGameEnd;
-    
+
     struct CLPing;
-    
+
     struct SVPing;
-    
+
     struct Message;
-    
+
     enum ConnectionStatus {
         ConnectionStatus_ACCEPTED = 0,
         ConnectionStatus_REFUSED = 1,
         ConnectionStatus_MIN = ConnectionStatus_ACCEPTED,
         ConnectionStatus_MAX = ConnectionStatus_REFUSED
     };
-    
+
     inline const char **EnumNamesConnectionStatus() {
         static const char *names[] = {
             "ACCEPTED",
@@ -99,12 +103,12 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameConnectionStatus(ConnectionStatus e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesConnectionStatus()[index];
     }
-    
+
     enum HeroType {
         HeroType_WARRIOR = 0,
         HeroType_MAGE = 1,
@@ -113,7 +117,7 @@ namespace GameEvent {
         HeroType_MIN = HeroType_WARRIOR,
         HeroType_MAX = HeroType_PRIEST
     };
-    
+
     inline const char **EnumNamesHeroType() {
         static const char *names[] = {
             "WARRIOR",
@@ -124,12 +128,12 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameHeroType(HeroType e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesHeroType()[index];
     }
-    
+
     enum ActionItemType {
         ActionItemType_TAKE = 0,
         ActionItemType_DROP = 1,
@@ -137,7 +141,7 @@ namespace GameEvent {
         ActionItemType_MIN = ActionItemType_TAKE,
         ActionItemType_MAX = ActionItemType_USE
     };
-    
+
     inline const char **EnumNamesActionItemType() {
         static const char *names[] = {
             "TAKE",
@@ -147,12 +151,12 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameActionItemType(ActionItemType e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesActionItemType()[index];
     }
-    
+
     enum Spells {
         Spells_NONE = 0,
         Spells_MageAttack = 1,
@@ -165,7 +169,7 @@ namespace GameEvent {
         Spells_MIN = Spells_NONE,
         Spells_MAX = Spells_MonsterAttack
     };
-    
+
     inline const char **EnumNamesSpells() {
         static const char *names[] = {
             "NONE",
@@ -180,47 +184,47 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameSpells(Spells e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesSpells()[index];
     }
-    
+
     template<typename T> struct SpellsTraits {
         static const Spells enum_value = Spells_NONE;
     };
-    
+
     template<> struct SpellsTraits<MageAttack> {
         static const Spells enum_value = Spells_MageAttack;
     };
-    
+
     template<> struct SpellsTraits<MageTeleport> {
         static const Spells enum_value = Spells_MageTeleport;
     };
-    
+
     template<> struct SpellsTraits<MageFreeze> {
         static const Spells enum_value = Spells_MageFreeze;
     };
-    
+
     template<> struct SpellsTraits<WarriorAttack> {
         static const Spells enum_value = Spells_WarriorAttack;
     };
-    
+
     template<> struct SpellsTraits<WarriorDash> {
         static const Spells enum_value = Spells_WarriorDash;
     };
-    
+
     template<> struct SpellsTraits<WarriorArmorUp> {
         static const Spells enum_value = Spells_WarriorArmorUp;
     };
-    
+
     template<> struct SpellsTraits<MonsterAttack> {
         static const Spells enum_value = Spells_MonsterAttack;
     };
-    
+
     bool VerifySpells(flatbuffers::Verifier &verifier, const void *obj, Spells type);
     bool VerifySpellsVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
-    
+
     enum ActionDuelType {
         ActionDuelType_STARTED = 0,
         ActionDuelType_ATTACK = 1,
@@ -229,7 +233,7 @@ namespace GameEvent {
         ActionDuelType_MIN = ActionDuelType_STARTED,
         ActionDuelType_MAX = ActionDuelType_KILL
     };
-    
+
     inline const char **EnumNamesActionDuelType() {
         static const char *names[] = {
             "STARTED",
@@ -240,19 +244,19 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameActionDuelType(ActionDuelType e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesActionDuelType()[index];
     }
-    
+
     enum ItemType {
         ItemType_KEY = 0,
         ItemType_SWORD = 1,
         ItemType_MIN = ItemType_KEY,
         ItemType_MAX = ItemType_SWORD
     };
-    
+
     inline const char **EnumNamesItemType() {
         static const char *names[] = {
             "KEY",
@@ -261,12 +265,12 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameItemType(ItemType e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesItemType()[index];
     }
-    
+
     enum ConstrType {
         ConstrType_DOOR = 0,
         ConstrType_GRAVEYARD = 1,
@@ -274,7 +278,7 @@ namespace GameEvent {
         ConstrType_MIN = ConstrType_DOOR,
         ConstrType_MAX = ConstrType_SWAMP
     };
-    
+
     inline const char **EnumNamesConstrType() {
         static const char *names[] = {
             "DOOR",
@@ -284,53 +288,57 @@ namespace GameEvent {
         };
         return names;
     }
-    
+
     inline const char *EnumNameConstrType(ConstrType e) {
         const size_t index = static_cast<int>(e);
         return EnumNamesConstrType()[index];
     }
-    
-    enum Events {
-        Events_NONE = 0,
-        Events_CLConnection = 1,
-        Events_SVConnectionStatus = 2,
-        Events_SVPlayerConnected = 3,
-        Events_SVHeroPickStage = 4,
-        Events_CLHeroPick = 5,
-        Events_SVHeroPick = 6,
-        Events_CLReadyToStart = 7,
-        Events_SVReadyToStart = 8,
-        Events_SVGenerateMap = 9,
-        Events_CLMapGenerated = 10,
-        Events_SVGameStart = 11,
-        Events_CLActionMove = 12,
-        Events_SVActionMove = 13,
-        Events_CLActionItem = 14,
-        Events_SVActionItem = 15,
-        Events_CLActionDuel = 16,
-        Events_SVActionDuel = 17,
-        Events_CLActionSpell = 18,
-        Events_SVActionSpell = 19,
-        Events_CLRequestWin = 20,
-        Events_SVActionDeath = 21,
-        Events_SVSpawnPlayer = 22,
-        Events_SVRespawnPlayer = 23,
-        Events_SVSpawnMonster = 24,
-        Events_SVSpawnItem = 25,
-        Events_SVSpawnConstr = 26,
-        Events_SVGameEnd = 27,
-        Events_CLPing = 28,
-        Events_SVPing = 29,
-        Events_MIN = Events_NONE,
-        Events_MAX = Events_SVPing
+
+    enum Messages {
+        Messages_NONE = 0,
+        Messages_CLConnection = 1,
+        Messages_CLDisconnect = 2,
+        Messages_SVConnectionStatus = 3,
+        Messages_SVPlayerConnected = 4,
+        Messages_SVPlayerDisconnected = 5,
+        Messages_SVHeroPickStage = 6,
+        Messages_CLHeroPick = 7,
+        Messages_SVHeroPick = 8,
+        Messages_CLReadyToStart = 9,
+        Messages_SVReadyToStart = 10,
+        Messages_SVGenerateMap = 11,
+        Messages_CLMapGenerated = 12,
+        Messages_SVGameStart = 13,
+        Messages_CLActionMove = 14,
+        Messages_SVActionMove = 15,
+        Messages_CLActionItem = 16,
+        Messages_SVActionItem = 17,
+        Messages_CLActionDuel = 18,
+        Messages_SVActionDuel = 19,
+        Messages_CLActionSpell = 20,
+        Messages_SVActionSpell = 21,
+        Messages_CLRequestWin = 22,
+        Messages_SVActionDeath = 23,
+        Messages_SVSpawnPlayer = 24,
+        Messages_SVRespawnPlayer = 25,
+        Messages_SVSpawnMonster = 26,
+        Messages_SVSpawnItem = 27,
+        Messages_SVSpawnConstr = 28,
+        Messages_SVGameEnd = 29,
+        Messages_CLPing = 30,
+        Messages_SVPing = 31,
+        Messages_MIN = Messages_NONE,
+        Messages_MAX = Messages_SVPing
     };
-    
-    inline const char **EnumNamesEvents() {
+
+    inline const char **EnumNamesMessages() {
         static const char *names[] = {
             "NONE",
             "CLConnection",
+            "CLDisconnect",
             "SVConnectionStatus",
             "SVPlayerConnected",
+            "SVPlayerDisconnected",
             "SVHeroPickStage",
             "CLHeroPick",
             "SVHeroPick",
@@ -361,135 +369,143 @@ namespace GameEvent {
         };
         return names;
     }
-    
-    inline const char *EnumNameEvents(Events e) {
+
+    inline const char *EnumNameMessages(Messages e) {
         const size_t index = static_cast<int>(e);
-        return EnumNamesEvents()[index];
+        return EnumNamesMessages()[index];
     }
-    
-    template<typename T> struct EventsTraits {
-        static const Events enum_value = Events_NONE;
+
+    template<typename T> struct MessagesTraits {
+        static const Messages enum_value = Messages_NONE;
     };
-    
-    template<> struct EventsTraits<CLConnection> {
-        static const Events enum_value = Events_CLConnection;
+
+    template<> struct MessagesTraits<CLConnection> {
+        static const Messages enum_value = Messages_CLConnection;
     };
-    
-    template<> struct EventsTraits<SVConnectionStatus> {
-        static const Events enum_value = Events_SVConnectionStatus;
+
+    template<> struct MessagesTraits<CLDisconnect> {
+        static const Messages enum_value = Messages_CLDisconnect;
     };
-    
-    template<> struct EventsTraits<SVPlayerConnected> {
-        static const Events enum_value = Events_SVPlayerConnected;
+
+    template<> struct MessagesTraits<SVConnectionStatus> {
+        static const Messages enum_value = Messages_SVConnectionStatus;
     };
-    
-    template<> struct EventsTraits<SVHeroPickStage> {
-        static const Events enum_value = Events_SVHeroPickStage;
+
+    template<> struct MessagesTraits<SVPlayerConnected> {
+        static const Messages enum_value = Messages_SVPlayerConnected;
     };
-    
-    template<> struct EventsTraits<CLHeroPick> {
-        static const Events enum_value = Events_CLHeroPick;
+
+    template<> struct MessagesTraits<SVPlayerDisconnected> {
+        static const Messages enum_value = Messages_SVPlayerDisconnected;
     };
-    
-    template<> struct EventsTraits<SVHeroPick> {
-        static const Events enum_value = Events_SVHeroPick;
+
+    template<> struct MessagesTraits<SVHeroPickStage> {
+        static const Messages enum_value = Messages_SVHeroPickStage;
     };
-    
-    template<> struct EventsTraits<CLReadyToStart> {
-        static const Events enum_value = Events_CLReadyToStart;
+
+    template<> struct MessagesTraits<CLHeroPick> {
+        static const Messages enum_value = Messages_CLHeroPick;
     };
-    
-    template<> struct EventsTraits<SVReadyToStart> {
-        static const Events enum_value = Events_SVReadyToStart;
+
+    template<> struct MessagesTraits<SVHeroPick> {
+        static const Messages enum_value = Messages_SVHeroPick;
     };
-    
-    template<> struct EventsTraits<SVGenerateMap> {
-        static const Events enum_value = Events_SVGenerateMap;
+
+    template<> struct MessagesTraits<CLReadyToStart> {
+        static const Messages enum_value = Messages_CLReadyToStart;
     };
-    
-    template<> struct EventsTraits<CLMapGenerated> {
-        static const Events enum_value = Events_CLMapGenerated;
+
+    template<> struct MessagesTraits<SVReadyToStart> {
+        static const Messages enum_value = Messages_SVReadyToStart;
     };
-    
-    template<> struct EventsTraits<SVGameStart> {
-        static const Events enum_value = Events_SVGameStart;
+
+    template<> struct MessagesTraits<SVGenerateMap> {
+        static const Messages enum_value = Messages_SVGenerateMap;
     };
-    
-    template<> struct EventsTraits<CLActionMove> {
-        static const Events enum_value = Events_CLActionMove;
+
+    template<> struct MessagesTraits<CLMapGenerated> {
+        static const Messages enum_value = Messages_CLMapGenerated;
     };
-    
-    template<> struct EventsTraits<SVActionMove> {
-        static const Events enum_value = Events_SVActionMove;
+
+    template<> struct MessagesTraits<SVGameStart> {
+        static const Messages enum_value = Messages_SVGameStart;
     };
-    
-    template<> struct EventsTraits<CLActionItem> {
-        static const Events enum_value = Events_CLActionItem;
+
+    template<> struct MessagesTraits<CLActionMove> {
+        static const Messages enum_value = Messages_CLActionMove;
     };
-    
-    template<> struct EventsTraits<SVActionItem> {
-        static const Events enum_value = Events_SVActionItem;
+
+    template<> struct MessagesTraits<SVActionMove> {
+        static const Messages enum_value = Messages_SVActionMove;
     };
-    
-    template<> struct EventsTraits<CLActionDuel> {
-        static const Events enum_value = Events_CLActionDuel;
+
+    template<> struct MessagesTraits<CLActionItem> {
+        static const Messages enum_value = Messages_CLActionItem;
     };
-    
-    template<> struct EventsTraits<SVActionDuel> {
-        static const Events enum_value = Events_SVActionDuel;
+
+    template<> struct MessagesTraits<SVActionItem> {
+        static const Messages enum_value = Messages_SVActionItem;
     };
-    
-    template<> struct EventsTraits<CLActionSpell> {
-        static const Events enum_value = Events_CLActionSpell;
+
+    template<> struct MessagesTraits<CLActionDuel> {
+        static const Messages enum_value = Messages_CLActionDuel;
     };
-    
-    template<> struct EventsTraits<SVActionSpell> {
-        static const Events enum_value = Events_SVActionSpell;
+
+    template<> struct MessagesTraits<SVActionDuel> {
+        static const Messages enum_value = Messages_SVActionDuel;
     };
-    
-    template<> struct EventsTraits<CLRequestWin> {
-        static const Events enum_value = Events_CLRequestWin;
+
+    template<> struct MessagesTraits<CLActionSpell> {
+        static const Messages enum_value = Messages_CLActionSpell;
     };
-    
-    template<> struct EventsTraits<SVActionDeath> {
-        static const Events enum_value = Events_SVActionDeath;
+
+    template<> struct MessagesTraits<SVActionSpell> {
+        static const Messages enum_value = Messages_SVActionSpell;
     };
-    
-    template<> struct EventsTraits<SVSpawnPlayer> {
-        static const Events enum_value = Events_SVSpawnPlayer;
+
+    template<> struct MessagesTraits<CLRequestWin> {
+        static const Messages enum_value = Messages_CLRequestWin;
     };
-    
-    template<> struct EventsTraits<SVRespawnPlayer> {
-        static const Events enum_value = Events_SVRespawnPlayer;
+
+    template<> struct MessagesTraits<SVActionDeath> {
+        static const Messages enum_value = Messages_SVActionDeath;
     };
-    
-    template<> struct EventsTraits<SVSpawnMonster> {
-        static const Events enum_value = Events_SVSpawnMonster;
+
+    template<> struct MessagesTraits<SVSpawnPlayer> {
+        static const Messages enum_value = Messages_SVSpawnPlayer;
     };
-    
-    template<> struct EventsTraits<SVSpawnItem> {
-        static const Events enum_value = Events_SVSpawnItem;
+
+    template<> struct MessagesTraits<SVRespawnPlayer> {
+        static const Messages enum_value = Messages_SVRespawnPlayer;
     };
-    
-    template<> struct EventsTraits<SVSpawnConstr> {
-        static const Events enum_value = Events_SVSpawnConstr;
+
+    template<> struct MessagesTraits<SVSpawnMonster> {
+        static const Messages enum_value = Messages_SVSpawnMonster;
     };
-    
-    template<> struct EventsTraits<SVGameEnd> {
-        static const Events enum_value = Events_SVGameEnd;
+
+    template<> struct MessagesTraits<SVSpawnItem> {
+        static const Messages enum_value = Messages_SVSpawnItem;
     };
-    
-    template<> struct EventsTraits<CLPing> {
-        static const Events enum_value = Events_CLPing;
+
+    template<> struct MessagesTraits<SVSpawnConstr> {
+        static const Messages enum_value = Messages_SVSpawnConstr;
     };
-    
-    template<> struct EventsTraits<SVPing> {
-        static const Events enum_value = Events_SVPing;
+
+    template<> struct MessagesTraits<SVGameEnd> {
+        static const Messages enum_value = Messages_SVGameEnd;
     };
-    
-    bool VerifyEvents(flatbuffers::Verifier &verifier, const void *obj, Events type);
-    bool VerifyEventsVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
-    
+
+    template<> struct MessagesTraits<CLPing> {
+        static const Messages enum_value = Messages_CLPing;
+    };
+
+    template<> struct MessagesTraits<SVPing> {
+        static const Messages enum_value = Messages_SVPing;
+    };
+
+    bool VerifyMessages(flatbuffers::Verifier &verifier, const void *obj, Messages type);
+    bool VerifyMessagesVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types);
+
     struct CLConnection FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -509,7 +525,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLConnectionBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -530,7 +546,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLConnection> CreateCLConnection(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t player_uid = 0,
@@ -540,7 +556,7 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     inline flatbuffers::Offset<CLConnection> CreateCLConnectionDirect(
                                                                       flatbuffers::FlatBufferBuilder &_fbb,
                                                                       uint32_t player_uid = 0,
@@ -550,7 +566,47 @@ namespace GameEvent {
                                   player_uid,
                                   nickname ? _fbb.CreateString(nickname) : 0);
     }
-    
+
+    struct CLDisconnect FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_PLAYER_UID = 4
+        };
+        uint32_t player_uid() const {
+            return GetField<uint32_t>(VT_PLAYER_UID, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_PLAYER_UID) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct CLDisconnectBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_player_uid(uint32_t player_uid) {
+            fbb_.AddElement<uint32_t>(CLDisconnect::VT_PLAYER_UID, player_uid, 0);
+        }
+        CLDisconnectBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        CLDisconnectBuilder &operator=(const CLDisconnectBuilder &);
+        flatbuffers::Offset<CLDisconnect> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<CLDisconnect>(end);
+            return o;
+        }
+    };
+
+    inline flatbuffers::Offset<CLDisconnect> CreateCLDisconnect(
+                                                                flatbuffers::FlatBufferBuilder &_fbb,
+                                                                uint32_t player_uid = 0) {
+        CLDisconnectBuilder builder_(_fbb);
+        builder_.add_player_uid(player_uid);
+        return builder_.Finish();
+    }
+
     struct SVConnectionStatus FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -569,7 +625,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVConnectionStatusBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -590,7 +646,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVConnectionStatus> CreateSVConnectionStatus(
                                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                                             uint32_t player_uid = 0,
@@ -600,7 +656,7 @@ namespace GameEvent {
         builder_.add_status(status);
         return builder_.Finish();
     }
-    
+
     struct SVPlayerConnected FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -620,7 +676,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVPlayerConnectedBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -641,7 +697,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVPlayerConnected> CreateSVPlayerConnected(
                                                                           flatbuffers::FlatBufferBuilder &_fbb,
                                                                           uint32_t player_uid = 0,
@@ -651,7 +707,7 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     inline flatbuffers::Offset<SVPlayerConnected> CreateSVPlayerConnectedDirect(
                                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                                 uint32_t player_uid = 0,
@@ -661,14 +717,54 @@ namespace GameEvent {
                                        player_uid,
                                        nickname ? _fbb.CreateString(nickname) : 0);
     }
-    
+
+    struct SVPlayerDisconnected FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+        enum {
+            VT_PLAYER_UID = 4
+        };
+        uint32_t player_uid() const {
+            return GetField<uint32_t>(VT_PLAYER_UID, 0);
+        }
+        bool Verify(flatbuffers::Verifier &verifier) const {
+            return VerifyTableStart(verifier) &&
+            VerifyField<uint32_t>(verifier, VT_PLAYER_UID) &&
+            verifier.EndTable();
+        }
+    };
+
+    struct SVPlayerDisconnectedBuilder {
+        flatbuffers::FlatBufferBuilder &fbb_;
+        flatbuffers::uoffset_t start_;
+        void add_player_uid(uint32_t player_uid) {
+            fbb_.AddElement<uint32_t>(SVPlayerDisconnected::VT_PLAYER_UID, player_uid, 0);
+        }
+        SVPlayerDisconnectedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+            start_ = fbb_.StartTable();
+        }
+        SVPlayerDisconnectedBuilder &operator=(const SVPlayerDisconnectedBuilder &);
+        flatbuffers::Offset<SVPlayerDisconnected> Finish() {
+            const auto end = fbb_.EndTable(start_, 1);
+            auto o = flatbuffers::Offset<SVPlayerDisconnected>(end);
+            return o;
+        }
+    };
+
+    inline flatbuffers::Offset<SVPlayerDisconnected> CreateSVPlayerDisconnected(
+                                                                                flatbuffers::FlatBufferBuilder &_fbb,
+                                                                                uint32_t player_uid = 0) {
+        SVPlayerDisconnectedBuilder builder_(_fbb);
+        builder_.add_player_uid(player_uid);
+        return builder_.Finish();
+    }
+
     struct SVHeroPickStage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct SVHeroPickStageBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -683,13 +779,13 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVHeroPickStage> CreateSVHeroPickStage(
                                                                       flatbuffers::FlatBufferBuilder &_fbb) {
         SVHeroPickStageBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct CLHeroPick FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -708,7 +804,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLHeroPickBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -729,7 +825,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLHeroPick> CreateCLHeroPick(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
@@ -739,7 +835,7 @@ namespace GameEvent {
         builder_.add_hero_type(hero_type);
         return builder_.Finish();
     }
-    
+
     struct SVHeroPick FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -758,7 +854,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVHeroPickBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -779,7 +875,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVHeroPick> CreateSVHeroPick(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t player_uid = 0,
@@ -789,7 +885,7 @@ namespace GameEvent {
         builder_.add_hero_type(hero_type);
         return builder_.Finish();
     }
-    
+
     struct CLReadyToStart FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4
@@ -803,7 +899,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLReadyToStartBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -821,7 +917,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLReadyToStart> CreateCLReadyToStart(
                                                                     flatbuffers::FlatBufferBuilder &_fbb,
                                                                     uint32_t player_uid = 0) {
@@ -829,7 +925,7 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     struct SVReadyToStart FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4
@@ -843,7 +939,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVReadyToStartBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -861,7 +957,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVReadyToStart> CreateSVReadyToStart(
                                                                     flatbuffers::FlatBufferBuilder &_fbb,
                                                                     uint32_t player_uid = 0) {
@@ -869,7 +965,7 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     struct SVGenerateMap FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_MAP_W = 4,
@@ -893,7 +989,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVGenerateMapBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -917,7 +1013,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVGenerateMap> CreateSVGenerateMap(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint16_t map_w = 0,
@@ -929,7 +1025,7 @@ namespace GameEvent {
         builder_.add_map_w(map_w);
         return builder_.Finish();
     }
-    
+
     struct CLMapGenerated FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4
@@ -943,7 +1039,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLMapGeneratedBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -961,7 +1057,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLMapGenerated> CreateCLMapGenerated(
                                                                     flatbuffers::FlatBufferBuilder &_fbb,
                                                                     uint32_t player_uid = 0) {
@@ -969,14 +1065,14 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     struct SVGameStart FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct SVGameStartBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -991,13 +1087,13 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVGameStart> CreateSVGameStart(
                                                               flatbuffers::FlatBufferBuilder &_fbb) {
         SVGameStartBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct CLActionMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET_UID = 4,
@@ -1016,7 +1112,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLActionMoveBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1037,7 +1133,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLActionMove> CreateCLActionMove(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target_uid = 0,
@@ -1047,7 +1143,7 @@ namespace GameEvent {
         builder_.add_mov_dir(mov_dir);
         return builder_.Finish();
     }
-    
+
     struct SVActionMove FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET_UID = 4,
@@ -1076,7 +1172,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVActionMoveBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1103,7 +1199,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVActionMove> CreateSVActionMove(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target_uid = 0,
@@ -1117,7 +1213,7 @@ namespace GameEvent {
         builder_.add_mov_dir(mov_dir);
         return builder_.Finish();
     }
-    
+
     struct CLActionItem FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1141,7 +1237,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLActionItemBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1165,7 +1261,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLActionItem> CreateCLActionItem(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t player_uid = 0,
@@ -1177,7 +1273,7 @@ namespace GameEvent {
         builder_.add_act_type(act_type);
         return builder_.Finish();
     }
-    
+
     struct SVActionItem FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1201,7 +1297,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVActionItemBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1225,7 +1321,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVActionItem> CreateSVActionItem(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t player_uid = 0,
@@ -1237,7 +1333,7 @@ namespace GameEvent {
         builder_.add_act_type(act_type);
         return builder_.Finish();
     }
-    
+
     struct MageAttack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_ENEMY_ID = 4,
@@ -1256,7 +1352,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct MageAttackBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1277,7 +1373,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<MageAttack> CreateMageAttack(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t enemy_id = 0,
@@ -1287,7 +1383,7 @@ namespace GameEvent {
         builder_.add_damage(damage);
         return builder_.Finish();
     }
-    
+
     struct MageTeleport FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_X = 4,
@@ -1306,7 +1402,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct MageTeleportBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1327,7 +1423,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<MageTeleport> CreateMageTeleport(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint16_t x = 0,
@@ -1337,7 +1433,7 @@ namespace GameEvent {
         builder_.add_x(x);
         return builder_.Finish();
     }
-    
+
     struct MageFreeze FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_ENEMY_ID = 4
@@ -1351,7 +1447,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct MageFreezeBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1369,7 +1465,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<MageFreeze> CreateMageFreeze(
                                                             flatbuffers::FlatBufferBuilder &_fbb,
                                                             uint32_t enemy_id = 0) {
@@ -1377,7 +1473,7 @@ namespace GameEvent {
         builder_.add_enemy_id(enemy_id);
         return builder_.Finish();
     }
-    
+
     struct WarriorAttack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_ENEMY_ID = 4,
@@ -1396,7 +1492,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct WarriorAttackBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1417,7 +1513,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<WarriorAttack> CreateWarriorAttack(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t enemy_id = 0,
@@ -1427,7 +1523,7 @@ namespace GameEvent {
         builder_.add_damage(damage);
         return builder_.Finish();
     }
-    
+
     struct MonsterAttack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_ENEMY_ID = 4,
@@ -1446,7 +1542,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct MonsterAttackBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1467,7 +1563,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<MonsterAttack> CreateMonsterAttack(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t enemy_id = 0,
@@ -1477,14 +1573,14 @@ namespace GameEvent {
         builder_.add_damage(damage);
         return builder_.Finish();
     }
-    
+
     struct WarriorDash FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct WarriorDashBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1499,20 +1595,20 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<WarriorDash> CreateWarriorDash(
                                                               flatbuffers::FlatBufferBuilder &_fbb) {
         WarriorDashBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct WarriorArmorUp FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
             verifier.EndTable();
         }
     };
-    
+
     struct WarriorArmorUpBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1527,13 +1623,13 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<WarriorArmorUp> CreateWarriorArmorUp(
                                                                     flatbuffers::FlatBufferBuilder &_fbb) {
         WarriorArmorUpBuilder builder_(_fbb);
         return builder_.Finish();
     }
-    
+
     struct Spell FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_SPELL_TYPE = 4,
@@ -1553,7 +1649,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SpellBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1574,7 +1670,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<Spell> CreateSpell(
                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                   Spells spell_type = Spells_NONE,
@@ -1584,7 +1680,7 @@ namespace GameEvent {
         builder_.add_spell_type(spell_type);
         return builder_.Finish();
     }
-    
+
     struct CLActionSpell FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1609,7 +1705,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLActionSpellBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1633,7 +1729,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLActionSpell> CreateCLActionSpell(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t player_uid = 0,
@@ -1645,7 +1741,7 @@ namespace GameEvent {
         builder_.add_spell_id(spell_id);
         return builder_.Finish();
     }
-    
+
     struct SVActionSpell FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1670,7 +1766,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVActionSpellBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1694,7 +1790,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVActionSpell> CreateSVActionSpell(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t player_uid = 0,
@@ -1706,7 +1802,7 @@ namespace GameEvent {
         builder_.add_spell_id(spell_id);
         return builder_.Finish();
     }
-    
+
     struct CLActionDuel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET1_UID = 4,
@@ -1735,7 +1831,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct CLActionDuelBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1762,7 +1858,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<CLActionDuel> CreateCLActionDuel(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target1_uid = 0,
@@ -1776,7 +1872,7 @@ namespace GameEvent {
         builder_.add_act_type(act_type);
         return builder_.Finish();
     }
-    
+
     struct SVActionDuel FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_TARGET1_UID = 4,
@@ -1805,7 +1901,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVActionDuelBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1832,7 +1928,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVActionDuel> CreateSVActionDuel(
                                                                 flatbuffers::FlatBufferBuilder &_fbb,
                                                                 uint32_t target1_uid = 0,
@@ -1846,7 +1942,7 @@ namespace GameEvent {
         builder_.add_act_type(act_type);
         return builder_.Finish();
     }
-    
+
     struct SVActionDeath FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1865,7 +1961,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVActionDeathBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1886,7 +1982,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVActionDeath> CreateSVActionDeath(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t player_uid = 0,
@@ -1896,7 +1992,7 @@ namespace GameEvent {
         builder_.add_player_uid(player_uid);
         return builder_.Finish();
     }
-    
+
     struct SVSpawnPlayer FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -1930,7 +2026,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVSpawnPlayerBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -1960,7 +2056,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVSpawnPlayer> CreateSVSpawnPlayer(
                                                                   flatbuffers::FlatBufferBuilder &_fbb,
                                                                   uint32_t player_uid = 0,
@@ -1976,7 +2072,7 @@ namespace GameEvent {
         builder_.add_x(x);
         return builder_.Finish();
     }
-    
+
     struct SVSpawnMonster FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_MONSTER_UID = 4,
@@ -2010,7 +2106,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVSpawnMonsterBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -2040,7 +2136,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVSpawnMonster> CreateSVSpawnMonster(
                                                                     flatbuffers::FlatBufferBuilder &_fbb,
                                                                     uint16_t monster_uid = 0,
@@ -2056,7 +2152,7 @@ namespace GameEvent {
         builder_.add_monster_uid(monster_uid);
         return builder_.Finish();
     }
-    
+
     struct SVRespawnPlayer FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
             VT_PLAYER_UID = 4,
@@ -2090,7 +2186,7 @@ namespace GameEvent {
             verifier.EndTable();
         }
     };
-    
+
     struct SVRespawnPlayerBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
@@ -2120,7 +2216,7 @@ namespace GameEvent {
             return o;
         }
     };
-    
+
     inline flatbuffers::Offset<SVRespawnPlayer> CreateSVRespawnPlayer(
                                                                       flatbuffers::FlatBufferBuilder &_fbb,
                                                                       uint32_t player_uid = 0,
@@ -2427,25 +2523,26 @@ namespace GameEvent {
     
     struct Message FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
         enum {
-            VT_SENDER_ID = 4,
-            VT_EVENT_TYPE = 6,
-            VT_EVENT = 8
+            VT_SENDER_UID = 4,
+            VT_PAYLOAD_TYPE = 6,
+            VT_PAYLOAD = 8
         };
-        uint32_t sender_id() const {
-            return GetField<uint32_t>(VT_SENDER_ID, 0);
+        const flatbuffers::String *sender_uid() const {
+            return GetPointer<const flatbuffers::String *>(VT_SENDER_UID);
         }
-        Events event_type() const {
-            return static_cast<Events>(GetField<uint8_t>(VT_EVENT_TYPE, 0));
+        Messages payload_type() const {
+            return static_cast<Messages>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
         }
-        const void *event() const {
-            return GetPointer<const void *>(VT_EVENT);
+        const void *payload() const {
+            return GetPointer<const void *>(VT_PAYLOAD);
         }
         bool Verify(flatbuffers::Verifier &verifier) const {
             return VerifyTableStart(verifier) &&
-            VerifyField<uint32_t>(verifier, VT_SENDER_ID) &&
-            VerifyField<uint8_t>(verifier, VT_EVENT_TYPE) &&
-            VerifyField<flatbuffers::uoffset_t>(verifier, VT_EVENT) &&
-            VerifyEvents(verifier, event(), event_type()) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_SENDER_UID) &&
+            verifier.Verify(sender_uid()) &&
+            VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE) &&
+            VerifyField<flatbuffers::uoffset_t>(verifier, VT_PAYLOAD) &&
+            VerifyMessages(verifier, payload(), payload_type()) &&
             verifier.EndTable();
         }
     };
@@ -2453,14 +2550,14 @@ namespace GameEvent {
     struct MessageBuilder {
         flatbuffers::FlatBufferBuilder &fbb_;
         flatbuffers::uoffset_t start_;
-        void add_sender_id(uint32_t sender_id) {
-            fbb_.AddElement<uint32_t>(Message::VT_SENDER_ID, sender_id, 0);
+        void add_sender_uid(flatbuffers::Offset<flatbuffers::String> sender_uid) {
+            fbb_.AddOffset(Message::VT_SENDER_UID, sender_uid);
         }
-        void add_event_type(Events event_type) {
-            fbb_.AddElement<uint8_t>(Message::VT_EVENT_TYPE, static_cast<uint8_t>(event_type), 0);
+        void add_payload_type(Messages payload_type) {
+            fbb_.AddElement<uint8_t>(Message::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
         }
-        void add_event(flatbuffers::Offset<void> event) {
-            fbb_.AddOffset(Message::VT_EVENT, event);
+        void add_payload(flatbuffers::Offset<void> payload) {
+            fbb_.AddOffset(Message::VT_PAYLOAD, payload);
         }
         MessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -2476,14 +2573,26 @@ namespace GameEvent {
     
     inline flatbuffers::Offset<Message> CreateMessage(
                                                       flatbuffers::FlatBufferBuilder &_fbb,
-                                                      uint32_t sender_id = 0,
-                                                      Events event_type = Events_NONE,
-                                                      flatbuffers::Offset<void> event = 0) {
+                                                      flatbuffers::Offset<flatbuffers::String> sender_uid = 0,
+                                                      Messages payload_type = Messages_NONE,
+                                                      flatbuffers::Offset<void> payload = 0) {
         MessageBuilder builder_(_fbb);
-        builder_.add_event(event);
-        builder_.add_sender_id(sender_id);
-        builder_.add_event_type(event_type);
+        builder_.add_payload(payload);
+        builder_.add_sender_uid(sender_uid);
+        builder_.add_payload_type(payload_type);
         return builder_.Finish();
+    }
+    
+    inline flatbuffers::Offset<Message> CreateMessageDirect(
+                                                            flatbuffers::FlatBufferBuilder &_fbb,
+                                                            const char *sender_uid = nullptr,
+                                                            Messages payload_type = Messages_NONE,
+                                                            flatbuffers::Offset<void> payload = 0) {
+        return CreateMessage(
+                             _fbb,
+                             sender_uid ? _fbb.CreateString(sender_uid) : 0,
+                             payload_type,
+                             payload);
     }
     
     inline bool VerifySpells(flatbuffers::Verifier &verifier, const void *obj, Spells type) {
@@ -2534,124 +2643,132 @@ namespace GameEvent {
         return true;
     }
     
-    inline bool VerifyEvents(flatbuffers::Verifier &verifier, const void *obj, Events type) {
+    inline bool VerifyMessages(flatbuffers::Verifier &verifier, const void *obj, Messages type) {
         switch (type) {
-            case Events_NONE: {
+            case Messages_NONE: {
                 return true;
             }
-            case Events_CLConnection: {
+            case Messages_CLConnection: {
                 auto ptr = reinterpret_cast<const CLConnection *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVConnectionStatus: {
+            case Messages_CLDisconnect: {
+                auto ptr = reinterpret_cast<const CLDisconnect *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Messages_SVConnectionStatus: {
                 auto ptr = reinterpret_cast<const SVConnectionStatus *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVPlayerConnected: {
+            case Messages_SVPlayerConnected: {
                 auto ptr = reinterpret_cast<const SVPlayerConnected *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVHeroPickStage: {
+            case Messages_SVPlayerDisconnected: {
+                auto ptr = reinterpret_cast<const SVPlayerDisconnected *>(obj);
+                return verifier.VerifyTable(ptr);
+            }
+            case Messages_SVHeroPickStage: {
                 auto ptr = reinterpret_cast<const SVHeroPickStage *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLHeroPick: {
+            case Messages_CLHeroPick: {
                 auto ptr = reinterpret_cast<const CLHeroPick *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVHeroPick: {
+            case Messages_SVHeroPick: {
                 auto ptr = reinterpret_cast<const SVHeroPick *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLReadyToStart: {
+            case Messages_CLReadyToStart: {
                 auto ptr = reinterpret_cast<const CLReadyToStart *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVReadyToStart: {
+            case Messages_SVReadyToStart: {
                 auto ptr = reinterpret_cast<const SVReadyToStart *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVGenerateMap: {
+            case Messages_SVGenerateMap: {
                 auto ptr = reinterpret_cast<const SVGenerateMap *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLMapGenerated: {
+            case Messages_CLMapGenerated: {
                 auto ptr = reinterpret_cast<const CLMapGenerated *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVGameStart: {
+            case Messages_SVGameStart: {
                 auto ptr = reinterpret_cast<const SVGameStart *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLActionMove: {
+            case Messages_CLActionMove: {
                 auto ptr = reinterpret_cast<const CLActionMove *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVActionMove: {
+            case Messages_SVActionMove: {
                 auto ptr = reinterpret_cast<const SVActionMove *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLActionItem: {
+            case Messages_CLActionItem: {
                 auto ptr = reinterpret_cast<const CLActionItem *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVActionItem: {
+            case Messages_SVActionItem: {
                 auto ptr = reinterpret_cast<const SVActionItem *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLActionDuel: {
+            case Messages_CLActionDuel: {
                 auto ptr = reinterpret_cast<const CLActionDuel *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVActionDuel: {
+            case Messages_SVActionDuel: {
                 auto ptr = reinterpret_cast<const SVActionDuel *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLActionSpell: {
+            case Messages_CLActionSpell: {
                 auto ptr = reinterpret_cast<const CLActionSpell *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVActionSpell: {
+            case Messages_SVActionSpell: {
                 auto ptr = reinterpret_cast<const SVActionSpell *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLRequestWin: {
+            case Messages_CLRequestWin: {
                 auto ptr = reinterpret_cast<const CLRequestWin *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVActionDeath: {
+            case Messages_SVActionDeath: {
                 auto ptr = reinterpret_cast<const SVActionDeath *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVSpawnPlayer: {
+            case Messages_SVSpawnPlayer: {
                 auto ptr = reinterpret_cast<const SVSpawnPlayer *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVRespawnPlayer: {
+            case Messages_SVRespawnPlayer: {
                 auto ptr = reinterpret_cast<const SVRespawnPlayer *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVSpawnMonster: {
+            case Messages_SVSpawnMonster: {
                 auto ptr = reinterpret_cast<const SVSpawnMonster *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVSpawnItem: {
+            case Messages_SVSpawnItem: {
                 auto ptr = reinterpret_cast<const SVSpawnItem *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVSpawnConstr: {
+            case Messages_SVSpawnConstr: {
                 auto ptr = reinterpret_cast<const SVSpawnConstr *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVGameEnd: {
+            case Messages_SVGameEnd: {
                 auto ptr = reinterpret_cast<const SVGameEnd *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_CLPing: {
+            case Messages_CLPing: {
                 auto ptr = reinterpret_cast<const CLPing *>(obj);
                 return verifier.VerifyTable(ptr);
             }
-            case Events_SVPing: {
+            case Messages_SVPing: {
                 auto ptr = reinterpret_cast<const SVPing *>(obj);
                 return verifier.VerifyTable(ptr);
             }
@@ -2659,32 +2776,32 @@ namespace GameEvent {
         }
     }
     
-    inline bool VerifyEventsVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
+    inline bool VerifyMessagesVector(flatbuffers::Verifier &verifier, const flatbuffers::Vector<flatbuffers::Offset<void>> *values, const flatbuffers::Vector<uint8_t> *types) {
         if (values->size() != types->size()) return false;
         for (flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-            if (!VerifyEvents(
-                              verifier,  values->Get(i), types->GetEnum<Events>(i))) {
+            if (!VerifyMessages(
+                                verifier,  values->Get(i), types->GetEnum<Messages>(i))) {
                 return false;
             }
         }
         return true;
     }
     
-    inline const GameEvent::Message *GetMessage(const void *buf) {
-        return flatbuffers::GetRoot<GameEvent::Message>(buf);
+    inline const GameMessage::Message *GetMessage(const void *buf) {
+        return flatbuffers::GetRoot<GameMessage::Message>(buf);
     }
     
     inline bool VerifyMessageBuffer(
                                     flatbuffers::Verifier &verifier) {
-        return verifier.VerifyBuffer<GameEvent::Message>(nullptr);
+        return verifier.VerifyBuffer<GameMessage::Message>(nullptr);
     }
     
     inline void FinishMessageBuffer(
                                     flatbuffers::FlatBufferBuilder &fbb,
-                                    flatbuffers::Offset<GameEvent::Message> root) {
+                                    flatbuffers::Offset<GameMessage::Message> root) {
         fbb.Finish(root);
     }
     
-}  // namespace GameEvent
+}  // namespace GameMessage
 
-#endif  // FLATBUFFERS_GENERATED_GSNET_GAMEEVENT_H_
+#endif  // FLATBUFFERS_GENERATED_GAMEMESSAGE_GAMEMESSAGE_H_

@@ -18,18 +18,17 @@
 class GameScene : public cocos2d::Layer
 {
 public:
-    GameScene();
-    ~GameScene();
     virtual void onExit(); // destructor
     
     virtual bool init();
     virtual void update(float);
     
         // for builder (pregamescene)
-    GameWorld * GetGameWorld();
+    void InitWorld(GameSessionDescriptor& descr);
     
 protected:
     void    UpdateView(float);
+
 private:
     UIGameScene *               m_pUI;
     GameWorld * m_pGWorld;

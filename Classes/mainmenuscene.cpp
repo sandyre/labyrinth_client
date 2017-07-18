@@ -38,7 +38,7 @@
 #include <streambuf>
 #include <string>
 
-using namespace MasterEvent;
+using namespace MasterMessage;
 USING_NS_CC;
 
 struct membuf : std::streambuf
@@ -143,7 +143,9 @@ MainMenuScene::init()
     
     flatbuffers::FlatBufferBuilder builder;
     auto ping = CreateCLPing(builder);
+    auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
     auto msg = CreateMessage(builder,
+                             uuid,
                              Messages_CLPing,
                              ping.Union());
     builder.Finish(msg);
@@ -152,10 +154,10 @@ MainMenuScene::init()
     builder.Clear();
     
         // play background sound
-    auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/main_theme.mp3",
-                                                            true,
-                                                            0.1f);
-    
+//    auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/main_theme.mp3",
+//                                                            true,
+//                                                            0.1f);
+//    
         // listener to get into login page
     m_pUI->m_pStartPage->m_pStartButton->addTouchEventListener([this](Ref * pSender, ui::Widget::TouchEventType type)
                                                                {
@@ -203,10 +205,12 @@ MainMenuScene::init()
             auto email_of = builder.CreateString(log_form->m_pMailField->getString());
             auto pass_of = builder.CreateString(log_form->m_pPasswordField->getString());
 
+            auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
             auto log_msg = CreateCLLogin(builder,
                                          email_of,
                                          pass_of);
             auto msg = CreateMessage(builder,
+                                     uuid,
                                      Messages_CLLogin,
                                      log_msg.Union());
             builder.Finish(msg);
@@ -223,14 +227,16 @@ MainMenuScene::init()
         if(type == ui::Widget::TouchEventType::ENDED)
         {
             flatbuffers::FlatBufferBuilder builder;
+
+            auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
             auto req_lobby = CreateCLFindGame(builder,
-                                              GameConfiguraton::Instance().GetUID(),
+                                              0/*GameConfiguration::Instance().GetUUID()*/,
                                               GAMEVERSION_MAJOR,
                                               GAMEVERSION_MINOR,
                                               GAMEVERSION_BUILD);
             auto ms_event = CreateMessage(builder,
-                                          Messages_CLFindGame
-                                          ,
+                                          uuid,
+                                          Messages_CLFindGame,
                                           req_lobby.Union());
             builder.Finish(ms_event);
             
@@ -249,13 +255,15 @@ MainMenuScene::init()
             flatbuffers::FlatBufferBuilder builder;
             
             auto email_of = builder.CreateString(log_form->m_pMailField->getString());
+            auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
             auto pass_of = builder.CreateString(log_form->m_pPasswordField->getString());
             auto reg_msg = CreateCLRegister(builder,
-                                                   email_of,
-                                                   pass_of);
+                                            email_of,
+                                            pass_of);
             auto msg = CreateMessage(builder,
-                                            Messages_CLRegister,
-                                            reg_msg.Union());
+                                     uuid,
+                                     Messages_CLRegister,
+                                     reg_msg.Union());
             builder.Finish(msg);
             
             _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
@@ -265,7 +273,7 @@ MainMenuScene::init()
     m_pUI->m_pLoginPage->m_pRegButton->addTouchEventListener(reg_button_callback);
     
         // if autologin is set, fill login page with data from config file
-    auto& config = GameConfiguraton::Instance();
+    auto& config = GameConfiguration::Instance();
     if(config.GetPlayerAutologin())
     {
         m_pUI->m_pLoginPage->m_pMailField->setString(config.GetPlayerEmail());
@@ -318,27 +326,23 @@ MainMenuScene::update(float delta)
             
             auto rmsg = GetMessage(packet.data());
             
-            switch(rmsg->message_type())
+            switch(rmsg->payload_type())
             {
-            case MasterEvent::Messages_SVRegister:
+            case MasterMessage::Messages_SVRegister:
             {
-                auto response = static_cast<const SVRegister*>(rmsg->message());
+                auto response = static_cast<const SVRegister*>(rmsg->payload());
                 
                 if(response->response() == RegistrationStatus_SUCCESS)
-                {
                     MessageBox("Success", "Registration done, check email");
-                }
                 else
-                {
                     MessageBox("Error", "Email has been taken, please take another one");
-                }
                 
                 break;
             }
                 
-            case MasterEvent::Messages_SVLogin:
+            case MasterMessage::Messages_SVLogin:
             {
-                auto response = static_cast<const SVLogin*>(rmsg->message());
+                auto response = static_cast<const SVLogin*>(rmsg->payload());
                 
                 if(response->response() == LoginStatus_SUCCESS)
                 {
@@ -346,9 +350,7 @@ MainMenuScene::update(float delta)
                     m_pUI->m_pPageView->scrollToPage(2);
                 }
                 else
-                {
                     MessageBox("Error", "Wrong email or password");
-                }
                 
                 break;
             }
@@ -364,14 +366,13 @@ MainMenuScene::update(float delta)
             
             auto rmsg = GetMessage(packet.data());
             
-            switch(rmsg->message_type())
+            switch(rmsg->payload_type())
             {
-                    
-            case MasterEvent::Messages_SVGameFound:
+            case MasterMessage::Messages_SVGameFound:
             {
-                auto gs_info = static_cast<const SVGameFound*>(rmsg->message());
+                auto gs_info = static_cast<const SVGameFound*>(rmsg->payload());
                 
-                Poco::Net::SocketAddress adr(GameConfiguraton::Instance().GetServerAddress());
+                Poco::Net::SocketAddress adr(GameConfiguration::Instance().GetServerAddress());
                 NetSystem::Instance().CreateChannel("gameserver",
                                                     Poco::Net::SocketAddress(adr.host(),
                                                                              gs_info->gs_port()));
@@ -380,7 +381,6 @@ MainMenuScene::update(float delta)
                 
                 break;
             }
-                    
             }
                     
             }

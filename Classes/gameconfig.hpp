@@ -15,69 +15,58 @@
 
 #include <string>
 
-class GameConfiguraton
+class GameConfiguration
 {
 public:
-    static GameConfiguraton& Instance();
+    static GameConfiguration& Instance()
+    {
+        static GameConfiguration gc;
+        return gc;
+    }
     
-    void    Load();
-    void    Save();
+    void Load();
+    void Save();
     
     const std::string& GetServerAddress()
-    {
-        return m_sServerAddress;
-    }
+    { return _serverAddr; }
     
-    void    SetPlayerAutologin(bool);
-    bool    GetPlayerAutologin() const
-    {
-        return m_bPlayerAutologin;
-    }
+    void SetPlayerAutologin(bool);
+
+    bool GetPlayerAutologin() const
+    { return _autologin; }
     
-    void    SetPlayerEmail(const std::string&);
+    void SetPlayerEmail(const std::string&);
+
     const std::string& GetPlayerEmail() const
-    {
-        return m_sPlayerEmail;
-    }
+    { return _email; }
     
-    void    SetPlayerPassword(const std::string&);
+    void SetPlayerPassword(const std::string&);
+
     const std::string& GetPlayerPassword() const
-    {
-        return m_sPlayerPassword;
-    }
+    { return _password; }
     
-    void    SetPlayerName(const std::string&);
+    void SetPlayerName(const std::string&);
+
     const std::string& GetPlayerName() const
-    {
-        return m_sPlayerName;
-    }
-    
-    const uint32_t GetUID() const
-    {
-        return m_nUID;
-    }
-    
-    const cocos2d::Size GetScreenSize() const
-    {
-        return m_stScreenSize;
-    }
-    
+    { return _name; }
+
+    void SetUUID(const std::string&);
+
+    const std::string& GetUUID() const
+    { return _uuid; }
+
 private:
-    GameConfiguraton();
+    GameConfiguration();
     
-    std::string m_sServerAddress;
+    std::string                         _serverAddr;
+    std::string                         _configPath;
+    Poco::AutoPtr<Poco::XML::Document>  _confDoc;
     
-    bool        m_bPlayerAutologin;
-    std::string m_sPlayerEmail;
-    std::string m_sPlayerPassword;
-    std::string m_sPlayerName;
-    uint32_t    m_nUID;
-    
-    cocos2d::Size m_stScreenSize;
-    
-    std::string m_sConfigFilepath;
-    
-    Poco::AutoPtr<Poco::XML::Document> m_pConfDoc;
+    bool                                _autologin;
+    std::string                         _email;
+    std::string                         _password;
+    std::string                         _name;
+    std::string                         _uuid;
 };
 
 #endif /* gameconfig_hpp */
