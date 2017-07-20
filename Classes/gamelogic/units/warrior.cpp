@@ -13,7 +13,8 @@
 #include "../../gsnet_generated.h"
 #include "../../gameconfig.hpp"
 
-#include <cocos/audio/include/AudioEngine.h>
+#include <audio/include/AudioEngine.h>
+
 
 Warrior::Warrior()
 {

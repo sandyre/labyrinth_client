@@ -16,7 +16,10 @@
 
 #include <array>
 #include <chrono>
+#include <deque>
+#include <map>
 #include <mutex>
+#include <vector>
 
 class NetChannel : public Poco::Runnable
 {
