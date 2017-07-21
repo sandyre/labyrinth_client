@@ -10,58 +10,46 @@
 #define item_hpp
 
 #include "gameobject.hpp"
-#include "../globals.h"
 
 #include <cocos2d.h>
 
 #include <array>
 
-class Item : public GameObject
+
+class Item
+    : public GameObject
 {
 public:
     enum class Type
     {
+        ABSTRACT,
         KEY,
         SWORD
     };
     
-    Item::Type  GetType() const;
-    
-    uint32_t    GetCarrierID() const;
-    void        SetCarrierID(uint32_t);
-    
-    virtual void AnimationSpawn() = 0;
-    virtual void AnimationTaken() = 0;
-    virtual void AnimationDropped() = 0;
+    Item::Type  GetType() const
+    { return _type; }
+
 protected:
-    Item();
+    Item(GameWorld * world, uint32_t uid);
     
-    Item::Type  m_eType;
-    uint32_t    m_nCarrierID;
+    Item::Type  _type;
 };
 
-class Key : public Item
+
+class Key
+    : public Item
 {
 public:
-    static Key* create(const std::string&);
-    
-    virtual void AnimationSpawn() override;
-    virtual void AnimationTaken() override;
-    virtual void AnimationDropped() override;
-protected:
-    Key();
+    Key(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
-class Sword : public Item
+
+class Sword
+    : public Item
 {
 public:
-    static Sword* create(const std::string&);
-    
-    virtual void AnimationSpawn() override;
-    virtual void AnimationTaken() override;
-    virtual void AnimationDropped() override;
-protected:
-    Sword();
+    Sword(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* item_hpp */

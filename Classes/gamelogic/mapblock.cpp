@@ -8,74 +8,46 @@
 
 #include "mapblock.hpp"
 
-MapBlock::MapBlock()
+
+MapBlock::MapBlock(GameWorld * world, uint32_t uid)
+: GameObject(world, uid),
+  _type(Type::ABSTRACT)
 {
-    m_eObjType = GameObject::Type::MAPBLOCK;
+    _objType = GameObject::Type::MAPBLOCK;
 }
 
-MapBlock::Type
-MapBlock::GetType() const
+
+NoBlock::NoBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+: MapBlock(world, uid)
 {
-    return m_eType;
+    _type = MapBlock::Type::NOBLOCK;
+    _objAttributes = GameObject::Attributes::PASSABLE;
+
+    _sprite = cocos2d::Sprite::create(sprite);
+
+    assert(_sprite);
 }
 
-NoBlock::NoBlock()
+
+WallBlock::WallBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+: MapBlock(world, uid)
 {
-    m_eType = MapBlock::Type::NOBLOCK;
-    m_nObjAttributes |= GameObject::Attributes::PASSABLE;
+    _type = MapBlock::Type::WALL;
+    _objAttributes = GameObject::Attributes::PASSABLE;
+
+    _sprite = cocos2d::Sprite::create(sprite);
+
+    assert(_sprite);
 }
 
-NoBlock *
-NoBlock::create(const std::string& filename)
-{
-    NoBlock * pBlock = new NoBlock();
-    
-    if(pBlock->initWithSpriteFrameName(filename))
-    {
-        pBlock->autorelease();
-        return pBlock;
-    }
-    
-    CC_SAFE_DELETE(pBlock);
-    return nullptr;
-}
 
-WallBlock::WallBlock()
+BorderBlock::BorderBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+: MapBlock(world, uid)
 {
-    m_eType = MapBlock::Type::WALL;
-}
+    _type = MapBlock::Type::BORDER;
+    _objAttributes = GameObject::Attributes::PASSABLE;
 
-WallBlock *
-WallBlock::create(const std::string& filename)
-{
-    WallBlock * pBlock = new WallBlock();
-    
-    if(pBlock->initWithSpriteFrameName(filename))
-    {
-        pBlock->autorelease();
-        return pBlock;
-    }
-    
-    CC_SAFE_DELETE(pBlock);
-    return nullptr;
-}
+    _sprite = cocos2d::Sprite::create(sprite);
 
-BorderBlock::BorderBlock()
-{
-    m_eType = MapBlock::Type::BORDER;
-}
-
-BorderBlock *
-BorderBlock::create(const std::string& filename)
-{
-    BorderBlock * pBlock = new BorderBlock();
-    
-    if(pBlock->initWithSpriteFrameName(filename))
-    {
-        pBlock->autorelease();
-        return pBlock;
-    }
-    
-    CC_SAFE_DELETE(pBlock);
-    return nullptr;
+    assert(_sprite);
 }

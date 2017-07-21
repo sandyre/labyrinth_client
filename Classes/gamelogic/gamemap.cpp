@@ -203,10 +203,10 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 	{
 		for (auto j = size - 1; j >= 0; --j)
 		{
+            auto block = GameObject::create<NoBlock>(world, current_block_uid, "floor.png");
+
 			auto block = NoBlock::create("floor.png");
 			cocos2d::Vec2 log_coords(i, j);
-			cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-				block->getContentSize());
 
 			block->SetUID(current_block_uid);
 			block->SetLogicalPosition(log_coords);

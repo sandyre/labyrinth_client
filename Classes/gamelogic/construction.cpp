@@ -8,75 +8,31 @@
 
 #include "construction.hpp"
 
-Construction::Construction()
+
+Construction::Construction(GameWorld * world, uint32_t uid)
+: GameObject(world, uid),
+  _type(Type::ABSTRACT)
 {
-    m_eObjType = GameObject::Type::CONSTRUCTION;
+    _objType = GameObject::Type::CONSTRUCTION;
+    _objAttributes |= GameObject::Attributes::PASSABLE;
 }
 
-Construction::Type
-Construction::GetType() const
+
+Door::Door(GameWorld * world, uint32_t uid, const std::string& sprite)
+: Construction(world, uid)
 {
-    return m_eType;
+    _type = Construction::Type::DOOR;
+
+    _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
+    assert(_sprite);
 }
 
-Door::Door()
-{
-    m_eType = Construction::Type::DOOR;
-    m_nObjAttributes |= GameObject::Attributes::PASSABLE;
-}
 
-Door *
-Door::create(const std::string& filename)
+Graveyard::Graveyard(GameWorld * world, uint32_t uid, const std::string& sprite)
+: Construction(world, uid)
 {
-    Door * pDoor = new Door();
-    
-    if(pDoor->initWithSpriteFrameName(filename))
-    {
-        pDoor->autorelease();
-        return pDoor;
-    }
-    
-    CC_SAFE_DELETE(pDoor);
-    return nullptr;
-}
+    _type = Construction::Type::GRAVEYARD;
 
-Graveyard::Graveyard()
-{
-    m_eType = Construction::Type::GRAVEYARD;
-    m_nObjAttributes |= GameObject::Attributes::PASSABLE;
-}
-
-Graveyard *
-Graveyard::create(const std::string& filename)
-{
-    Graveyard * pGrave = new Graveyard();
-    
-    if(pGrave->initWithSpriteFrameName(filename))
-    {
-        pGrave->autorelease();
-        return pGrave;
-    }
-    
-    CC_SAFE_DELETE(pGrave);
-    return nullptr;
-}
-
-Swamp::Swamp()
-{
-    m_eType = Construction::Type::SWAMP;
-}
-
-Swamp *
-Swamp::create(const std::string& filename)
-{
-    Swamp * pSwamp = new Swamp();
-    
-    if(pSwamp->initWithSpriteFrameName(filename))
-    {
-        pSwamp->autorelease();
-        return pSwamp;
-    }
-    
-    CC_SAFE_DELETE(pSwamp);
-    return nullptr;
+    _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
+    assert(_sprite);
 }

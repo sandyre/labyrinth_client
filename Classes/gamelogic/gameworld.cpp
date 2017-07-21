@@ -30,33 +30,25 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         {
         case Hero::Type::WARRIOR:
         {
-            pHero = Warrior::create("unit_warrior.png");
+            pHero = GameObject::create<Warrior>(this, player.Uid, "unit_warrior.png");
             break;
         }
+
         case Hero::Type::MAGE:
         {
-            pHero = Mage::create("unit_mage.png");
-            break;
-        }
-        case Hero::Type::ROGUE:
-        {
-            pHero = Rogue::create("unit_rogue.png");
-            break;
-        }
-        case Hero::Type::PRIEST:
-        {
-            pHero = Priest::create("unit_priest.png");
+            pHero = GameObject::create<Mage>(this, player.Uid, "unit_mage.png");
             break;
         }
         default:
+        {
             assert(false);
             break;
         }
-        pHero->SetUID(player.Uid);
+        }
+
         pHero->SetName(player.Name);
-        pHero->SetGameWorld(this);
         m_apoObjects.push_back(pHero);
-        this->addChild(pHero, 10);
+        this->addChild(pHero->GetSprite(), 10);
 
         if(player.Uid == descriptor.LocalPlayer.Uid)
         {
@@ -82,7 +74,7 @@ GameWorld::ReceiveInputNetEvents()
             auto gs_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(gs_event->payload());
             for(auto object : m_apoObjects)
             {
-                if(object->GetObjType() == GameObject::Type::UNIT)
+                if(object->GetType() == GameObject::Type::UNIT)
                 {
                     auto unit = static_cast<Unit*>(object);
                     if(unit->GetUnitType() == Unit::Type::HERO)
@@ -107,12 +99,11 @@ GameWorld::ReceiveInputNetEvents()
             auto gs_spawn = static_cast<const GameMessage::SVSpawnMonster*>(gs_event->payload());
             
             auto monster = Monster::create("unit_skeleton.png");
-            monster->SetGameWorld(this);
-            monster->SetUID(gs_spawn->monster_uid());
+            auto monster = GameObject::create<Monster>(this, gs_spawn->monster_uid(), "unit_skeleton.png");
             monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
                                          gs_spawn->y()));
             m_apoObjects.push_back(monster);
-            this->addChild(monster, 10);
+            this->addChild(monster->GetSprite(), 10);
             
             m_pUI->m_pBattleLogs->AddLogMessage("Skeleton spawned");
             
@@ -127,22 +118,17 @@ GameWorld::ReceiveInputNetEvents()
             {
             case Item::Type::KEY:
             {
-                auto key = Key::create("item_key.png");
-                key->SetUID(gs_spawn->item_uid());
+                auto key = GameObject::create<Key>(this, gs_spawn->item_uid(), "item_key.png");
                 key->SetCarrierID(0);
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
                 cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            key->getContentSize());
+                                                            key->GetSprite()->getContentSize());
                 
-                key->SetGameWorld(this);
-                key->SetLogicalPosition(log_coords);
-                key->setPosition(spritePos);
+                key->Spawn(log_coords);
                 m_apoObjects.push_back(key);
-                this->addChild(key, 0);
-                
-                key->AnimationSpawn();
+                this->addChild(key->GetSprite(), 0);
                 break;
             }
                 
@@ -158,37 +144,31 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_spawn = static_cast<const GameMessage::SVSpawnConstr*>(gs_event->payload());
             
-            switch(gs_spawn->constr_type())
+            switch((Construction::Type)gs_spawn->constr_type())
             {
             case Construction::Type::GRAVEYARD:
             {
-                auto grave = Graveyard::create("construction_graveyard.png");
+                auto grave = GameObject::create<Graveyard>(this, gs_spawn->constr_uid(), "construction_graveyard.png");
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
-                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            grave->getContentSize());
-                
-                grave->SetLogicalPosition(log_coords);
-                grave->setPosition(spritePos);
+
+                grave->Spawn(log_coords);
                 m_apoObjects.push_back(grave);
-                this->addChild(grave, 0);
+                this->addChild(grave->GetSprite(), 0);
                 break;
             }
                 
             case Construction::Type::DOOR:
             {
-                auto door = Door::create("construction_door.png");
+                auto door = GameObject::create<Door>(this, gs_spawn->constr_uid(), "construction_door.png");
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
-                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            door->getContentSize());
                 
-                door->SetLogicalPosition(log_coords);
-                door->setPosition(spritePos);
+                door->Spawn();
                 m_apoObjects.push_back(door);
-                this->addChild(door, 0);
+                this->addChild(door->GetSprite(), 0);
                 break;
             }
                 
@@ -206,7 +186,7 @@ GameWorld::ReceiveInputNetEvents()
             
             for(auto object : m_apoObjects)
             {
-                if(object->GetObjType() == GameObject::Type::UNIT)
+                if(object->GetType() == GameObject::Type::UNIT)
                 {
                     auto unit = static_cast<Unit*>(object);
                     

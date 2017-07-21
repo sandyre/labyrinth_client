@@ -10,52 +10,55 @@
 #define mapblock_hpp
 
 #include "gameobject.hpp"
-#include "../globals.h"
 
-class MapBlock : public GameObject
+
+class MapBlock
+    : public GameObject
 {
 public:
     enum class Type
     {
+        ABSTRACT,
         NOBLOCK,
         WALL,
         BORDER
     };
     
 public:
-    MapBlock::Type  GetType() const;
+    MapBlock::Type GetType() const
+    { return _type; }
     
+    virtual void update(float delta) override
+    { }
+
 protected:
-    MapBlock();
-    
-    MapBlock::Type  m_eType;
+    MapBlock(GameWorld * world, uint32_t uid);
+
+    MapBlock::Type  _type;
 };
 
-class NoBlock : public MapBlock
+
+class NoBlock
+    : public MapBlock
 {
 public:
-    static NoBlock* create(const std::string&);
-    
-protected:
-    NoBlock();
+    NoBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
-class WallBlock : public MapBlock
+
+class WallBlock
+    : public MapBlock
 {
 public:
-    static WallBlock* create(const std::string&);
-    
-protected:
-    WallBlock();
+    WallBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
-class BorderBlock : public MapBlock
+
+class BorderBlock
+    : public MapBlock
 {
 public:
-    static BorderBlock* create(const std::string&);
-    
-protected:
-    BorderBlock();
+    BorderBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* mapblock_hpp */

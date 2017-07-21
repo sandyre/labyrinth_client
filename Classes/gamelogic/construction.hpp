@@ -10,51 +10,43 @@
 #define construction_hpp
 
 #include "gameobject.hpp"
-#include "globals.h"
 
-class Construction : public GameObject
+
+class Construction
+    : public GameObject
 {
 public:
-    enum Type
+    enum class Type
     {
-        DOOR = 0x00,
-        GRAVEYARD = 0x01,
-        SWAMP = 0x02
+        ABSTRACT,
+        DOOR,
+        GRAVEYARD
     };
+
 public:
-    Construction::Type  GetType() const;
+    Construction::Type  GetType() const
+    { return _type; }
     
 protected:
-    Construction();
+    Construction(GameWorld * world, uint32_t uid);
     
-    Construction::Type  m_eType;
+    Construction::Type  _type;
 };
 
-class Door : public Construction
+
+class Door
+    : public Construction
 {
 public:
-    static Door *   create(const std::string&);
-    
-protected:
-    Door();
+    Door(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
-class Graveyard : public Construction
-{
-public:
-    static Graveyard*   create(const std::string&);
-    
-protected:
-    Graveyard();
-};
 
-class Swamp : public Construction
+class Graveyard
+    : public Construction
 {
 public:
-    static Swamp*   create(const std::string&);
-    
-protected:
-    Swamp();
+    Graveyard(GameWorld * world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* construction_hpp */

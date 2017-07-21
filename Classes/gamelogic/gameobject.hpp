@@ -9,13 +9,12 @@
 #ifndef gameobject_hpp
 #define gameobject_hpp
 
-#include "../globals.h"
-
 #include <cocos2d.h>
+
 
 class GameWorld;
 
-class GameObject : public cocos2d::Sprite
+class GameObject
 {
 public:
     struct Attributes
@@ -26,38 +25,61 @@ public:
         static const int PASSABLE = 0x08;
     };
 
-public:
-    enum Type
+    enum class Type
     {
-        UNDEFINED,
+        ABSTRACT,
         MAPBLOCK,
         ITEM,
         CONSTRUCTION,
         UNIT
     };
-    GameObject();
-    ~GameObject();
-    
-    GameObject::Type    GetObjType() const;
-    
-    void            SetGameWorld(GameWorld*);
-    
-    uint32_t        GetObjAttributes() const;
-    
-    uint32_t        GetUID() const;
-    void            SetUID(uint32_t);
-    
-    cocos2d::Vec2   GetLogicalPosition() const;
-    void            SetLogicalPosition(cocos2d::Vec2);
+
+public:
+    GameObject(GameWorld * world, uint32_t uid)
+    : _world(world),
+      _objType(Type::ABSTRACT),
+      _uid(uid),
+      _sprite(nullptr),
+      _objAttributes(Attributes::VISIBLE)
+    { }
+
+    virtual ~GameObject()
+    { }
+
+    GameObject::Type GetType() const
+    { return _objType; }
+
+    uint32_t GetUID() const
+    { return _uid; }
+
+    cocos2d::Vec2 GetPosition() const
+    { return _pos; }
+
+    void SetPosition(const cocos2d::Vec2& pos)
+    { _pos = pos; }
+
+    cocos2d::Sprite * GetSprite()
+    {
+        assert(_sprite);
+        return _sprite;
+    }
+
+    virtual void update(float delta) = 0;
+
+    /*
+     * Factory method
+     */
+    template<typename T>
+    static T * create(GameWorld * world, uint32_t uid, Args...&& args)
+    { return new(std::nothrow) T(world, uid, std::forward<Args>(args)...); }
 
 protected:
-        // no need for automatic memory management, gameworld will outlive GO anyway
-    GameWorld *         m_poGameWorld;
-    
-    GameObject::Type    m_eObjType;
-    uint32_t            m_nObjAttributes;
-    uint32_t            m_nUID;
-    cocos2d::Vec2       m_stLogPosition;
+    GameWorld *         _world;
+    GameObject::Type    _objType;
+    const uint32_t      _uid;
+    uint32_t            _objAttributes;
+    cocos2d::Vec2       _pos;
+    cocos2d::Sprite *   _sprite;
 };
 
 #endif /* gameobject_hpp */
