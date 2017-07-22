@@ -72,8 +72,8 @@ public:
     /*
      * Factory method
      */
-    template<typename T>
-    static T * create(GameWorld * world, uint32_t uid, Args...&& args)
+    template<typename T, typename... Args>
+    static T * create(GameWorld * world, uint32_t uid, Args&&... args)
     { return new(std::nothrow) T(world, uid, std::forward<Args>(args)...); }
 
 protected:
