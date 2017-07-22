@@ -23,6 +23,8 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
   _view(cocos2d::Layer::create()),
   _channel(NetSystem::Instance().GetChannel("gameserver"))
 {
+    _view->retain();
+
     GameMap().GenerateMap(descriptor.MapConf, this);
 
     for(auto& player : descriptor.Players)
@@ -349,13 +351,13 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_spell = static_cast<const GameMessage::SVActionSpell*>(gs_event->payload());
             
-            std::shared_ptr<Hero> player;
+            std::shared_ptr<Unit> player;
 
             for(auto object : _objects)
             {
                 if(object->GetUID() == gs_spell->player_uid())
                 {
-                    player = std::dynamic_pointer_cast<Hero>(object);
+                    player = std::dynamic_pointer_cast<Unit>(object);
                     player->SpellCast(gs_spell);
                 }
             }

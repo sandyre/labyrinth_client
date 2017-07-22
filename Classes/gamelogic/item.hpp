@@ -22,9 +22,9 @@ class Item
 public:
     enum class Type
     {
-        ABSTRACT,
-        KEY,
-        SWORD
+        ABSTRACT = 0x00,
+        KEY = 0x00,
+        SWORD = 0x01
     };
     
     Item::Type  GetType() const

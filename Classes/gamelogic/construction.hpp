@@ -18,9 +18,9 @@ class Construction
 public:
     enum class Type
     {
-        ABSTRACT,
-        DOOR,
-        GRAVEYARD
+        ABSTRACT = 0x00,
+        DOOR = 0x00,
+        GRAVEYARD = 0x01
     };
 
 public:
