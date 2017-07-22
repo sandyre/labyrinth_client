@@ -10,14 +10,15 @@
 
 #include "globals.h"
 #include "gameconfig.hpp"
-
-#include <memory>
-#include <SimpleAudioEngine.h>
 #include "mainmenuscene.hpp"
 #include "netsystem.hpp"
 #include "gsnet_generated.h"
-
 #include "gamelogic/units/units_inc.hpp"
+
+#include <SimpleAudioEngine.h>
+
+#include <memory>
+
 
 USING_NS_CC;
 
@@ -34,8 +35,7 @@ GameScene::onExit()
 void
 GameScene::InitWorld(GameSessionDescriptor& descr)
 {
-    m_pGWorld = new GameWorld(descr);
-    m_pGWorld->retain();
+    _world = new GameWorld(descr);
 }
 
 bool
@@ -49,21 +49,21 @@ GameScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
         // add gameworld
-    m_pGWorld->setPosition(Vec2::ZERO);
-    this->addChild(m_pGWorld);
+    _world->GetView()->setPosition(Vec2::ZERO);
+    this->addChild(_world->GetView());
     
         // init UI (aka HUD)
-    m_pUI = new UIGameScene();
-    m_pUI->m_poBattleView->setActive(false);
-    m_pUI->setGlobalZOrder(100);
-    this->addChild(m_pUI);
+    _ui = new UIGameScene();
+    _ui->m_poBattleView->setActive(false);
+    _ui->setGlobalZOrder(100);
+    this->addChild(_ui);
     
-    m_pUI->ConfigureForHero(m_pGWorld->GetLocalPlayer());
-    m_pUI->setCameraMask((unsigned short)CameraFlag::USER1);
+    _ui->ConfigureForHero(_world->GetLocalPlayer().get());
+    _ui->setCameraMask((unsigned short)CameraFlag::USER1);
     
         // from now on, HUD view is controlled by gameworld,
         // but input is controlled by gamescene
-    m_pGWorld->SetHUD(m_pUI);
+    _world->SetHUD(_ui);
     
     auto hud_camera = Camera::create();
     hud_camera->setCameraFlag(CameraFlag::USER1);
@@ -74,23 +74,23 @@ GameScene::init()
     {
         if(keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_LEFT);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_LEFT);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_RIGHT);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_RIGHT);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_UP);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_UP);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_DOWN);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SWIPE_DOWN);
         }
         else if(keyCode == EventKeyboard::KeyCode::KEY_Q)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(eventListener, this);
@@ -99,20 +99,20 @@ GameScene::init()
     {
         if(type == ui::Widget::TouchEventType::ENDED)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::TAKE_ITEM_BUTTON_CLICK);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::TAKE_ITEM_BUTTON_CLICK);
         }
     };
-    m_pUI->m_pTakeItemButton->addTouchEventListener(take_button_callback);
+    _ui->m_pTakeItemButton->addTouchEventListener(take_button_callback);
     
         // FIXME: would be nicer in a loop
     auto skill_1_callback = [this](Ref * pSender, ui::Widget::TouchEventType type)
     {
         if(type == ui::Widget::TouchEventType::ENDED)
         {
-            m_pGWorld->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
+            _world->GetLocalPlayer()->EnqueueInputEvent(InputEvent::SPELL_CAST_0_CLICK);
         }
     };
-    m_pUI->m_poSkillsPanel->m_aSkillsButtons[0]->addTouchEventListener(skill_1_callback);
+    _ui->m_poSkillsPanel->m_aSkillsButtons[0]->addTouchEventListener(skill_1_callback);
     
     this->scheduleUpdate();
     return true;
@@ -121,7 +121,7 @@ GameScene::init()
 void
 GameScene::update(float delta)
 {
-    m_pGWorld->update(delta);
+    _world->update(delta);
     UpdateView(delta);
 }
 
@@ -129,13 +129,10 @@ void
 GameScene::UpdateView(float delta)
 {
         // update camera pos
-    Hero * player = m_pGWorld->GetLocalPlayer();
+    auto player = _world->GetLocalPlayer();
     auto pCam = Camera::getDefaultCamera();
     auto cur_pos = pCam->getPosition3D();
-    cur_pos.x = (player->getPosition().x - cur_pos.x)*delta*3 + cur_pos.x;
-    cur_pos.y = (player->getPosition().y- cur_pos.y)*delta*3 + cur_pos.y;
-    pCam->setPosition3D(Vec3(
-                             cur_pos.x,
-                             cur_pos.y,
-                             800));
+    cur_pos.x = (player->GetSprite()->getPosition().x - cur_pos.x)*delta*3 + cur_pos.x;
+    cur_pos.y = (player->GetSprite()->getPosition().y- cur_pos.y)*delta*3 + cur_pos.y;
+    pCam->setPosition3D(Vec3(cur_pos.x, cur_pos.y, 800));
 }

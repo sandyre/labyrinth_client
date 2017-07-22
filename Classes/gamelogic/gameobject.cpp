@@ -7,3 +7,24 @@
 //
 
 #include "gameobject.hpp"
+
+#include "../globals.h"
+
+void
+GameObject::Spawn(const cocos2d::Vec2& pos)
+{
+    _pos = pos;
+    _sprite->setOpacity(0);
+    _sprite->setPosition(LOG_TO_PHYS_COORD(pos, _sprite->getContentSize()));
+
+    auto fadeIn = cocos2d::FadeIn::create(0.5f);
+    _sprite->runAction(fadeIn);
+}
+
+
+void
+GameObject::Destroy()
+{
+    auto fadeOut = cocos2d::FadeOut::create(0.5f);
+    _sprite->runAction(fadeOut);
+}

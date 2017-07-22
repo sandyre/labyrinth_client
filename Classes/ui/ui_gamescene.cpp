@@ -74,7 +74,7 @@ void
 UIGameScene::ConfigureForHero(Hero * player)
 {
         // init warrior UI
-    if(player->GetHero() == Hero::Type::WARRIOR)
+    if(player->GetType() == Hero::Type::WARRIOR)
     {
             // init skills panel
             // init dash
@@ -87,7 +87,7 @@ UIGameScene::ConfigureForHero(Hero * player)
         auto dash_action = m_poBattleView->m_poActionsView->CreateAction();
         dash_action->SetIcon("res/ui/ui_icons/ui_icon_ability_warrior_block.png");
     }
-    else if(player->GetHero() == Hero::Type::MAGE)
+    else if(player->GetType() == Hero::Type::MAGE)
     {
             // init skills panel
             // init teleport

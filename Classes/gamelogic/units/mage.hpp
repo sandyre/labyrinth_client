@@ -14,17 +14,17 @@
 #include <string>
 #include <vector>
 
-class Mage : public Hero
+
+class Mage
+    : public Hero
 {
 public:
-    static Mage* create(const std::string&);
-    
-    virtual void RequestSpellCast(int index) override;
-    virtual void SpellCast(const GameMessage::SVActionSpell*) override;
-protected:
-    Mage();
+    Mage(GameWorld * world, uint32_t uid, const std::string& sprite);
     
     virtual void update(float) override;
+
+    virtual void RequestSpellCast(int index) override;
+    virtual void SpellCast(const GameMessage::SVActionSpell*) override;
 };
 
 #endif /* mage_hpp */

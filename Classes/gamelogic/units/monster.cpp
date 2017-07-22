@@ -10,38 +10,31 @@
 
 #include <cocos2d.h>
 
-Monster::Monster()
+Monster::Monster(GameWorld * world, uint32_t uid, const std::string& sprite)
+    : Unit(world, uid)
 {
-    m_eUnitType = Unit::Type::MONSTER;
-    m_sName = "Skeleton";
+    _type = Unit::Type::MONSTER;
     
-    m_nBaseDamage = m_nActualDamage = 10;
-    m_nMHealth = m_nHealth = 50;
-    m_nArmor = 2;
+    _baseDamage = 10;
+    _bonusDamage = 0;
+    _health = _healthLimit = 50;
+    _armor = 2;
+    _resistance = 2;
+
+    _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
+    assert(_sprite);
 }
 
-Monster *
-Monster::create(const std::string& filename)
-{
-    Monster * pMonster = new Monster();
-    
-    if(pMonster->initWithSpriteFrameName(filename))
-    {
-        pMonster->autorelease();
-        return pMonster;
-    }
-    
-    CC_SAFE_DELETE(pMonster);
-    return nullptr;
-}
 
 void
 Monster::SpellCast(const GameMessage::SVActionSpell * spell)
 {
     if(spell->spell_id() == 0)
     {
-        m_pDuelTarget->TakeDamage(m_nActualDamage,
-                                  Unit::DamageType::PHYSICAL,
-                                  this);
+        DamageDescriptor dmg;
+        dmg.Value = _baseDamage;
+        dmg.Type = DamageDescriptor::DamageType::PHYSICAL;
+
+        _duelTarget->TakeDamage(dmg);
     }
 }

@@ -12,8 +12,8 @@
 #include "gamemap.hpp"
 #include "units/units_inc.hpp"
 #include "../globals.h"
-#include "../netsystem.hpp"
 #include "../gsnet_generated.h"
+#include "../netsystem.hpp"
 #include "../ui/ui_gamescene.hpp"
 
 #include <cocos2d.h>
@@ -21,45 +21,44 @@
 #include <vector>
 #include <queue>
 
+
 class GameObject;
 struct GameSessionDescriptor;
 
-class GameWorld : public cocos2d::Layer
+class GameWorld
 {
 public:
     GameWorld(GameSessionDescriptor&);
     
     virtual void update(float);
     
-    void    SetHUD(UIGameScene * ui);
+    cocos2d::Layer * GetView()
+    { return _view; }
+
+    void SetHUD(UIGameScene * ui);
     
-    Hero *  GetLocalPlayer();
-protected:
-    void    ReceiveInputNetEvents();
-    void    SendOutgoingNetEvents();
+    const std::shared_ptr<Hero> GetLocalPlayer()
+    { return _localPlayer; }
 
 protected:
-    GameMap::Configuration _mapConf;
-    
-        // contains outgoing events
-    std::shared_ptr<NetChannel>     _channel; // gameserver channel
-    std::queue<std::vector<uint8_t>> m_aOutEvents;
-    flatbuffers::FlatBufferBuilder builder;
-    
-        // basicly contains all objects on scene
-    std::vector<GameObject*>    m_apoObjects;
+    void ReceiveInputNetEvents();
+    void SendOutgoingNetEvents();
+
+protected:
+    GameMap::Configuration                  _mapConf;
+    std::shared_ptr<NetChannel>             _channel;
+    std::queue<std::vector<uint8_t>>        _outEvents;
+    std::deque<std::shared_ptr<GameObject>> _objects;
+        
         // just points to an Unit in vector
-    Hero *   m_poLocalPlayer;
+    std::shared_ptr<Hero>                   _localPlayer;
     
-    UIGameScene * m_pUI;
-    
-    cocos2d::Sprite *   m_pGameWorldSprite;
+    cocos2d::Layer *                        _view;
+    UIGameScene *                           _ui;
     
     friend GameMap;
     friend Unit;
     friend Hero;
-    friend Rogue;
-    friend Priest;
     friend Warrior;
     friend Mage;
     friend Monster;

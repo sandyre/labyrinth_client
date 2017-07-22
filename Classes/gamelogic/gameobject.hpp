@@ -11,10 +11,13 @@
 
 #include <cocos2d.h>
 
+#include <memory>
+
 
 class GameWorld;
 
 class GameObject
+    : public std::enable_shared_from_this<GameObject>
 {
 public:
     struct Attributes
@@ -52,6 +55,12 @@ public:
     uint32_t GetUID() const
     { return _uid; }
 
+    std::string GetName() const
+    { return _name; }
+
+    void SetName(const std::string& name)
+    { _name = name; }
+
     cocos2d::Vec2 GetPosition() const
     { return _pos; }
 
@@ -64,22 +73,24 @@ public:
         return _sprite;
     }
 
-    virtual void Spawn(const cocos2d::Vec2& pos) = 0;
-    virtual void Destroy() = 0;
+    virtual void Spawn(const cocos2d::Vec2& pos);
+    virtual void Destroy();
 
-    virtual void update(float delta) = 0;
+    virtual void update(float delta)
+    { }
 
     /*
      * Factory method
      */
     template<typename T, typename... Args>
-    static T * create(GameWorld * world, uint32_t uid, Args&&... args)
-    { return new(std::nothrow) T(world, uid, std::forward<Args>(args)...); }
+    static std::shared_ptr<T> create(GameWorld * world, uint32_t uid, Args&&... args)
+    { return std::make_shared<T>(world, uid, std::forward<Args>(args)...); }
 
 protected:
     GameWorld *         _world;
     GameObject::Type    _objType;
     const uint32_t      _uid;
+    std::string         _name;
     uint32_t            _objAttributes;
     cocos2d::Vec2       _pos;
     cocos2d::Sprite *   _sprite;

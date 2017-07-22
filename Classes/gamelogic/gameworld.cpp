@@ -15,28 +15,30 @@
 #include "units/units_inc.hpp"
 #include "../gameconfig.hpp"
 
+#include <memory>
+
+
 GameWorld::GameWorld(GameSessionDescriptor& descriptor)
-: m_poLocalPlayer(nullptr),
-  _mapConf(descriptor.MapConf)
+: _mapConf(descriptor.MapConf),
+  _view(cocos2d::Layer::create()),
+  _channel(NetSystem::Instance().GetChannel("gameserver"))
 {
     GameMap().GenerateMap(descriptor.MapConf, this);
 
-    _channel = NetSystem::Instance().GetChannel("gameserver");
-
     for(auto& player : descriptor.Players)
     {
-        Hero * pHero = nullptr;
+        std::shared_ptr<Hero> hero;
         switch(player.Hero)
         {
         case Hero::Type::WARRIOR:
         {
-            pHero = GameObject::create<Warrior>(this, player.Uid, "unit_warrior.png");
+            hero = GameObject::create<Warrior>(this, player.Uid, "unit_warrior.png");
             break;
         }
 
         case Hero::Type::MAGE:
         {
-            pHero = GameObject::create<Mage>(this, player.Uid, "unit_mage.png");
+            hero = GameObject::create<Mage>(this, player.Uid, "unit_mage.png");
             break;
         }
         default:
@@ -46,14 +48,13 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         }
         }
 
-        pHero->SetName(player.Name);
-        m_apoObjects.push_back(pHero);
-        this->addChild(pHero->GetSprite(), 10);
+        _objects.push_back(hero);
+        _view->addChild(hero->GetSprite(), 10);
 
         if(player.Uid == descriptor.LocalPlayer.Uid)
         {
-            m_poLocalPlayer = pHero;
-            pHero->SetIsLocalPlayer(true);
+            _localPlayer = hero;
+            hero->SetIsLocalPlayer(true);
         }
     }
 }
@@ -72,19 +73,18 @@ GameWorld::ReceiveInputNetEvents()
         case GameMessage::Messages_SVSpawnPlayer:
         {
             auto gs_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(gs_event->payload());
-            for(auto object : m_apoObjects)
+            for(auto object : _objects)
             {
                 if(object->GetType() == GameObject::Type::UNIT)
                 {
-                    auto unit = static_cast<Unit*>(object);
-                    if(unit->GetUnitType() == Unit::Type::HERO)
+                    auto unit = std::dynamic_pointer_cast<Unit>(object);
+                    if(unit->GetType() == Unit::Type::HERO)
                     {
-                        auto hero = static_cast<Hero*>(unit);
+                        auto hero = std::dynamic_pointer_cast<Hero>(unit);
                         
                         if(hero->GetUID() == gs_spawn->player_uid())
                         {
-                            hero->Spawn(cocos2d::Vec2(gs_spawn->x(),
-                                                      gs_spawn->y()));
+                            hero->Spawn(cocos2d::Vec2(gs_spawn->x(), gs_spawn->y()));
                             break;
                         }
                     }
@@ -98,14 +98,12 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_spawn = static_cast<const GameMessage::SVSpawnMonster*>(gs_event->payload());
             
-            auto monster = Monster::create("unit_skeleton.png");
             auto monster = GameObject::create<Monster>(this, gs_spawn->monster_uid(), "unit_skeleton.png");
             monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
                                          gs_spawn->y()));
-            m_apoObjects.push_back(monster);
-            this->addChild(monster->GetSprite(), 10);
-            
-            m_pUI->m_pBattleLogs->AddLogMessage("Skeleton spawned");
+            _objects.push_back(monster);
+            _view->addChild(monster->GetSprite(), 10);
+            _ui->m_pBattleLogs->AddLogMessage("Skeleton spawned");
             
             break;
         }
@@ -119,16 +117,13 @@ GameWorld::ReceiveInputNetEvents()
             case Item::Type::KEY:
             {
                 auto key = GameObject::create<Key>(this, gs_spawn->item_uid(), "item_key.png");
-                key->SetCarrierID(0);
                 
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
-                cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-                                                            key->GetSprite()->getContentSize());
                 
                 key->Spawn(log_coords);
-                m_apoObjects.push_back(key);
-                this->addChild(key->GetSprite(), 0);
+                _objects.push_back(key);
+                _view->addChild(key->GetSprite(), 0);
                 break;
             }
                 
@@ -154,8 +149,8 @@ GameWorld::ReceiveInputNetEvents()
                                          gs_spawn->y());
 
                 grave->Spawn(log_coords);
-                m_apoObjects.push_back(grave);
-                this->addChild(grave->GetSprite(), 0);
+                _objects.push_back(grave);
+                _view->addChild(grave->GetSprite(), 0);
                 break;
             }
                 
@@ -166,9 +161,9 @@ GameWorld::ReceiveInputNetEvents()
                 cocos2d::Vec2 log_coords(gs_spawn->x(),
                                          gs_spawn->y());
                 
-                door->Spawn();
-                m_apoObjects.push_back(door);
-                this->addChild(door->GetSprite(), 0);
+                door->Spawn(log_coords);
+                _objects.push_back(door);
+                _view->addChild(door->GetSprite(), 0);
                 break;
             }
                 
@@ -184,11 +179,11 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_mov = static_cast<const GameMessage::SVActionMove*>(gs_event->payload());
             
-            for(auto object : m_apoObjects)
+            for(auto object : _objects)
             {
                 if(object->GetType() == GameObject::Type::UNIT)
                 {
-                    auto unit = static_cast<Unit*>(object);
+                    auto unit = std::dynamic_pointer_cast<Unit>(object);
                     
                     if(unit->GetUID() == gs_mov->target_uid())
                     {
@@ -203,31 +198,27 @@ GameWorld::ReceiveInputNetEvents()
         case GameMessage::Messages_SVActionItem:
         {
             auto gs_item = static_cast<const GameMessage::SVActionItem*>(gs_event->payload());
-            Item * item = nullptr;
-            Hero * player = nullptr;
+            std::shared_ptr<Item> item;
+            std::shared_ptr<Unit> player;
             
-            for(auto object : m_apoObjects)
+            for(auto object : _objects)
             {
                 if(object->GetUID() == gs_item->item_uid())
-                {
-                    item = static_cast<Item*>(object);
-                }
+                    item = std::dynamic_pointer_cast<Item>(object);
                 else if(object->GetUID() == gs_item->player_uid())
-                {
-                    player = static_cast<Hero*>(object);
-                }
+                    player = std::dynamic_pointer_cast<Unit>(object);
             }
             
             switch(gs_item->act_type())
             {
             case GameMessage::ActionItemType_TAKE:
             {
-                item->AnimationTaken();
+                item->Destroy();
                 player->TakeItem(item);
                 
                 if(item->GetType() == Item::Type::KEY)
                 {
-                    m_pUI->m_pBattleLogs->AddLogMessage("Someone took the key");
+                    _ui->m_pBattleLogs->AddLogMessage("Someone took the key");
                 }
                 
                 break;
@@ -249,19 +240,14 @@ GameWorld::ReceiveInputNetEvents()
             {
             case GameMessage::ActionDuelType_STARTED:
             {
-                Unit * first = nullptr;
-                Unit * second = nullptr;
+                std::shared_ptr<Unit> first, second;
                 
-                for(auto object : m_apoObjects)
+                for(auto object : _objects)
                 {
                     if(object->GetUID() == sv_duel->target1_uid())
-                    {
-                        first = static_cast<Unit*>(object);
-                    }
+                        first = std::dynamic_pointer_cast<Unit>(object);
                     else if(object->GetUID() == sv_duel->target2_uid())
-                    {
-                        second = static_cast<Unit*>(object);
-                    }
+                        second = std::dynamic_pointer_cast<Unit>(object);
                 }
                 
                 if(first->GetDuelTarget() != second &&
@@ -285,25 +271,20 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_death = static_cast<const GameMessage::SVActionDeath*>(gs_event->payload());
             
-            Unit * player = nullptr;
-            Unit * killer = nullptr;
-            for(auto object : m_apoObjects)
+            std::shared_ptr<Unit> player, killer;
+
+            for(auto object : _objects)
             {
                 if(object->GetUID() == gs_death->player_uid())
-                {
-                    player = static_cast<Unit*>(object);
-                }
+                    player = std::dynamic_pointer_cast<Unit>(object);
                 else if(object->GetUID() == gs_death->killer_uid())
-                {
-                    killer = static_cast<Unit*>(object);
-                }
+                    killer = std::dynamic_pointer_cast<Unit>(object);
             }
             
-            player->Die(killer);
+            player->Die();
             killer->EndDuel();
-            m_pUI->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
-                                                                             player->GetName().c_str()));
-            
+            _ui->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
+                                                                           player->GetName().c_str()));
             break;
         }
             
@@ -311,14 +292,12 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_resp = static_cast<const GameMessage::SVRespawnPlayer*>(gs_event->payload());
             
-            Unit * player = nullptr;
+            std::shared_ptr<Unit> player;
             
-            for(auto object : m_apoObjects)
+            for(auto object : _objects)
             {
                 if(object->GetUID() == gs_resp->player_uid())
-                {
-                    player = static_cast<Unit*>(object);
-                }
+                    player = std::dynamic_pointer_cast<Unit>(object);
             }
             
             player->Respawn(cocos2d::Vec2(gs_resp->x(),
@@ -330,14 +309,12 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_go = static_cast<const GameMessage::SVGameEnd*>(gs_event->payload());
             
-            Unit * winner = nullptr;
-            for(auto obj : m_apoObjects)
+            std::shared_ptr<Unit> winner;
+
+            for(auto obj : _objects)
             {
                 if(obj->GetUID() == gs_go->player_uid())
-                {
-                    winner = dynamic_cast<Unit*>(obj);
-                    break;
-                }
+                    winner = std::dynamic_pointer_cast<Unit>(obj);
             }
             
                 // game ends!
@@ -350,20 +327,20 @@ GameWorld::ReceiveInputNetEvents()
                                                          24);
             winner_info->setCameraMask((unsigned short)cocos2d::CameraFlag::USER1);
             winner_info->setLayoutParameter(winner_inf_pos);
-            m_pUI->addChild(winner_info);
+            _ui->addChild(winner_info);
             
-            this->setCascadeOpacityEnabled(true); // TODO: should be placed in init
+            _view->setCascadeOpacityEnabled(true); // TODO: should be placed in init
             auto fade_out = cocos2d::FadeOut::create(5.0f);
             auto pop_scene = cocos2d::CallFunc::create([this]()
                                                        {
-                                                           this->release();
+                                                           _view->release();
                                                            cocos2d::Director::getInstance()->popScene();
                                                        });
             auto seq = cocos2d::Sequence::create(fade_out,
                                                  cocos2d::DelayTime::create(2.0f),
                                                  pop_scene,
                                                  nullptr);
-            this->runAction(seq);
+            _view->runAction(seq);
             
             break;
         }
@@ -372,12 +349,13 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto gs_spell = static_cast<const GameMessage::SVActionSpell*>(gs_event->payload());
             
-            Hero * player = nullptr;
-            for(auto object : m_apoObjects)
+            std::shared_ptr<Hero> player;
+
+            for(auto object : _objects)
             {
                 if(object->GetUID() == gs_spell->player_uid())
                 {
-                    player = static_cast<Hero*>(object);
+                    player = std::dynamic_pointer_cast<Hero>(object);
                     player->SpellCast(gs_spell);
                 }
             }
@@ -387,17 +365,18 @@ GameWorld::ReceiveInputNetEvents()
 
         case GameMessage::Messages_SVPing:
         {
+            flatbuffers::FlatBufferBuilder builder;
             auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
             auto ping = GameMessage::CreateCLPing(builder,
-                                                  m_poLocalPlayer->GetUID());
+                                                  _localPlayer->GetUID());
             auto msg = GameMessage::CreateMessage(builder,
                                                   uuid,
                                                   GameMessage::Messages_CLPing,
                                                   ping.Union());
             builder.Finish(msg);
 
-            m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                 builder.GetBufferPointer() + builder.GetSize());
+            _outEvents.emplace(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
 
             builder.Clear();
             break;
@@ -413,26 +392,21 @@ GameWorld::ReceiveInputNetEvents()
 void
 GameWorld::SendOutgoingNetEvents()
 {
-    while(!m_aOutEvents.empty())
+    while(!_outEvents.empty())
     {
-        auto& event = m_aOutEvents.back();
+        auto& event = _outEvents.back();
         _channel->PushPacket(event);
-        m_aOutEvents.pop();
+        _outEvents.pop();
     }
 }
 
-Hero *
-GameWorld::GetLocalPlayer()
-{
-    return m_poLocalPlayer;
-}
 
 void
 GameWorld::update(float delta)
 {
     SendOutgoingNetEvents();
     ReceiveInputNetEvents();
-    for(auto object : m_apoObjects)
+    for(auto object : _objects)
     {
         object->update(delta);
     }
@@ -441,7 +415,6 @@ GameWorld::update(float delta)
 void
 GameWorld::SetHUD(UIGameScene * ui)
 {
-    m_pUI = ui;
-    
-    m_poLocalPlayer->SetHUD(ui);
+    _ui = ui;
+    _localPlayer->SetHUD(ui);
 }

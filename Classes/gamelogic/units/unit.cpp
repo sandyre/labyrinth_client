@@ -9,6 +9,7 @@
 #include "unit.hpp"
 
 #include "../effect.hpp"
+#include "../item.hpp"
 #include "../gameworld.hpp"
 #include "../../gameconfig.hpp"
 
@@ -101,8 +102,8 @@ Unit::RequestMove(MoveDirection dir)
                                             move.Union());
     builder.Finish(event);
     
-    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                 builder.GetBufferPointer() + builder.GetSize());
+    _world->_outEvents.emplace(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
 }
 
 
@@ -121,8 +122,8 @@ Unit::RequestTakeItem(const std::shared_ptr<Item>& item)
                                             take.Union());
     builder.Finish(event);
         
-    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                 builder.GetBufferPointer() + builder.GetSize());
+    _world->_outEvents.emplace(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
 }
 
 
@@ -141,8 +142,8 @@ Unit::RequestStartDuel(const std::shared_ptr<Unit>& enemy)
                                             take.Union());
     builder.Finish(event);
     
-    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                 builder.GetBufferPointer() + builder.GetSize());
+    _world->_outEvents.emplace(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
 }
 
 /*
@@ -173,7 +174,7 @@ Unit::Respawn(const cocos2d::Vec2& log_pos)
 {
     this->Spawn(log_pos);
     
-    auto spawnEffect = std::make_shared<RespawnInvulnerability>(this, 5.0);
+    auto spawnEffect = std::make_shared<RespawnInvulnerability>(std::static_pointer_cast<Unit>(shared_from_this()), 5.0);
     ApplyEffect(spawnEffect);
 }
 
@@ -229,7 +230,7 @@ Unit::TakeDamage(const Unit::DamageDescriptor& dmg)
 
 
 void
-Unit::Die(Unit * killer)
+Unit::Die()
 {
     if(!_duelTarget)
         EndDuel();
@@ -294,15 +295,8 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     }
     
     _orientation = new_orient;
-    
-    if(new_pos != cocos2d::Vec2(mov->x(),
-                                mov->y()))
-    {
-        new_pos = cocos2d::Vec2(mov->x(),
-                                mov->y());
-    }
-    
-    _pos = new_pos;
+
+    _pos = cocos2d::Vec2(mov->x(), mov->y());
     
         // animation
     auto moveTo = cocos2d::MoveTo::create(1.0/_moveSpeed,

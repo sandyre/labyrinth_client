@@ -10,7 +10,7 @@
 #define effect_hpp
 
 #include <cstdint>
-
+#include <memory>
 
 class Unit;
 
@@ -25,7 +25,7 @@ public:
     };
 
 public:
-    Effect(Unit * targetUnit, float duration);
+    Effect(const std::shared_ptr<Unit>& targetUnit, float duration);
     virtual ~Effect()
     { }
     
@@ -37,9 +37,9 @@ public:
     virtual void stop() = 0;
 
 protected:
-    State       _state;
-    float       _duration;
-    Unit *      _targetUnit;
+    State                   _state;
+    float                   _duration;
+    std::shared_ptr<Unit>   _targetUnit;
 };
 
 
@@ -47,7 +47,7 @@ class WarriorDash
     : public Effect
 {
 public:
-    WarriorDash(Unit * targetUnit, float duration, float bonusMovespeed);
+    WarriorDash(const std::shared_ptr<Unit>& targetUnit, float duration, float bonusMovespeed);
     
     virtual void start() override;
     virtual void stop() override;
@@ -61,7 +61,7 @@ class WarriorArmorUp
     : public Effect
 {
 public:
-    WarriorArmorUp(Unit * targetUnit, float duration, int16_t bonusArmor);
+    WarriorArmorUp(const std::shared_ptr<Unit>& targetUnit, float duration, int16_t bonusArmor);
     
     virtual void start() override;
     virtual void stop() override;
@@ -75,7 +75,7 @@ class RogueInvisibility
     : public Effect
 {
 public:
-    RogueInvisibility(Unit * targetUnit, float duration);
+    RogueInvisibility(const std::shared_ptr<Unit>& targetUnit, float duration);
     
     virtual void start() override;
     virtual void stop() override;
@@ -86,7 +86,7 @@ class MageFreeze
     : public Effect
 {
 public:
-    MageFreeze(Unit * targetUnit, float duration);
+    MageFreeze(const std::shared_ptr<Unit>& targetUnit, float duration);
     
     virtual void start() override;
     virtual void stop() override;
@@ -97,7 +97,7 @@ class DuelInvulnerability
     : public Effect
 {
 public:
-    DuelInvulnerability(Unit * targetUnit, float duration);
+    DuelInvulnerability(const std::shared_ptr<Unit>& targetUnit, float duration);
     
     virtual void start() override;
     virtual void stop() override;
@@ -108,7 +108,7 @@ class RespawnInvulnerability
     : public Effect
 {
 public:
-    RespawnInvulnerability(Unit * targetUnit, float duration);
+    RespawnInvulnerability(const std::shared_ptr<Unit>& targetUnit, float duration);
     
     virtual void start() override;
     virtual void stop() override;

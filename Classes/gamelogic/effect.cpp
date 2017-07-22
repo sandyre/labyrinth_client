@@ -13,9 +13,9 @@
 #include <cocos2d.h>
 
 
-Effect::Effect(Unit * targetUnit, float duration)
-    : _targetUnit(targetUnit),
-      _duration(duration)
+Effect::Effect(const std::shared_ptr<Unit>& targetUnit, float duration)
+: _targetUnit(targetUnit),
+  _duration(duration)
 {
     assert(targetUnit);
 }
@@ -33,7 +33,7 @@ Effect::update(float delta)
 }
 
 
-WarriorDash::WarriorDash(Unit * targetUnit, float duration, float bonusMovespeed)
+WarriorDash::WarriorDash(const std::shared_ptr<Unit>& targetUnit, float duration, float bonusMovespeed)
 : Effect(targetUnit, duration),
   _bonusMovespeed(bonusMovespeed)
 { }
@@ -41,15 +41,15 @@ WarriorDash::WarriorDash(Unit * targetUnit, float duration, float bonusMovespeed
 
 void
 WarriorDash::start()
-{ _targetUnit->m_nMoveSpeed += _bonusMovespeed; }
+{ _targetUnit->_moveSpeed += _bonusMovespeed; }
 
 
 void
 WarriorDash::stop()
-{ _targetUnit->m_nMoveSpeed -= _bonusMovespeed; }
+{ _targetUnit->_moveSpeed -= _bonusMovespeed; }
 
 
-WarriorArmorUp::WarriorArmorUp(Unit * targetUnit, float duration, int16_t bonusArmor)
+WarriorArmorUp::WarriorArmorUp(const std::shared_ptr<Unit>& targetUnit, float duration, int16_t bonusArmor)
 : Effect(targetUnit, duration),
   _bonusArmor(bonusArmor)
 { }
@@ -57,15 +57,15 @@ WarriorArmorUp::WarriorArmorUp(Unit * targetUnit, float duration, int16_t bonusA
 
 void
 WarriorArmorUp::start()
-{ _targetUnit->m_nArmor += _bonusArmor; }
+{ _targetUnit->_armor += _bonusArmor; }
 
 
 void
 WarriorArmorUp::stop()
-{ _targetUnit->m_nArmor -= _bonusArmor; }
+{ _targetUnit->_armor -= _bonusArmor; }
 
 
-RogueInvisibility::RogueInvisibility(Unit * targetUnit, float duration)
+RogueInvisibility::RogueInvisibility(const std::shared_ptr<Unit>& targetUnit, float duration)
 : Effect(targetUnit, duration)
 { }
 
@@ -74,9 +74,9 @@ void
 RogueInvisibility::start()
 {
     _targetUnit->_objAttributes &= ~(GameObject::Attributes::VISIBLE);
-    _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
+    _targetUnit->_unitAttributes &= ~(Unit::Attributes::DUELABLE);
     auto fadeOut = cocos2d::FadeOut::create(0.5);
-    _targetUnit->GetSprite->runAction(fadeOut);
+    _targetUnit->GetSprite()->runAction(fadeOut);
 }
 
 
@@ -84,43 +84,43 @@ void
 RogueInvisibility::stop()
 {
     _targetUnit->_objAttributes |= (GameObject::Attributes::VISIBLE);
-    _targetUnit->m_nUnitAttributes |= (Unit::Attributes::DUELABLE);
+    _targetUnit->_unitAttributes |= (Unit::Attributes::DUELABLE);
     auto fadeIn = cocos2d::FadeIn::create(0.5);
     _targetUnit->GetSprite()->runAction(fadeIn);
 }
 
 
-MageFreeze::MageFreeze(Unit * targetUnit, float duration)
+MageFreeze::MageFreeze(const std::shared_ptr<Unit>& targetUnit, float duration)
 : Effect(targetUnit, duration)
 { }
 
 
 void
 MageFreeze::start()
-{ _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::INPUT); }
+{ _targetUnit->_unitAttributes &= ~(Unit::Attributes::INPUT); }
 
 
 void
 MageFreeze::stop()
-{ _targetUnit->m_nUnitAttributes |= Unit::Attributes::INPUT; }
+{ _targetUnit->_unitAttributes |= Unit::Attributes::INPUT; }
 
 
-DuelInvulnerability::DuelInvulnerability(Unit * targetUnit, float duration)
+DuelInvulnerability::DuelInvulnerability(const std::shared_ptr<Unit>& targetUnit, float duration)
 : Effect(targetUnit, duration)
 { }
 
 
 void
 DuelInvulnerability::start()
-{ _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE); }
+{ _targetUnit->_unitAttributes &= ~(Unit::Attributes::DUELABLE); }
 
 
 void
 DuelInvulnerability::stop()
-{ _targetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE; }
+{ _targetUnit->_unitAttributes |= Unit::Attributes::DUELABLE; }
 
 
-RespawnInvulnerability::RespawnInvulnerability(Unit * targetUnit, float duration)
+RespawnInvulnerability::RespawnInvulnerability(const std::shared_ptr<Unit>& targetUnit, float duration)
 : Effect(targetUnit, duration)
 { }
 
@@ -129,7 +129,7 @@ void
 RespawnInvulnerability::start()
 {
     _targetUnit->_objAttributes &= ~(GameObject::Attributes::PASSABLE);
-    _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
+    _targetUnit->_unitAttributes &= ~(Unit::Attributes::DUELABLE);
 }
 
 
@@ -137,5 +137,5 @@ void
 RespawnInvulnerability::stop()
 {
     _targetUnit->_objAttributes |= GameObject::Attributes::PASSABLE;
-    _targetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
+    _targetUnit->_unitAttributes |= Unit::Attributes::DUELABLE;
 }

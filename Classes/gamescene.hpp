@@ -15,7 +15,8 @@
 
 #include <cocos2d.h>
 
-class GameScene : public cocos2d::Layer
+class GameScene
+    : public cocos2d::Layer
 {
 public:
     virtual void onExit(); // destructor
@@ -30,8 +31,8 @@ protected:
     void    UpdateView(float);
 
 private:
-    UIGameScene *               m_pUI;
-    GameWorld * m_pGWorld;
+    UIGameScene *               _ui;
+    GameWorld *                 _world;
 };
 
 #endif /* gamescene_hpp */

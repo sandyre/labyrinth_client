@@ -16,6 +16,8 @@
 #include <vector>
 
 
+class Item;
+
 class Effect;
 class WarriorDash;
 class WarriorArmorUp;
@@ -123,7 +125,7 @@ public:
     virtual void TakeDamage(const DamageDescriptor& dmg);
     virtual void Respawn(const cocos2d::Vec2& pos);
     virtual void EndDuel();
-    virtual void Die(Unit *);
+    virtual void Die();
 
     virtual void SpellCast(const GameMessage::SVActionSpell*) = 0;
     virtual void RequestSpellCast(int index) = 0;
@@ -145,9 +147,6 @@ public:
     
         // additional funcs
     virtual void ApplyEffect(const std::shared_ptr<Effect>& effect);
-    
-        // Received from scenes event listeners
-    virtual void EnqueueInputEvent(InputEvent) {}
 
 protected:
     Unit(GameWorld * world, uint32_t uid);
@@ -170,7 +169,6 @@ protected:
     float               _moveSpeed;
 
     std::vector<SpellCD>    _spellsCDs;
-    std::queue<InputEvent>  _inputEvents;
     std::vector<std::shared_ptr<Item>>      _inventory;
     std::vector<std::shared_ptr<Effect>>    _appliedEffects;
     

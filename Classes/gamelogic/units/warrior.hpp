@@ -14,19 +14,18 @@
 #include <string>
 #include <vector>
 
-class Warrior : public Hero
+class Warrior
+    : public Hero
 {
 public:
-    static Warrior *   create(const std::string&);
+    Warrior(GameWorld * world, uint32_t uid, const std::string& sprite);
+    
+    virtual void    update(float delta) override;
     
     virtual void RequestSpellCast(int index) override;
     virtual void SpellCast(const GameMessage::SVActionSpell*) override;
     
     virtual void Move(const GameMessage::SVActionMove*) override;
-protected:
-    Warrior();
-    
-    virtual void    update(float) override;
 };
 
 #endif /* warrior_hpp */

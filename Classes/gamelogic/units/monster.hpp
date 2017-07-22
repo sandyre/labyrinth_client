@@ -11,17 +11,17 @@
 
 #include "unit.hpp"
 
-class Monster : public Unit
+
+class Monster
+    : public Unit
 {
 public:
-    static Monster* create(const std::string&);
+    Monster(GameWorld * world, uint32_t uid, const std::string& sprite);
+
+    virtual void update(float) override {}
     
     virtual void RequestSpellCast(int) override {}
     virtual void SpellCast(const GameMessage::SVActionSpell*);
-protected:
-    virtual void update(float) override {}
-    
-    Monster();
 };
 
 #endif /* monster_hpp */

@@ -15,6 +15,7 @@
 
 #include <random>
 
+
 void
 GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 {
@@ -208,8 +209,8 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 			cocos2d::Vec2 log_coords(i, j);
             block->Spawn(log_coords);
 
-			world->m_apoObjects.emplace_back(block);
-			world->addChild(block->GetSprite(), 0);
+			world->_objects.emplace_back(block);
+			world->_view->addChild(block->GetSprite(), 0);
 
 			++current_block_uid;
 		}
@@ -246,7 +247,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 shadow_spritePos.x = shadow_spritePos.x * 2 / 3;
                 shadow_spritePos.y = shadow_spritePos.y * 2 / 3;
                 shadow->setPosition(shadow_spritePos);
-                world->addChild(shadow, 1);
+                world->_view->addChild(shadow, 1);
                 
 				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
@@ -256,8 +257,8 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 cocos2d::Vec2 log_coords(i, j);
                 block->Spawn(log_coords);
 
-				world->m_apoObjects.emplace_back(block);
-				world->addChild(block->GetSprite(), 2);
+				world->_objects.emplace_back(block);
+				world->_view->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
@@ -270,8 +271,8 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				cocos2d::Vec2 log_coords(i, j);
                 block->Spawn(log_coords);
 
-				world->m_apoObjects.emplace_back(block);
-				world->addChild(block->GetSprite(), 2);
+                world->_objects.emplace_back(block);
+			    world->_view->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 		}
