@@ -11,145 +11,62 @@
 #include "../effect.hpp"
 #include "../gameworld.hpp"
 #include "../../gameconfig.hpp"
-#include "../../gsnet_generated.h"
 
 #include <audio/include/AudioEngine.h>
 #include <cocos2d.h>
 
-Unit::Unit() :
-m_eUnitType(Unit::Type::UNDEFINED),
-m_eState(Unit::State::UNDEFINED),
-m_eOrientation(Unit::Orientation::DOWN),
-m_nUnitAttributes(0),
-m_sName("Unit"),
-m_nBaseDamage(10),
-m_nActualDamage(10),
-m_nHealth(50),
-m_nMHealth(50),
-m_nArmor(2),
-m_nMResistance(2),
-m_nMoveSpeed(2.0),
-m_pDuelTarget(nullptr)
+
+Unit::Unit(GameWorld * world, uint32_t uid)
+: GameObject(world, uid),
+  _type(Type::ABSTRACT),
+  _state(State::WALKING),
+  _orientation(Orientation::DOWN),
+  _unitAttributes(Attributes::INPUT | Attributes::ATTACK | Attributes::DUELABLE),
+  _baseDamage(10),
+  _bonusDamage(),
+  _health(50),
+  _healthLimit(50),
+  _armor(2),
+  _resistance(2),
+  _moveSpeed(2.0f)
 {
-    m_eObjType = GameObject::Type::UNIT;
-    m_eState = Unit::State::WALKING;
-    m_nObjAttributes |= GameObject::Attributes::MOVABLE;
-    m_nObjAttributes |= GameObject::Attributes::DAMAGABLE;
-    
-    m_nUnitAttributes |= Unit::Attributes::INPUT;
-    m_nUnitAttributes |= Unit::Attributes::ATTACK;
-    m_nUnitAttributes |= Unit::Attributes::DUELABLE;
+    _objType = GameObject::Type::UNIT;
+    _objAttributes |= GameObject::Attributes::MOVABLE | GameObject::Attributes::DAMAGABLE;
 }
 
-Unit::Type
-Unit::GetUnitType() const
-{
-    return m_eUnitType;
-}
-
-Unit::State
-Unit::GetState() const
-{
-    return m_eState;
-}
-
-Unit::Orientation
-Unit::GetOrientation() const
-{
-    return m_eOrientation;
-}
-
-std::string
-Unit::GetName() const
-{
-    return m_sName;
-}
 
 void
-Unit::SetName(const std::string& name)
-{
-    m_sName = name;
-}
-
-int16_t
-Unit::GetDamage() const
-{
-    return m_nActualDamage;
-}
-
-int16_t
-Unit::GetHealth() const
-{
-    return m_nHealth;
-}
-
-int16_t
-Unit::GetMaxHealth() const
-{
-    return m_nMHealth;
-}
-
-int16_t
-Unit::GetArmor() const
-{
-    return m_nArmor;
-}
-
-int16_t
-Unit::GetMagicResistance() const
-{
-    return m_nMResistance;
-}
-
-Unit * const
-Unit::GetDuelTarget() const
-{
-    return m_pDuelTarget;
-}
-
-std::vector<Item*>&
-Unit::GetInventory()
-{
-    return m_aInventory;
-}
-
-void
-Unit::ApplyEffect(Effect * effect)
+Unit::ApplyEffect(const std::shared_ptr<Effect>& effect)
 {
     effect->start();
-    m_aAppliedEffects.push_back(effect);
+    _appliedEffects.push_back(effect);
 }
+
 
 void
 Unit::update(float delta)
 {
     UpdateCDs(delta);
-    for(auto effect : m_aAppliedEffects)
+    for(auto effect : _appliedEffects)
     {
         effect->update(delta);
         if(effect->GetState() == Effect::State::OVER)
-        {
             effect->stop();
-        }
     }
-    m_aAppliedEffects.erase(std::remove_if(m_aAppliedEffects.begin(),
-                                           m_aAppliedEffects.end(),
-                                           [this](Effect * eff)
-                                           {
-                                               if(eff->GetState() == Effect::State::OVER)
-                                               {
-                                                   delete eff;
-                                                   return true;
-                                               }
-                                               return false;
-                                           }),
-                            m_aAppliedEffects.end());
+    _appliedEffects.erase(std::remove_if(_appliedEffects.begin(),
+                                         _appliedEffects.end(),
+                                         [this](std::shared_ptr<Effect>& eff)
+                                         {
+                                             return eff->GetState() == Effect::State::OVER;
+                                         }),
+                          _appliedEffects.end());
 }
+
 
 void
 Unit::UpdateCDs(float delta)
 {
-    for(auto& cd : m_aSpellCDs)
+    for(auto& cd : _spellsCDs)
     {
         if(std::get<0>(cd) == false)
         {
@@ -163,6 +80,8 @@ Unit::UpdateCDs(float delta)
         }
     }
 }
+
+
 /*
  *
  * Actions request
@@ -182,35 +101,33 @@ Unit::RequestMove(MoveDirection dir)
                                             move.Union());
     builder.Finish(event);
     
-    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                        builder.GetBufferPointer() + builder.GetSize());
+    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                 builder.GetBufferPointer() + builder.GetSize());
 }
 
-void
-Unit::RequestTakeItem(Item * item)
+
+void 
+Unit::RequestTakeItem(const std::shared_ptr<Item>& item)
 {
-        // check that item can be taken
-    if(item->GetCarrierID() == 0)
-    {
-        flatbuffers::FlatBufferBuilder builder;
-        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
-        auto take = GameMessage::CreateCLActionItem(builder,
-                                                    this->GetUID(),
-                                                    item->GetUID(),
-                                                    GameMessage::ActionItemType_TAKE);
-        auto event = GameMessage::CreateMessage(builder,
-                                                uuid,
-                                                GameMessage::Messages_CLActionItem,
-                                                take.Union());
-        builder.Finish(event);
+    flatbuffers::FlatBufferBuilder builder;
+    auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+    auto take = GameMessage::CreateCLActionItem(builder,
+                                                this->GetUID(),
+                                                item->GetUID(),
+                                                GameMessage::ActionItemType_TAKE);
+    auto event = GameMessage::CreateMessage(builder,
+                                            uuid,
+                                            GameMessage::Messages_CLActionItem,
+                                            take.Union());
+    builder.Finish(event);
         
-        m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                            builder.GetBufferPointer() + builder.GetSize());
-    }
+    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                 builder.GetBufferPointer() + builder.GetSize());
 }
 
+
 void
-Unit::RequestStartDuel(Unit * enemy)
+Unit::RequestStartDuel(const std::shared_ptr<Unit>& enemy)
 {
     flatbuffers::FlatBufferBuilder builder;
     auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
@@ -224,8 +141,8 @@ Unit::RequestStartDuel(Unit * enemy)
                                             take.Union());
     builder.Finish(event);
     
-    m_poGameWorld->m_aOutEvents.emplace(builder.GetBufferPointer(),
-                                        builder.GetBufferPointer() + builder.GetSize());
+    _world->m_aOutEvents.emplace(builder.GetBufferPointer(),
+                                 builder.GetBufferPointer() + builder.GetSize());
 }
 
 /*
@@ -235,76 +152,70 @@ Unit::RequestStartDuel(Unit * enemy)
  */
 
 void
-Unit::Spawn(cocos2d::Vec2 log_pos)
+Unit::Spawn(const cocos2d::Vec2& log_pos)
 {
-    using Attributes = GameObject::Attributes;
-    m_eState = Unit::State::WALKING;
-    m_nObjAttributes = Attributes::DAMAGABLE |
-                    Attributes::VISIBLE |
-                    Attributes::MOVABLE;
-    m_nUnitAttributes = Unit::Attributes::ATTACK |
-    Unit::Attributes::DUELABLE |
-    Unit::Attributes::INPUT;
-    m_nHealth = m_nMHealth;
+    _state = Unit::State::WALKING;
+    _objAttributes = GameObject::Attributes::DAMAGABLE | GameObject::Attributes::VISIBLE | GameObject::Attributes::MOVABLE;
+    _unitAttributes = Unit::Attributes::ATTACK | Unit::Attributes::DUELABLE | Unit::Attributes::INPUT;
+    _health = _healthLimit;
     
-    m_stLogPosition = log_pos;
-    this->setPosition(LOG_TO_PHYS_COORD(log_pos,
-                                        this->getContentSize()));
+    _pos = log_pos;
+    _sprite->setPosition(LOG_TO_PHYS_COORD(log_pos, _sprite->getContentSize()));
     
         // animation
     auto fadeIn = cocos2d::FadeIn::create(0.5);
-    this->runAction(fadeIn);
+    _sprite->runAction(fadeIn);
 }
 
+
 void
-Unit::Respawn(cocos2d::Vec2 log_pos)
+Unit::Respawn(const cocos2d::Vec2& log_pos)
 {
     this->Spawn(log_pos);
     
-    RespawnInvulnerability * pRespInv = new RespawnInvulnerability(5.0);
-    pRespInv->SetTargetUnit(this);
-    this->ApplyEffect(pRespInv);
+    auto spawnEffect = std::make_shared<RespawnInvulnerability>(this, 5.0);
+    ApplyEffect(spawnEffect);
 }
 
-    // TODO: seems like it doesn't work
+
 void
 Unit::DropItem(int32_t index)
 {
-    auto item_iter = m_aInventory.begin() + index;
+    //auto item_iter = m_aInventory.begin() + index;
 
-        // make item visible and set its coords
-    (*item_iter)->SetCarrierID(0);
-    (*item_iter)->SetLogicalPosition(this->GetLogicalPosition());
-    (*item_iter)->setPosition(LOG_TO_PHYS_COORD((*item_iter)->GetLogicalPosition(),
-                                                (*item_iter)->getContentSize()));
-    (*item_iter)->setVisible(true);
-    
-    // delete item from inventory
-    m_aInventory.erase(item_iter);
+    //    // make item visible and set its coords
+    //(*item_iter)->SetCarrierID(0);
+    //(*item_iter)->SetLogicalPosition(this->GetLogicalPosition());
+    //(*item_iter)->setPosition(LOG_TO_PHYS_COORD((*item_iter)->GetLogicalPosition(),
+    //                                            (*item_iter)->getContentSize()));
+    //(*item_iter)->setVisible(true);
+    //
+    //// delete item from inventory
+    //m_aInventory.erase(item_iter);
 }
 
+
 void
-Unit::TakeDamage(int16_t damage,
-                 Unit::DamageType dmg_type,
-                 Unit * damage_dealer)
+Unit::TakeDamage(const Unit::DamageDescriptor& dmg)
 {
-    int16_t damage_taken = damage;
-    if(dmg_type == Unit::DamageType::PHYSICAL)
-        damage_taken -= m_nArmor;
-    else if(dmg_type == Unit::DamageType::MAGICAL)
-        damage_taken -= m_nMResistance;
-    
-    m_nHealth -= damage_taken;
+    int16_t damageTaken = dmg.Value;
+
+    if(dmg.Type == DamageDescriptor::DamageType::PHYSICAL)
+        damageTaken -= _armor;
+    else if(dmg.Type == DamageDescriptor::DamageType::MAGICAL)
+        damageTaken -= _resistance;
+
+    _health -= damageTaken;
     
         // animated text
-    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damage_taken),
+    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damageTaken),
                                           "fonts/alagard.ttf",
                                           12);
-    hp_text->setTextColor(dmg_type == Unit::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::MAGENTA);
+    hp_text->setTextColor(dmg.Type == DamageDescriptor::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::MAGENTA);
     
-    auto center_pos = this->getContentSize() / 2;
+    auto center_pos = _sprite->getContentSize() / 2;
     hp_text->setPosition(center_pos);
-    this->addChild(hp_text);
+    _sprite->addChild(hp_text);
     
     auto moveup = cocos2d::MoveBy::create(3,
                                           cocos2d::Vec2(0, center_pos.height));
@@ -316,46 +227,42 @@ Unit::TakeDamage(int16_t damage,
     hp_text->runAction(seq);
 }
 
+
 void
 Unit::Die(Unit * killer)
 {
-    if(m_pDuelTarget != nullptr)
+    if(!_duelTarget)
         EndDuel();
     
-    m_eState = Unit::State::DEAD;
-    m_nHealth = 0;
-    m_nObjAttributes = GameObject::Attributes::PASSABLE;
-    m_nUnitAttributes = 0;
+    _state = Unit::State::DEAD;
+    _health = 0;
+    _objAttributes = GameObject::Attributes::PASSABLE;
+    _unitAttributes = 0;
     
         // drop items
-    while(!m_aInventory.empty())
+    while(!_inventory.empty())
     {
         this->DropItem(0);
     }
     
         // remove all effects
-    for(auto effect : m_aAppliedEffects)
+    for(auto effect : _appliedEffects)
     {
         effect->stop();
     }
     
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);
-    this->runAction(fadeOut);
+    _sprite->runAction(fadeOut);
 }
 
-uint32_t
-Unit::GetUnitAttributes() const
-{
-    return m_nUnitAttributes;
-}
 
 void
 Unit::Move(const GameMessage::SVActionMove* mov)
 {
     Orientation new_orient = (Orientation)mov->mov_dir();
     MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
-    cocos2d::Vec2 new_pos = m_stLogPosition;
+    cocos2d::Vec2 new_pos = _pos;
     if(mov_dir == MoveDirection::UP)
     {
         ++new_pos.y;
@@ -374,19 +281,19 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     }
     
         // change orientation properly
-    if(m_eOrientation != new_orient)
+    if(_orientation != new_orient)
     {
         if(new_orient == Orientation::LEFT)
         {
-            this->setFlippedX(true);
+            _sprite->setFlippedX(true);
         }
         else if(new_orient == Orientation::RIGHT)
         {
-            this->setFlippedX(false);
+            _sprite->setFlippedX(false);
         }
     }
     
-    m_eOrientation = new_orient;
+    _orientation = new_orient;
     
     if(new_pos != cocos2d::Vec2(mov->x(),
                                 mov->y()))
@@ -395,15 +302,15 @@ Unit::Move(const GameMessage::SVActionMove* mov)
                                 mov->y());
     }
     
-    m_stLogPosition = new_pos;
+    _pos = new_pos;
     
         // animation
-    auto moveTo = cocos2d::MoveTo::create(1.0/m_nMoveSpeed,
-                                          LOG_TO_PHYS_COORD(new_pos, this->getContentSize()));
-    this->runAction(moveTo);
+    auto moveTo = cocos2d::MoveTo::create(1.0/_moveSpeed,
+                                          LOG_TO_PHYS_COORD(new_pos, _sprite->getContentSize()));
+    _sprite->runAction(moveTo);
     
         // sound
-    auto distance = m_poGameWorld->GetLocalPlayer()->GetLogicalPosition().distance(this->GetLogicalPosition());
+    auto distance = _world->GetLocalPlayer()->GetPosition().distance(this->GetPosition());
     if(distance <= 10.0)
     {
         auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
@@ -412,28 +319,29 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     }
 }
 
-void
-Unit::TakeItem(Item * item)
-{
-    item->SetCarrierID(this->GetUID());
-    item->setVisible(false);
-    m_aInventory.push_back(item);
-}
 
 void
-Unit::StartDuel(Unit * enemy)
+Unit::TakeItem(const std::shared_ptr<Item>& item)
 {
-    m_eState = Unit::State::DUEL;
-    m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
-    
-    m_pDuelTarget = enemy;
+    _inventory.push_back(item);
 }
+
+
+void
+Unit::StartDuel(const std::shared_ptr<Unit>& unit)
+{
+    _state = State::DUEL;
+    _unitAttributes &= ~(Unit::Attributes::DUELABLE);
+
+    _duelTarget = unit;
+}
+
 
 void
 Unit::EndDuel()
 {
-    m_eState = Unit::State::WALKING;
-    m_nUnitAttributes |= Unit::Attributes::DUELABLE;
+    _state = Unit::State::WALKING;
+    _unitAttributes |= Unit::Attributes::DUELABLE;
     
-    m_pDuelTarget = nullptr;
+    _duelTarget.reset();
 }

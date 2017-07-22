@@ -10,10 +10,11 @@
 #define unit_hpp
 
 #include "../gameobject.hpp"
-#include "../item.hpp"
 #include "../../gsnet_generated.h"
 
-#include <string>
+#include <queue>
+#include <vector>
+
 
 class Effect;
 class WarriorDash;
@@ -23,15 +24,19 @@ class MageFreeze;
 class DuelInvulnerability;
 class RespawnInvulnerability;
 
-class Unit : public GameObject
+class Unit
+    : public GameObject
 {
 public:
+    using SpellCD = std::tuple<bool, float, float>;  // <ready, ActiveCD, nominalCD>
+
     enum class Type
     {
-        UNDEFINED,
+        ABSTRACT,
         MONSTER,
         HERO
     };
+
     enum class Orientation
     {
         UP,
@@ -39,6 +44,7 @@ public:
         LEFT,
         RIGHT
     };
+
     enum class MoveDirection
     {
         UP = 0x00,
@@ -46,6 +52,7 @@ public:
         LEFT = 0x02,
         RIGHT = 0x03
     };
+
     enum class State
     {
         UNDEFINED,
@@ -53,95 +60,123 @@ public:
         DUEL,
         DEAD
     };
-    enum class DamageType
+
+    struct DamageDescriptor
     {
-        PHYSICAL = 0x00,
-        MAGICAL = 0x01
+        enum class DamageType
+        {
+            PHYSICAL = 0x00,
+            MAGICAL = 0x01
+        };
+
+        DamageType  Type;
+        uint16_t    Value;
+        std::string DealerName;
     };
+
     struct Attributes
     {
         static const int INPUT = 0x01;
         static const int ATTACK = 0x02;
         static const int DUELABLE = 0x04;
     };
+
 public:
-    Unit::Type          GetUnitType() const;
-    Unit::State         GetState() const;
-    Unit::Orientation   GetOrientation() const;
-    uint32_t            GetUnitAttributes() const;
+    Unit::Type GetType() const
+    { return _type; }
+
+    uint32_t GetUnitAttributes() const
+    { return _unitAttributes; }
+
+    Unit::State GetState() const
+    { return _state; }
+
+    Unit::Orientation GetOrientation() const
+    { return _orientation; }
     
-    std::string         GetName() const;
-    void                SetName(const std::string&);
+    int16_t GetDamage() const
+    { return _baseDamage + _bonusDamage; }
+
+    int16_t GetHealth() const
+    { return _health; }
+
+    int16_t GetMaxHealth() const
+    { return _healthLimit; }
+
+    int16_t GetArmor() const
+    { return _armor; }
+
+    int16_t GetResistance() const
+    { return _resistance; }
     
-    int16_t             GetDamage() const;
-    int16_t             GetHealth() const;
-    int16_t             GetMaxHealth() const;
-    int16_t             GetArmor() const;
-    int16_t             GetMagicResistance() const;
+    const std::vector<std::shared_ptr<Item>>& GetInventory() const
+    { return _inventory; }
+
+    const std::shared_ptr<Unit> GetDuelTarget() const
+    { return _duelTarget; }
     
-    std::vector<Item*>& GetInventory();
-    Unit * const        GetDuelTarget() const;
+        // Generic actions
+    virtual void Spawn(const cocos2d::Vec2& pos) override;
+    virtual void Destroy() override { }
+
+        // Unit only actions
+    virtual void TakeDamage(const DamageDescriptor& dmg);
+    virtual void Respawn(const cocos2d::Vec2& pos);
+    virtual void EndDuel();
+    virtual void Die(Unit *);
+
+    virtual void SpellCast(const GameMessage::SVActionSpell*) = 0;
+    virtual void RequestSpellCast(int index) = 0;
+
+    virtual void Move(const GameMessage::SVActionMove*);
+    virtual void RequestMove(MoveDirection);
+
+    virtual void StartDuel(const std::shared_ptr<Unit>& unit);
+    virtual void RequestStartDuel(const std::shared_ptr<Unit>& unit);
     
-        // Only server actions
-    virtual void    TakeDamage(int16_t, DamageType, Unit *);
-    virtual void    Spawn(cocos2d::Vec2);
-    virtual void    Respawn(cocos2d::Vec2);
-    virtual void    EndDuel();
-    virtual void    Die(Unit *);
-    
-        // Able to do
-    virtual void    RequestSpellCast(int index) = 0;
-    virtual void    SpellCast(const GameMessage::SVActionSpell*) = 0;
-    virtual void    RequestMove(MoveDirection);
-    virtual void    Move(const GameMessage::SVActionMove*);
-    virtual void    RequestStartDuel(Unit*);
-    virtual void    StartDuel(Unit*);
-    
-        // Items manip
-    virtual void    RequestTakeItem(Item*);
-    virtual void    TakeItem(Item*);
-    virtual void    RequestDropItem(Item*) {}
-    virtual void    DropItem(int32_t index);
-    virtual void    RequestUseItem(Item*) {}
-    virtual void    UseItem(Item*) {}
+    virtual void TakeItem(const std::shared_ptr<Item>& item);
+    virtual void RequestTakeItem(const std::shared_ptr<Item>& item);
+
+    virtual void DropItem(int32_t index);
+    virtual void RequestDropItem(Item*) {}
+
+    virtual void UseItem(Item*) {}
+    virtual void RequestUseItem(Item*) {}
     
         // additional funcs
-    virtual void    ApplyEffect(Effect*);
+    virtual void ApplyEffect(const std::shared_ptr<Effect>& effect);
     
         // Received from scenes event listeners
-    virtual void    EnqueueInputEvent(InputEvent) {}
+    virtual void EnqueueInputEvent(InputEvent) {}
+
 protected:
-    Unit();
+    Unit(GameWorld * world, uint32_t uid);
     
-    virtual void        update(float);
-    virtual void        UpdateCDs(float);
+    virtual void update(float) override;
+    virtual void UpdateCDs(float);
+
 protected:
-    Unit::Type          m_eUnitType;
-    Unit::State         m_eState;
-    Unit::Orientation   m_eOrientation;
+    Unit::Type          _type;
+    uint32_t            _unitAttributes;
+    Unit::State         _state;
+    Unit::Orientation   _orientation;
+
+    int16_t             _baseDamage;
+    int16_t             _bonusDamage;
+    int16_t             _armor;
+    int16_t             _resistance;
+    int16_t             _health;
+    int16_t             _healthLimit;
+    float               _moveSpeed;
+
+    std::vector<SpellCD>    _spellsCDs;
+    std::queue<InputEvent>  _inputEvents;
+    std::vector<std::shared_ptr<Item>>      _inventory;
+    std::vector<std::shared_ptr<Effect>>    _appliedEffects;
     
-    uint32_t            m_nUnitAttributes;
-    
-    std::string         m_sName;
-    
-    int16_t             m_nBaseDamage;
-    int16_t             m_nActualDamage;
-    int16_t             m_nHealth, m_nMHealth;
-    
-    int16_t             m_nArmor;
-    int16_t             m_nMResistance;
-    
-    float   m_nMoveSpeed;
-    
-    std::vector<Item*>  m_aInventory;
-    
-    std::vector<std::tuple<bool, float, float>>    m_aSpellCDs; // <ready, ActiveCD, nominalCD>
-    
-    std::queue<InputEvent>  m_aInputEvents;
         // Duel-data
-    Unit *              m_pDuelTarget;
+    std::shared_ptr<Unit>   _duelTarget;
     
-    std::vector<Effect*> m_aAppliedEffects;
         // Effects should have access to every field
     friend WarriorDash;
     friend WarriorArmorUp;
