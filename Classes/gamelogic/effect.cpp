@@ -8,222 +8,134 @@
 
 #include "effect.hpp"
 
-#include "units/warrior.hpp"
+#include "units/unit.hpp"
 
 #include <cocos2d.h>
 
-Effect::Effect() :
-m_nADuration(0.0f),
-m_eEffState(Effect::State::ACTIVE)
+
+Effect::Effect(Unit * targetUnit, float duration)
+    : _targetUnit(targetUnit),
+      _duration(duration)
 {
-    
+    assert(targetUnit);
 }
 
-Effect::~Effect()
-{
-    
-}
-
-Effect::State
-Effect::GetState() const
-{
-    return m_eEffState;
-}
 
 void
-Effect::SetTargetUnit(Unit * target)
+Effect::update(float delta)
 {
-    m_pTargetUnit = target;
+    if(_state == Effect::State::ACTIVE)
+    {
+        _duration -= delta;
+        if(_duration <= 0.0f)
+            _state = Effect::State::OVER;
+    }
 }
 
-WarriorDash::WarriorDash(float duration,
-                         float bonus_movespeed) :
-m_nBonusMovespeed(bonus_movespeed)
-{
-    m_nADuration = duration;
-}
+
+WarriorDash::WarriorDash(Unit * targetUnit, float duration, float bonusMovespeed)
+: Effect(targetUnit, duration),
+  _bonusMovespeed(bonusMovespeed)
+{ }
+
 
 void
 WarriorDash::start()
-{
-    m_pTargetUnit->m_nMoveSpeed += m_nBonusMovespeed;
-}
+{ _targetUnit->m_nMoveSpeed += _bonusMovespeed; }
 
-void
-WarriorDash::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 WarriorDash::stop()
-{
-    m_pTargetUnit->m_nMoveSpeed -= m_nBonusMovespeed;
-}
+{ _targetUnit->m_nMoveSpeed -= _bonusMovespeed; }
+
+
+WarriorArmorUp::WarriorArmorUp(Unit * targetUnit, float duration, int16_t bonusArmor)
+: Effect(targetUnit, duration),
+  _bonusArmor(bonusArmor)
+{ }
+
 
 void
 WarriorArmorUp::start()
-{
-    m_pTargetUnit->m_nArmor += m_nBonusArmor;
-}
+{ _targetUnit->m_nArmor += _bonusArmor; }
 
-WarriorArmorUp::WarriorArmorUp(float duration,
-                               int16_t bonus_armor) :
-m_nBonusArmor(bonus_armor)
-{
-    m_nADuration = duration;
-}
-
-void
-WarriorArmorUp::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 WarriorArmorUp::stop()
-{
-    m_pTargetUnit->m_nArmor -= m_nBonusArmor;
-}
+{ _targetUnit->m_nArmor -= _bonusArmor; }
 
-RogueInvisibility::RogueInvisibility(float duration)
-{
-    m_nADuration = duration;
-}
+
+RogueInvisibility::RogueInvisibility(Unit * targetUnit, float duration)
+: Effect(targetUnit, duration)
+{ }
+
 
 void
 RogueInvisibility::start()
 {
-    m_pTargetUnit->m_nObjAttributes &= ~(GameObject::Attributes::VISIBLE);
-    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
+    _targetUnit->_objAttributes &= ~(GameObject::Attributes::VISIBLE);
+    _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
     auto fadeOut = cocos2d::FadeOut::create(0.5);
-    m_pTargetUnit->runAction(fadeOut);
+    _targetUnit->GetSprite->runAction(fadeOut);
 }
 
-void
-RogueInvisibility::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 RogueInvisibility::stop()
 {
-    m_pTargetUnit->m_nObjAttributes |= (GameObject::Attributes::VISIBLE);
-    m_pTargetUnit->m_nUnitAttributes |= (Unit::Attributes::DUELABLE);
+    _targetUnit->_objAttributes |= (GameObject::Attributes::VISIBLE);
+    _targetUnit->m_nUnitAttributes |= (Unit::Attributes::DUELABLE);
     auto fadeIn = cocos2d::FadeIn::create(0.5);
-    m_pTargetUnit->runAction(fadeIn);
+    _targetUnit->GetSprite()->runAction(fadeIn);
 }
 
-MageFreeze::MageFreeze(float duration)
-{
-    m_nADuration = duration;
-}
+
+MageFreeze::MageFreeze(Unit * targetUnit, float duration)
+: Effect(targetUnit, duration)
+{ }
+
 
 void
 MageFreeze::start()
-{
-    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::INPUT);
-}
+{ _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::INPUT); }
 
-void
-MageFreeze::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 MageFreeze::stop()
-{
-    m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::INPUT;
-}
+{ _targetUnit->m_nUnitAttributes |= Unit::Attributes::INPUT; }
 
-DuelInvulnerability::DuelInvulnerability(float duration)
-{
-    m_nADuration = duration;
-}
+
+DuelInvulnerability::DuelInvulnerability(Unit * targetUnit, float duration)
+: Effect(targetUnit, duration)
+{ }
+
 
 void
 DuelInvulnerability::start()
-{
-    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
-}
+{ _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE); }
 
-void
-DuelInvulnerability::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 DuelInvulnerability::stop()
-{
-    m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
-}
+{ _targetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE; }
 
-RespawnInvulnerability::RespawnInvulnerability(float duration)
-{
-    m_nADuration = duration;
-}
+
+RespawnInvulnerability::RespawnInvulnerability(Unit * targetUnit, float duration)
+: Effect(targetUnit, duration)
+{ }
+
 
 void
 RespawnInvulnerability::start()
 {
-    m_pTargetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
-    m_pTargetUnit->m_nObjAttributes &= ~(GameObject::Attributes::PASSABLE);
+    _targetUnit->_objAttributes &= ~(GameObject::Attributes::PASSABLE);
+    _targetUnit->m_nUnitAttributes &= ~(Unit::Attributes::DUELABLE);
 }
 
-void
-RespawnInvulnerability::update(float delta)
-{
-    if(m_eEffState == Effect::State::ACTIVE)
-    {
-        m_nADuration -= delta;
-        if(m_nADuration < 0.0f)
-        {
-            m_eEffState = Effect::State::OVER;
-        }
-    }
-}
 
 void
 RespawnInvulnerability::stop()
 {
-    m_pTargetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
-    m_pTargetUnit->m_nObjAttributes |= GameObject::Attributes::PASSABLE;
+    _targetUnit->_objAttributes |= GameObject::Attributes::PASSABLE;
+    _targetUnit->m_nUnitAttributes |= Unit::Attributes::DUELABLE;
 }

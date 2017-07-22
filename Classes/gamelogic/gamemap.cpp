@@ -205,15 +205,11 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 		{
             auto block = GameObject::create<NoBlock>(world, current_block_uid, "floor.png");
 
-			auto block = NoBlock::create("floor.png");
 			cocos2d::Vec2 log_coords(i, j);
-
-			block->SetUID(current_block_uid);
-			block->SetLogicalPosition(log_coords);
-			block->setPosition(spritePos);
+            block->Spawn(log_coords);
 
 			world->m_apoObjects.emplace_back(block);
-			world->addChild(block, 0);
+			world->addChild(block->GetSprite(), 0);
 
 			++current_block_uid;
 		}
@@ -254,33 +250,28 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 
 				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
-				auto block = WallBlock::create(file);
-				cocos2d::Vec2 log_coords(i, j);
-				cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-					block->getContentSize());
-				block->SetUID(current_block_uid);
-				block->SetLogicalPosition(log_coords);
-				block->setPosition(spritePos);
+
+				auto block = GameObject::create<WallBlock>(world, current_block_uid, file);
+				
+                cocos2d::Vec2 log_coords(i, j);
+                block->Spawn(log_coords);
+
 				world->m_apoObjects.emplace_back(block);
-				world->addChild(block, 2);
+				world->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
 			{
 				int rand = (int)m_oRandDistr(m_oRandGen) > 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
-				auto block = BorderBlock::create(file);
+
+                auto block = GameObject::create<BorderBlock>(world, current_block_uid, file);
 
 				cocos2d::Vec2 log_coords(i, j);
-				cocos2d::Vec2 spritePos = LOG_TO_PHYS_COORD(log_coords,
-					block->getContentSize());
-
-				block->SetUID(current_block_uid);
-				block->SetLogicalPosition(log_coords);
-				block->setPosition(spritePos);
+                block->Spawn(log_coords);
 
 				world->m_apoObjects.emplace_back(block);
-				world->addChild(block, 2);
+				world->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 		}

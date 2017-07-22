@@ -11,6 +11,7 @@
 
 #include <cstdint>
 
+
 class Unit;
 
 class Effect
@@ -22,85 +23,94 @@ public:
         OVER = 0x01,
         PAUSED = 0x02
     };
+
 public:
-    Effect();
-    virtual ~Effect();
+    Effect(Unit * targetUnit, float duration);
+    virtual ~Effect()
+    { }
     
-    State   GetState() const;
+    State GetState() const
+    { return _state; }
     
-    void    SetTargetUnit(Unit*);
     virtual void start() = 0;
-    virtual void update(float) = 0; // called each frame by unit its applied to
+    virtual void update(float);
     virtual void stop() = 0;
+
 protected:
-    State m_eEffState;
-    float m_nADuration;
-    Unit * m_pTargetUnit;
+    State       _state;
+    float       _duration;
+    Unit *      _targetUnit;
 };
 
-class WarriorDash : public Effect
+
+class WarriorDash
+    : public Effect
 {
 public:
-    WarriorDash(float duration,
-                float bonus_movespeed);
+    WarriorDash(Unit * targetUnit, float duration, float bonusMovespeed);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
+
 protected:
-    float m_nBonusMovespeed;
+    float       _bonusMovespeed;
 };
 
-class WarriorArmorUp : public Effect
+
+class WarriorArmorUp
+    : public Effect
 {
 public:
-    WarriorArmorUp(float duration,
-                   int16_t bonus_armor);
+    WarriorArmorUp(Unit * targetUnit, float duration, int16_t bonusArmor);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
+
 protected:
-    int16_t m_nBonusArmor;
+    int16_t     _bonusArmor;
 };
 
-class RogueInvisibility : public Effect
+
+class RogueInvisibility
+    : public Effect
 {
 public:
-    RogueInvisibility(float duration);
+    RogueInvisibility(Unit * targetUnit, float duration);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
 };
 
-class MageFreeze : public Effect
+
+class MageFreeze
+    : public Effect
 {
 public:
-    MageFreeze(float duration);
+    MageFreeze(Unit * targetUnit, float duration);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
 };
 
-class DuelInvulnerability : public Effect
+
+class DuelInvulnerability
+    : public Effect
 {
 public:
-    DuelInvulnerability(float duration);
+    DuelInvulnerability(Unit * targetUnit, float duration);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
 };
 
-class RespawnInvulnerability : public Effect
+
+class RespawnInvulnerability
+    : public Effect
 {
 public:
-    RespawnInvulnerability(float duration);
+    RespawnInvulnerability(Unit * targetUnit, float duration);
     
     virtual void start() override;
-    virtual void update(float) override;
     virtual void stop() override;
 };
 

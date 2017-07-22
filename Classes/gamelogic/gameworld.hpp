@@ -39,7 +39,7 @@ protected:
     void    SendOutgoingNetEvents();
 
 protected:
-    GameMap::Configuration  m_stMapConf;
+    GameMap::Configuration _mapConf;
     
         // contains outgoing events
     std::shared_ptr<NetChannel>     _channel; // gameserver channel

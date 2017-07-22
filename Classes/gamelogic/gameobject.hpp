@@ -64,6 +64,9 @@ public:
         return _sprite;
     }
 
+    virtual void Spawn(const cocos2d::Vec2& pos) = 0;
+    virtual void Destroy() = 0;
+
     virtual void update(float delta) = 0;
 
     /*

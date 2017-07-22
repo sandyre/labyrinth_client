@@ -17,7 +17,7 @@
 
 GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 : m_poLocalPlayer(nullptr),
-  m_stMapConf(descriptor.MapConf)
+  _mapConf(descriptor.MapConf)
 {
     GameMap().GenerateMap(descriptor.MapConf, this);
 

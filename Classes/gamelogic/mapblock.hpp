@@ -23,7 +23,7 @@ public:
         WALL,
         BORDER
     };
-    
+
 public:
     MapBlock::Type GetType() const
     { return _type; }
@@ -34,6 +34,7 @@ public:
 protected:
     MapBlock(GameWorld * world, uint32_t uid);
 
+protected:
     MapBlock::Type  _type;
 };
 
