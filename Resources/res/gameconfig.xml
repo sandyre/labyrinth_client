@@ -3,5 +3,5 @@
 	<network>
 		<masterserver host="localhost" port="1930"/>
 	</network>
-	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="vsemprivet" uuid=""/>
+	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="qwerty123" uuid=""/>
 </settings>

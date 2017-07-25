@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 
+
 GameConfiguration::GameConfiguration()
 : _configPath(cocos2d::FileUtils::getInstance()->fullPathForFilename("res/gameconfig.xml"))
 { }

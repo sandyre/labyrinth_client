@@ -12,6 +12,7 @@
 
 #include <fstream>
 
+
 NetChannel::NetChannel(const Poco::Net::SocketAddress& addr)
 : _running(true),
   _address(addr)

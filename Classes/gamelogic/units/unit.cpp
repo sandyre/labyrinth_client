@@ -232,8 +232,11 @@ Unit::TakeDamage(const Unit::DamageDescriptor& dmg)
 void
 Unit::Die()
 {
-    if(!_duelTarget)
+    if(_duelTarget)
+    {
+        _duelTarget->EndDuel();
         EndDuel();
+    }
     
     _state = Unit::State::DEAD;
     _health = 0;

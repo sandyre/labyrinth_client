@@ -44,6 +44,23 @@ protected:
     void ReceiveInputNetEvents();
     void SendOutgoingNetEvents();
 
+    template<typename T>
+    std::shared_ptr<T> FindObject(uint32_t uid)
+    {
+        auto iter = std::find_if(_objects.begin(),
+                                 _objects.end(),
+                                 [uid](const std::shared_ptr<GameObject>& obj)
+                                 {
+                                     return obj->GetUID() == uid;
+                                 });
+
+        assert(iter != _objects.end());
+        auto obj = std::dynamic_pointer_cast<T>(*iter);
+
+        assert(obj);
+        return std::dynamic_pointer_cast<T>(*iter);
+    }
+
 protected:
     GameMap::Configuration                  _mapConf;
     std::shared_ptr<NetChannel>             _channel;

@@ -50,6 +50,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         }
         }
 
+        hero->SetName(player.Name);
         _objects.push_back(hero);
         _view->addChild(hero->GetSprite(), 10);
 
@@ -68,41 +69,26 @@ GameWorld::ReceiveInputNetEvents()
     {
         std::vector<uint8_t> packet = _channel->PopPacket();
         
-        auto gs_event = GameMessage::GetMessage(packet.data());
+        auto message = GameMessage::GetMessage(packet.data());
         
-        switch(gs_event->payload_type())
+        switch(message->payload_type())
         {
         case GameMessage::Messages_SVSpawnPlayer:
         {
-            auto gs_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(gs_event->payload());
-            for(auto object : _objects)
-            {
-                if(object->GetType() == GameObject::Type::UNIT)
-                {
-                    auto unit = std::dynamic_pointer_cast<Unit>(object);
-                    if(unit->GetType() == Unit::Type::HERO)
-                    {
-                        auto hero = std::dynamic_pointer_cast<Hero>(unit);
-                        
-                        if(hero->GetUID() == gs_spawn->player_uid())
-                        {
-                            hero->Spawn(cocos2d::Vec2(gs_spawn->x(), gs_spawn->y()));
-                            break;
-                        }
-                    }
-                }
-            }
+            auto sv_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(message->payload());
+
+            auto player = FindObject<Unit>(sv_spawn->player_uid());
+            player->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
             
             break;
         }
             
         case GameMessage::Messages_SVSpawnMonster:
         {
-            auto gs_spawn = static_cast<const GameMessage::SVSpawnMonster*>(gs_event->payload());
+            auto sv_spawn = static_cast<const GameMessage::SVSpawnMonster*>(message->payload());
             
-            auto monster = GameObject::create<Monster>(this, gs_spawn->monster_uid(), "unit_skeleton.png");
-            monster->Spawn(cocos2d::Vec2(gs_spawn->x(),
-                                         gs_spawn->y()));
+            auto monster = GameObject::create<Monster>(this, sv_spawn->monster_uid(), "unit_skeleton.png");
+            monster->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
             _objects.push_back(monster);
             _view->addChild(monster->GetSprite(), 10);
             _ui->m_pBattleLogs->AddLogMessage("Skeleton spawned");
@@ -112,18 +98,14 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVSpawnItem:
         {
-            auto gs_spawn = static_cast<const GameMessage::SVSpawnItem*>(gs_event->payload());
-            
-            switch((Item::Type)gs_spawn->item_type())
+            auto sv_spawn = static_cast<const GameMessage::SVSpawnItem*>(message->payload());
+
+            switch((Item::Type)sv_spawn->item_type())
             {
             case Item::Type::KEY:
             {
-                auto key = GameObject::create<Key>(this, gs_spawn->item_uid(), "item_key.png");
-                
-                cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                         gs_spawn->y());
-                
-                key->Spawn(log_coords);
+                auto key = GameObject::create<Key>(this, sv_spawn->item_uid(), "item_key.png");
+                key->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(key);
                 _view->addChild(key->GetSprite(), 0);
                 break;
@@ -139,18 +121,14 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVSpawnConstr:
         {
-            auto gs_spawn = static_cast<const GameMessage::SVSpawnConstr*>(gs_event->payload());
+            auto sv_spawn = static_cast<const GameMessage::SVSpawnConstr*>(message->payload());
             
-            switch((Construction::Type)gs_spawn->constr_type())
+            switch((Construction::Type)sv_spawn->constr_type())
             {
             case Construction::Type::GRAVEYARD:
             {
-                auto grave = GameObject::create<Graveyard>(this, gs_spawn->constr_uid(), "construction_graveyard.png");
-                
-                cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                         gs_spawn->y());
-
-                grave->Spawn(log_coords);
+                auto grave = GameObject::create<Graveyard>(this, sv_spawn->constr_uid(), "construction_graveyard.png");
+                grave->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(grave);
                 _view->addChild(grave->GetSprite(), 0);
                 break;
@@ -158,12 +136,8 @@ GameWorld::ReceiveInputNetEvents()
                 
             case Construction::Type::DOOR:
             {
-                auto door = GameObject::create<Door>(this, gs_spawn->constr_uid(), "construction_door.png");
-                
-                cocos2d::Vec2 log_coords(gs_spawn->x(),
-                                         gs_spawn->y());
-                
-                door->Spawn(log_coords);
+                auto door = GameObject::create<Door>(this, sv_spawn->constr_uid(), "construction_door.png");
+                door->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(door);
                 _view->addChild(door->GetSprite(), 0);
                 break;
@@ -179,49 +153,30 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVActionMove:
         {
-            auto gs_mov = static_cast<const GameMessage::SVActionMove*>(gs_event->payload());
-            
-            for(auto object : _objects)
-            {
-                if(object->GetType() == GameObject::Type::UNIT)
-                {
-                    auto unit = std::dynamic_pointer_cast<Unit>(object);
-                    
-                    if(unit->GetUID() == gs_mov->target_uid())
-                    {
-                        unit->Move(gs_mov);
-                        break;
-                    }
-                }
-            }
+            auto sv_mov = static_cast<const GameMessage::SVActionMove*>(message->payload());
+
+            auto unit = FindObject<Unit>(sv_mov->target_uid());
+            unit->Move(sv_mov);
+
             break;
         }
             
         case GameMessage::Messages_SVActionItem:
         {
-            auto gs_item = static_cast<const GameMessage::SVActionItem*>(gs_event->payload());
-            std::shared_ptr<Item> item;
-            std::shared_ptr<Unit> player;
+            auto sv_item = static_cast<const GameMessage::SVActionItem*>(message->payload());
             
-            for(auto object : _objects)
-            {
-                if(object->GetUID() == gs_item->item_uid())
-                    item = std::dynamic_pointer_cast<Item>(object);
-                else if(object->GetUID() == gs_item->player_uid())
-                    player = std::dynamic_pointer_cast<Unit>(object);
-            }
-            
-            switch(gs_item->act_type())
+            switch(sv_item->act_type())
             {
             case GameMessage::ActionItemType_TAKE:
             {
+                auto item = FindObject<Item>(sv_item->item_uid());
+                auto unit = FindObject<Unit>(sv_item->player_uid());
+
                 item->Destroy();
-                player->TakeItem(item);
+                unit->TakeItem(item);
                 
                 if(item->GetType() == Item::Type::KEY)
-                {
                     _ui->m_pBattleLogs->AddLogMessage("Someone took the key");
-                }
                 
                 break;
             }
@@ -236,21 +191,14 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVActionDuel:
         {
-            auto sv_duel = static_cast<const GameMessage::SVActionDuel*>(gs_event->payload());
+            auto sv_duel = static_cast<const GameMessage::SVActionDuel*>(message->payload());
             
             switch(sv_duel->act_type())
             {
             case GameMessage::ActionDuelType_STARTED:
             {
-                std::shared_ptr<Unit> first, second;
-                
-                for(auto object : _objects)
-                {
-                    if(object->GetUID() == sv_duel->target1_uid())
-                        first = std::dynamic_pointer_cast<Unit>(object);
-                    else if(object->GetUID() == sv_duel->target2_uid())
-                        second = std::dynamic_pointer_cast<Unit>(object);
-                }
+                auto first = FindObject<Unit>(sv_duel->target1_uid());
+                auto second = FindObject<Unit>(sv_duel->target2_uid());
                 
                 if(first->GetDuelTarget() != second &&
                    second->GetDuelTarget() != first)
@@ -271,53 +219,31 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVActionDeath:
         {
-            auto gs_death = static_cast<const GameMessage::SVActionDeath*>(gs_event->payload());
-            
-            std::shared_ptr<Unit> player, killer;
+            auto sv_death = static_cast<const GameMessage::SVActionDeath*>(message->payload());
 
-            for(auto object : _objects)
-            {
-                if(object->GetUID() == gs_death->player_uid())
-                    player = std::dynamic_pointer_cast<Unit>(object);
-                else if(object->GetUID() == gs_death->killer_uid())
-                    killer = std::dynamic_pointer_cast<Unit>(object);
-            }
-            
-            player->Die();
-            killer->EndDuel();
+            auto unit = FindObject<Unit>(sv_death->player_uid());
+            unit->Die();
+
             _ui->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
-                                                                           player->GetName().c_str()));
+                                                                           unit->GetName().c_str()));
             break;
         }
             
         case GameMessage::Messages_SVRespawnPlayer:
         {
-            auto gs_resp = static_cast<const GameMessage::SVRespawnPlayer*>(gs_event->payload());
-            
-            std::shared_ptr<Unit> player;
-            
-            for(auto object : _objects)
-            {
-                if(object->GetUID() == gs_resp->player_uid())
-                    player = std::dynamic_pointer_cast<Unit>(object);
-            }
-            
-            player->Respawn(cocos2d::Vec2(gs_resp->x(),
-                                          gs_resp->y()));
+            auto sv_resp = static_cast<const GameMessage::SVRespawnPlayer*>(message->payload());
+
+            auto player = FindObject<Unit>(sv_resp->player_uid());
+            player->Respawn(cocos2d::Vec2(sv_resp->x(), sv_resp->y()));
+
             break;
         }
             
         case GameMessage::Messages_SVGameEnd:
         {
-            auto gs_go = static_cast<const GameMessage::SVGameEnd*>(gs_event->payload());
-            
-            std::shared_ptr<Unit> winner;
+            auto sv_end = static_cast<const GameMessage::SVGameEnd*>(message->payload());
 
-            for(auto obj : _objects)
-            {
-                if(obj->GetUID() == gs_go->player_uid())
-                    winner = std::dynamic_pointer_cast<Unit>(obj);
-            }
+            auto winner = FindObject<Unit>(sv_end->player_uid());
             
                 // game ends!
             auto winner_inf_pos = cocos2d::ui::RelativeLayoutParameter::create();
@@ -349,19 +275,11 @@ GameWorld::ReceiveInputNetEvents()
             
         case GameMessage::Messages_SVActionSpell:
         {
-            auto gs_spell = static_cast<const GameMessage::SVActionSpell*>(gs_event->payload());
-            
-            std::shared_ptr<Unit> player;
+            auto sv_spell = static_cast<const GameMessage::SVActionSpell*>(message->payload());
 
-            for(auto object : _objects)
-            {
-                if(object->GetUID() == gs_spell->player_uid())
-                {
-                    player = std::dynamic_pointer_cast<Unit>(object);
-                    player->SpellCast(gs_spell);
-                }
-            }
-            
+            auto unit = FindObject<Unit>(sv_spell->player_uid());
+            unit->SpellCast(sv_spell);
+
             break;
         }
 

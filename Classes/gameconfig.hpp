@@ -15,6 +15,7 @@
 
 #include <string>
 
+
 class GameConfiguration
 {
 public:
