@@ -47,7 +47,10 @@ public:
     { }
 
     virtual ~GameObject()
-    { }
+    {
+        if(_sprite)
+            _sprite->autorelease();
+    }
 
     GameObject::Type GetType() const
     { return _objType; }

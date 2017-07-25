@@ -8,14 +8,12 @@
 
 #include "gamescene.hpp"
 
-#include "globals.h"
 #include "gameconfig.hpp"
+#include "gamelogic/units/units_inc.hpp"
+#include "globals.h"
+#include "gsnet_generated.h"
 #include "mainmenuscene.hpp"
 #include "netsystem.hpp"
-#include "gsnet_generated.h"
-#include "gamelogic/units/units_inc.hpp"
-
-#include <SimpleAudioEngine.h>
 
 #include <memory>
 

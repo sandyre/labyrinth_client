@@ -210,7 +210,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
             block->Spawn(log_coords);
 
 			world->_objects.emplace_back(block);
-			world->_view->addChild(block->GetSprite(), 0);
+			world->_objectsLayer->addChild(block->GetSprite(), 0);
 
 			++current_block_uid;
 		}
@@ -247,7 +247,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 shadow_spritePos.x = shadow_spritePos.x * 2 / 3;
                 shadow_spritePos.y = shadow_spritePos.y * 2 / 3;
                 shadow->setPosition(shadow_spritePos);
-                world->_view->addChild(shadow, 1);
+                world->_objectsLayer->addChild(shadow, 1);
                 
 				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
@@ -258,7 +258,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 block->Spawn(log_coords);
 
 				world->_objects.emplace_back(block);
-				world->_view->addChild(block->GetSprite(), 2);
+				world->_objectsLayer->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
@@ -272,7 +272,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 block->Spawn(log_coords);
 
                 world->_objects.emplace_back(block);
-			    world->_view->addChild(block->GetSprite(), 2);
+			    world->_objectsLayer->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
 		}

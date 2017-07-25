@@ -21,9 +21,13 @@
 GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 : _mapConf(descriptor.MapConf),
   _view(cocos2d::Layer::create()),
+  _objectsLayer(cocos2d::Layer::create()),
   _channel(NetSystem::Instance().GetChannel("gameserver"))
 {
-    _view->retain();
+    _view->retain(); // release in destructor!
+
+    _objectsLayer->setAnchorPoint(cocos2d::Vec2::ZERO);
+    _view->addChild(_objectsLayer, 0);
 
     GameMap().GenerateMap(descriptor.MapConf, this);
 
@@ -52,7 +56,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 
         hero->SetName(player.Name);
         _objects.push_back(hero);
-        _view->addChild(hero->GetSprite(), 10);
+        _objectsLayer->addChild(hero->GetSprite(), 10);
 
         if(player.Uid == descriptor.LocalPlayer.Uid)
         {
@@ -90,7 +94,7 @@ GameWorld::ReceiveInputNetEvents()
             auto monster = GameObject::create<Monster>(this, sv_spawn->monster_uid(), "unit_skeleton.png");
             monster->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
             _objects.push_back(monster);
-            _view->addChild(monster->GetSprite(), 10);
+            _objectsLayer->addChild(monster->GetSprite(), 10);
             _ui->m_pBattleLogs->AddLogMessage("Skeleton spawned");
             
             break;
@@ -107,7 +111,7 @@ GameWorld::ReceiveInputNetEvents()
                 auto key = GameObject::create<Key>(this, sv_spawn->item_uid(), "item_key.png");
                 key->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(key);
-                _view->addChild(key->GetSprite(), 0);
+                _objectsLayer->addChild(key->GetSprite(), 0);
                 break;
             }
                 
@@ -130,7 +134,7 @@ GameWorld::ReceiveInputNetEvents()
                 auto grave = GameObject::create<Graveyard>(this, sv_spawn->constr_uid(), "construction_graveyard.png");
                 grave->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(grave);
-                _view->addChild(grave->GetSprite(), 0);
+                _objectsLayer->addChild(grave->GetSprite(), 0);
                 break;
             }
                 
@@ -139,7 +143,7 @@ GameWorld::ReceiveInputNetEvents()
                 auto door = GameObject::create<Door>(this, sv_spawn->constr_uid(), "construction_door.png");
                 door->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
                 _objects.push_back(door);
-                _view->addChild(door->GetSprite(), 0);
+                _objectsLayer->addChild(door->GetSprite(), 0);
                 break;
             }
                 
@@ -257,7 +261,7 @@ GameWorld::ReceiveInputNetEvents()
             winner_info->setLayoutParameter(winner_inf_pos);
             _ui->addChild(winner_info);
             
-            _view->setCascadeOpacityEnabled(true); // TODO: should be placed in init
+            _objectsLayer->setCascadeOpacityEnabled(true); // TODO: should be placed in init
             auto fade_out = cocos2d::FadeOut::create(5.0f);
             auto pop_scene = cocos2d::CallFunc::create([this]()
                                                        {
@@ -268,7 +272,7 @@ GameWorld::ReceiveInputNetEvents()
                                                  cocos2d::DelayTime::create(2.0f),
                                                  pop_scene,
                                                  nullptr);
-            _view->runAction(seq);
+            _objectsLayer->runAction(seq);
             
             break;
         }

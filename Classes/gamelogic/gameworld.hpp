@@ -69,6 +69,8 @@ protected:
         
         // just points to an Unit in vector
     std::shared_ptr<Hero>                   _localPlayer;
+
+    cocos2d::Layer *                        _objectsLayer;
     
     cocos2d::Layer *                        _view;
     UIGameScene *                           _ui;
