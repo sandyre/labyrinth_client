@@ -12,6 +12,7 @@
 #include "../gamelogic/units/hero.hpp"
 USING_NS_CC;
 
+
 UIGameScene::UIGameScene()
 {
     auto visible_size = Director::getInstance()->getVisibleSize();
@@ -51,7 +52,7 @@ UIGameScene::UIGameScene()
     
         // init 'skillspanel'
     auto skills_panel_pos = ui::RelativeLayoutParameter::create();
-    skills_panel_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
+    skills_panel_pos->setAlign(ui::RelativeLayoutParameter::RelativeAlign::PARENT_LEFT_CENTER_VERTICAL);
     
     m_poSkillsPanel = new UISpellsPanel();
     m_poSkillsPanel->setLayoutParameter(skills_panel_pos);

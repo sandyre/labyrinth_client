@@ -52,178 +52,152 @@ Hero::update(float delta)
             _hud->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(true);
         else
             _hud->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(false);
-        
     }
     
         // if input is disabled, nothing happens
     if(!(_unitAttributes & Unit::Attributes::INPUT))
         return;
+
+    _inputEventsQueue.SetExpirationTime((1.0/_moveSpeed) * 1.0);
+    _inputEventsQueue.Update(delta);
     
-    std::for_each(_inputEventsQueue.begin(),
-                  _inputEventsQueue.end(),
-                  [delta](auto& input_event)
-                  {
-                      input_event.first += delta;
-                  });
-    _inputEventsQueue.erase(std::remove_if(_inputEventsQueue.begin(),
-                                            _inputEventsQueue.end(),
-                                            [this](auto& input_event)
-                                            {
-                                                return input_event.first > (1.0/_moveSpeed) * 1.0;
-                                            }),
-                            _inputEventsQueue.end());
-    
-    if(!_inputEventsQueue.empty())
+    if(!_inputEventsQueue.Empty())
     {
-        auto event = _inputEventsQueue.front().second;
-        
         switch(_state)
         {
-            case Unit::State::WALKING:
+        case Unit::State::WALKING:
+        {
+            auto event = _inputEventsQueue.Peek();
+            if(event == InputEvent::TAKE_ITEM_BUTTON_CLICK)
             {
-                if(event == InputEvent::TAKE_ITEM_BUTTON_CLICK)
+                    // find item
+                for(auto object : _world->_objects)
                 {
-                        // find item
-                    for(auto object : _world->_objects)
+                    if(object->GetType() == GameObject::Type::ITEM &&
+                       object->GetPosition() == _pos)
                     {
-                        if(object->GetType() == GameObject::Type::ITEM &&
-                           object->GetPosition() == _pos)
-                        {
-                            RequestTakeItem(std::dynamic_pointer_cast<Item>(object));
-                            break;
-                        }
-                    }
-                    
-                    break;
-                }
-                else if(event == InputEvent::SPELL_CAST_0_CLICK)
-                {
-                    if(std::get<0>(_spellsCDs[0]) == true)
-                        this->RequestSpellCast(0);
-                    break;
-                }
-                
-                auto next_pos = _pos;
-                if(event == InputEvent::SWIPE_DOWN)
-                {
-                    --next_pos.y;
-                }
-                else if(event == InputEvent::SWIPE_UP)
-                {
-                    ++next_pos.y;
-                }
-                else if(event == InputEvent::SWIPE_LEFT)
-                {
-                    --next_pos.x;
-                }
-                else if(event == InputEvent::SWIPE_RIGHT)
-                {
-                    ++next_pos.x;
-                }
-                
-                    // check that we have key
-                bool has_key = false;
-                for(auto& item : _inventory)
-                {
-                    if(item->GetType() == Item::Type::KEY)
-                    {
-                        has_key = true;
+                        RequestTakeItem(std::dynamic_pointer_cast<Item>(object));
                         break;
                     }
                 }
                 
-                    // check that we are to leave the labyrinth
-                if(has_key)
-                {
-                    for(auto obj : _world->_objects)
-                    {
-                        if(obj->GetType() == GameObject::Type::CONSTRUCTION &&
-                           std::dynamic_pointer_cast<Construction>(obj)->GetType() == Construction::Type::DOOR)
-                        {
-                            if(obj->GetPosition() == next_pos)
-                            {
-                                    // we are ready to leave
-                                flatbuffers::FlatBufferBuilder builder;
-                                auto req_win = GameMessage::CreateCLRequestWin(builder,
-                                                                             this->GetUID());
-                                auto msg = GameMessage::CreateMessage(builder,
-                                                                    this->GetUID(),
-                                                                    GameMessage::Messages_CLRequestWin,
-                                                                    req_win.Union());
-                                builder.Finish(msg);
-                                _world->_outEvents.emplace(builder.GetBufferPointer(),
-                                                           builder.GetBufferPointer() + builder.GetSize());
-                                return;
-                            }
-                        }
-                    }
-                }
-                
-                    // check that there is no opponent in path
-                bool duel_enter = false;
-                if(_unitAttributes & Unit::Attributes::DUELABLE)
-                {
-                    for(auto object : _world->_objects)
-                    {
-                        if(object->GetUID() != this->GetUID() &&
-                           object->GetType() == GameObject::Type::UNIT)
-                        {
-                            auto unit = std::dynamic_pointer_cast<Unit>(object);
-                            if(unit->GetState() == Unit::State::WALKING &&
-                              unit->GetUnitAttributes() & Unit::Attributes::DUELABLE &&
-                              unit->GetPosition() == next_pos)
-                            {
-                                RequestStartDuel(unit);
-                                duel_enter = true;
-                                return;
-                            }
-                        }
-                    }
-                }
-                
-                if(!(_sprite->getActionByTag(5)))
-                {
-                    RequestMove((MoveDirection)event);
-                    _inputEventsQueue.pop_front();
-                }
                 break;
             }
-            case Unit::State::DUEL:
+            else if(event == InputEvent::SPELL_CAST_0_CLICK)
             {
-                _inputEventsQueue.pop_front();
-                if(_currentSequenceIdx != -1)
+                if(std::get<0>(_spellsCDs[0]) == true)
+                    this->RequestSpellCast(0);
+                break;
+            }
+            
+            auto next_pos = _pos;
+            if(event == InputEvent::SWIPE_DOWN)
+            {
+                --next_pos.y;
+            }
+            else if(event == InputEvent::SWIPE_UP)
+            {
+                ++next_pos.y;
+            }
+            else if(event == InputEvent::SWIPE_LEFT)
+            {
+                --next_pos.x;
+            }
+            else if(event == InputEvent::SWIPE_RIGHT)
+            {
+                ++next_pos.x;
+            }
+            
+                // check that we have key
+            bool has_key = false;
+            for(auto& item : _inventory)
+            {
+                if(item->GetType() == Item::Type::KEY)
                 {
-                    auto& seq = _castSequences[_currentSequenceIdx];
-                    auto seq_ui = _hud->m_poBattleView->m_poActionsView->m_apActions[_currentSequenceIdx];
-                    if(seq.sequence.front() == event)
+                    has_key = true;
+                    break;
+                }
+            }
+            
+                // check that we are to leave the labyrinth
+            if(has_key)
+            {
+                for(auto obj : _world->_objects)
+                {
+                    if(obj->GetType() == GameObject::Type::CONSTRUCTION &&
+                       std::dynamic_pointer_cast<Construction>(obj)->GetType() == Construction::Type::DOOR)
                     {
-                            // shift sprites left
-                        seq.sequence.pop_front();
-                        seq_ui->ShiftLeft();
-                        
-                        if(seq.sequence.empty())
+                        if(obj->GetPosition() == next_pos)
                         {
-                            RequestSpellCast(_currentSequenceIdx + 1);
-                            seq.Refresh();
-                            
-                                // refresh sequence
-                                // remove previous and add new
-                            seq_ui->Clear();
-                            seq_ui->Fill(seq);
-                            seq_ui->m_pIcon->setEnabled(false);
-                            
-                            _currentSequenceIdx = -1;
-                            seq_ui->SetHighlighted(false);
+                                // we are ready to leave
+                            flatbuffers::FlatBufferBuilder builder;
+                            auto req_win = GameMessage::CreateCLRequestWin(builder,
+                                                                         this->GetUID());
+                            auto msg = GameMessage::CreateMessage(builder,
+                                                                  this->GetUID(),
+                                                                  GameMessage::Messages_CLRequestWin,
+                                                                  req_win.Union());
+                            builder.Finish(msg);
+                            _world->_outEvents.emplace(builder.GetBufferPointer(),
+                                                       builder.GetBufferPointer() + builder.GetSize());
+                            return;
                         }
                     }
-                    else
+                }
+            }
+            
+                // check that there is no opponent in path
+            bool duel_enter = false;
+            if(_unitAttributes & Unit::Attributes::DUELABLE)
+            {
+                for(auto object : _world->_objects)
+                {
+                    if(object->GetUID() != this->GetUID() &&
+                       object->GetType() == GameObject::Type::UNIT)
                     {
+                        auto unit = std::dynamic_pointer_cast<Unit>(object);
+                        if(unit->GetState() == Unit::State::WALKING &&
+                          unit->GetUnitAttributes() & Unit::Attributes::DUELABLE &&
+                          unit->GetPosition() == next_pos)
+                        {
+                            RequestStartDuel(unit);
+                            duel_enter = true;
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            if(!(_sprite->getActionByTag(5)))
+            {
+                RequestMove((MoveDirection)event);
+                _inputEventsQueue.Dequeue();
+            }
+            break;
+        }
+        case Unit::State::DUEL:
+        {
+            auto event = _inputEventsQueue.Dequeue();
+            if(_currentSequenceIdx != -1)
+            {
+                auto& seq = _castSequences[_currentSequenceIdx];
+                auto seq_ui = _hud->m_poBattleView->m_poActionsView->m_apActions[_currentSequenceIdx];
+                if(seq.sequence.front() == event)
+                {
+                        // shift sprites left
+                    seq.sequence.pop_front();
+                    seq_ui->ShiftLeft();
+                    
+                    if(seq.sequence.empty())
+                    {
+                        RequestSpellCast(_currentSequenceIdx + 1);
                         seq.Refresh();
                         
                             // refresh sequence
                             // remove previous and add new
                         seq_ui->Clear();
                         seq_ui->Fill(seq);
+                        seq_ui->m_pIcon->setEnabled(false);
                         
                         _currentSequenceIdx = -1;
                         seq_ui->SetHighlighted(false);
@@ -231,41 +205,49 @@ Hero::update(float delta)
                 }
                 else
                 {
-                    for(int i = 0; i < _castSequences.size(); ++i)
+                    seq.Refresh();
+                    
+                        // refresh sequence
+                        // remove previous and add new
+                    seq_ui->Clear();
+                    seq_ui->Fill(seq);
+                    
+                    _currentSequenceIdx = -1;
+                    seq_ui->SetHighlighted(false);
+                }
+            }
+            else
+            {
+                for(int i = 0; i < _castSequences.size(); ++i)
+                {
+                    auto& seq = _castSequences[i];
+                    if(std::get<0>(_spellsCDs[i+1]) == false)
+                        continue;
+                    
+                    auto seq_ui = _hud->m_poBattleView->m_poActionsView->m_apActions[i];
+                    if(seq.sequence.front() == event)
                     {
-                        auto& seq = _castSequences[i];
-                        if(std::get<0>(_spellsCDs[i+1]) == false)
-                            continue;
+                        seq.sequence.pop_front();
+                        _currentSequenceIdx = i;
+                        seq_ui->SetHighlighted(true);
                         
-                        auto seq_ui = _hud->m_poBattleView->m_poActionsView->m_apActions[i];
-                        if(seq.sequence.front() == event)
-                        {
-                            seq.sequence.pop_front();
-                            _currentSequenceIdx = i;
-                            seq_ui->SetHighlighted(true);
-                            
-                                // move sprites left
-                            seq_ui->ShiftLeft();
-                            break;
-                        }
+                            // move sprites left
+                        seq_ui->ShiftLeft();
+                        break;
                     }
                 }
-                break;
             }
+            break;
+        }
         }
     }
 }
 
+
 void
 Hero::EnqueueInputEvent(InputEvent event)
-{
-    if(_inputEventsQueue.empty() ||
-       (_inputEventsQueue.size() < 3 &&
-        _inputEventsQueue.back().first > 0.1))
-    {
-        _inputEventsQueue.push_back(std::make_pair(0.0f, event));
-    }
-}
+{ _inputEventsQueue.Enqueue(event); }
+
 
 void
 Hero::StartDuel(const std::shared_ptr<Unit>& enemy)
@@ -289,6 +271,7 @@ Hero::StartDuel(const std::shared_ptr<Unit>& enemy)
         bv->setVisible(true);
     }
 }
+
 
 void
 Hero::EndDuel()

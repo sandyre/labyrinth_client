@@ -45,11 +45,60 @@ struct InputSequence
 };
 
 
+class InputEventsQueue
+{
+    using InputQueueElement = std::pair<float, InputEvent>;
+public:
+    void Enqueue(InputEvent elem)
+    {
+        if(_storage.empty()
+           || (_storage.size() < 3 && _storage.back().first > 0.1))
+            _storage.push_back(std::make_pair(0.0f, elem));
+    }
+
+    InputEvent Dequeue()
+    {
+        InputEvent result = _storage.front().second;
+        _storage.pop_front();
+        return result;
+    }
+
+    InputEvent Peek() const
+    { return _storage.front().second; }
+
+    void SetExpirationTime(float time)
+    {
+        _expirationTime = time;
+    }
+
+    void Update(float delta)
+    {
+        std::for_each(_storage.begin(),
+                      _storage.end(),
+                      [delta](auto& input_event)
+                      {
+                          input_event.first += delta;
+                      });
+        _storage.erase(std::remove_if(_storage.begin(),
+                                      _storage.end(),
+                                      [this](auto& input_event)
+                                      {
+                                          return input_event.first > _expirationTime;
+                                      }),
+                                      _storage.end());
+    }
+
+    bool Empty() const
+    { return _storage.empty(); }
+
+private:
+    float                           _expirationTime;
+    std::deque<InputQueueElement>   _storage;
+};
+
 class Hero
     : public Unit
 {
-    using InputQueueElement = std::pair<float, InputEvent>;
-
 public:
     enum Type : int
     {
@@ -88,7 +137,7 @@ protected:
     int                             _currentSequenceIdx;
     std::vector<InputSequence>      _castSequences;
     UIGameScene *                   _hud;
-    std::deque<InputQueueElement>   _inputEventsQueue;
+    InputEventsQueue                _inputEventsQueue;
 };
 
 #endif /* player_hpp */
