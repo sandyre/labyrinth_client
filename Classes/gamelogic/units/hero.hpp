@@ -91,6 +91,9 @@ public:
     bool Empty() const
     { return _storage.empty(); }
 
+    void Clear()
+    { _storage.clear(); }
+
 private:
     float                           _expirationTime;
     std::deque<InputQueueElement>   _storage;

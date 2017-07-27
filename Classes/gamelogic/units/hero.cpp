@@ -92,21 +92,13 @@ Hero::update(float delta)
             
             auto next_pos = _pos;
             if(event == InputEvent::SWIPE_DOWN)
-            {
                 --next_pos.y;
-            }
             else if(event == InputEvent::SWIPE_UP)
-            {
                 ++next_pos.y;
-            }
             else if(event == InputEvent::SWIPE_LEFT)
-            {
                 --next_pos.x;
-            }
             else if(event == InputEvent::SWIPE_RIGHT)
-            {
                 ++next_pos.x;
-            }
             
                 // check that we have key
             bool has_key = false;
@@ -256,6 +248,7 @@ Hero::StartDuel(const std::shared_ptr<Unit>& enemy)
     
     if(_isLocal)
     {
+        _inputEventsQueue.Clear();
         auto bv = _hud->m_poBattleView;
         
             // set up sequence
