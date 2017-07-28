@@ -139,7 +139,7 @@ public:
     virtual void TakeItem(const std::shared_ptr<Item>& item);
     virtual void RequestTakeItem(const std::shared_ptr<Item>& item);
 
-    virtual void DropItem(int32_t index);
+    virtual std::shared_ptr<Item> DropItem(int32_t uid);
     virtual void RequestDropItem(Item*) {}
 
     virtual void UseItem(Item*) {}

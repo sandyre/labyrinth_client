@@ -9,8 +9,8 @@
 #include "unit.hpp"
 
 #include "../effect.hpp"
-#include "../item.hpp"
 #include "../gameworld.hpp"
+#include "../item.hpp"
 #include "../../gameconfig.hpp"
 
 #include <audio/include/AudioEngine.h>
@@ -179,20 +179,25 @@ Unit::Respawn(const cocos2d::Vec2& log_pos)
 }
 
 
-void
-Unit::DropItem(int32_t index)
+std::shared_ptr<Item>
+Unit::DropItem(int32_t uid)
 {
-    //auto item_iter = m_aInventory.begin() + index;
+    auto item = std::find_if(_inventory.begin(),
+                             _inventory.end(),
+                             [uid](const std::shared_ptr<Item>& item)
+                             {
+                                 return item->GetUID() == uid;
+                             });
 
-    //    // make item visible and set its coords
-    //(*item_iter)->SetCarrierID(0);
-    //(*item_iter)->SetLogicalPosition(this->GetLogicalPosition());
-    //(*item_iter)->setPosition(LOG_TO_PHYS_COORD((*item_iter)->GetLogicalPosition(),
-    //                                            (*item_iter)->getContentSize()));
-    //(*item_iter)->setVisible(true);
-    //
-    //// delete item from inventory
-    //m_aInventory.erase(item_iter);
+    if(item == _inventory.end())
+        return nullptr;
+
+    _world->_objectsStorage.PushObject(*item);
+    (*item)->Spawn(_pos);
+
+    auto item_ptr = *item;
+    _inventory.erase(item);
+    return item_ptr;
 }
 
 
@@ -242,12 +247,11 @@ Unit::Die()
     _health = 0;
     _objAttributes = GameObject::Attributes::PASSABLE;
     _unitAttributes = 0;
-    
+
         // drop items
-    while(!_inventory.empty())
-    {
-        this->DropItem(0);
-    }
+    auto items = _inventory;
+    for(auto item : items)
+        this->DropItem(item->GetUID());
     
         // remove all effects
     for(auto effect : _appliedEffects)

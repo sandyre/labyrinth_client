@@ -10,6 +10,7 @@
 
 #include <cocos2d.h>
 
+
 Monster::Monster(GameWorld * world, uint32_t uid, const std::string& sprite)
     : Unit(world, uid)
 {
@@ -35,6 +36,7 @@ Monster::SpellCast(const GameMessage::SVActionSpell * spell)
         dmg.Value = _baseDamage;
         dmg.Type = DamageDescriptor::DamageType::PHYSICAL;
 
-        _duelTarget->TakeDamage(dmg);
+        if(_duelTarget)
+            _duelTarget->TakeDamage(dmg);
     }
 }

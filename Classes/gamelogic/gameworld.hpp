@@ -89,7 +89,7 @@ private:
                                        {
                                            return uid == obj->GetUID();
                                        });
-            assert(!is_copy);
+            assert(is_copy == false);
 #endif
             auto iter = std::find_if(_storage.begin(),
                                      _storage.end(),
