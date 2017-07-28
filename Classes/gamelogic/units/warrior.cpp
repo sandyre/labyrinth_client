@@ -31,13 +31,13 @@ Warrior::Warrior(GameWorld * world, uint32_t uid, const std::string& sprite)
     assert(_sprite);
 
         // spell 1 cd (global)
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
+    _cdManager.AddSpell(10.0f);
     
         // spell 2 cd (basic atk spell)
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 0.0f));
+    _cdManager.AddSpell(0.0f);
     
         // spell 3 cd
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
+    _cdManager.AddSpell(10.0f);
     
         // initialize spell 1 sequence
     InputSequence atk_seq(5, InputEvent::SWIPE_DOWN);
@@ -115,8 +115,7 @@ Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
     if(spell->spell_id() == 0)
     {
             // set up CD
-        std::get<0>(_spellsCDs[0]) = false;
-        std::get<1>(_spellsCDs[0]) = std::get<2>(_spellsCDs[0]);
+        _cdManager.Restart(0);
         
         auto dash = std::make_shared<WarriorDash>(std::static_pointer_cast<Unit>(shared_from_this()), 3.0, 5.5);
         this->ApplyEffect(dash);
@@ -125,8 +124,7 @@ Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
     else if(spell->spell_id() == 1)
     {
             // set up CD
-        std::get<0>(_spellsCDs[1]) = false;
-        std::get<1>(_spellsCDs[1]) = std::get<2>(_spellsCDs[1]);
+        _cdManager.Restart(1);
         
         DamageDescriptor dmg;
         dmg.Value = _baseDamage;
@@ -138,8 +136,7 @@ Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
     else if(spell->spell_id() == 2)
     {
             // set up CD
-        std::get<0>(_spellsCDs[2]) = false;
-        std::get<1>(_spellsCDs[2]) = std::get<2>(_spellsCDs[2]);
+        _cdManager.Restart(2);
         
         auto armorUp = std::make_shared<WarriorArmorUp>(std::static_pointer_cast<Unit>(shared_from_this()), 5.0f, 4);
         this->ApplyEffect(armorUp);

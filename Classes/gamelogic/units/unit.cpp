@@ -47,7 +47,8 @@ Unit::ApplyEffect(const std::shared_ptr<Effect>& effect)
 void
 Unit::update(float delta)
 {
-    UpdateCDs(delta);
+    _cdManager.Update(delta);
+    
     for(auto effect : _appliedEffects)
     {
         effect->update(delta);
@@ -61,25 +62,6 @@ Unit::update(float delta)
                                              return eff->GetState() == Effect::State::OVER;
                                          }),
                           _appliedEffects.end());
-}
-
-
-void
-Unit::UpdateCDs(float delta)
-{
-    for(auto& cd : _spellsCDs)
-    {
-        if(std::get<0>(cd) == false)
-        {
-            std::get<1>(cd) -= delta;
-            
-            if(std::get<1>(cd) <= 0.0f)
-            {
-                std::get<0>(cd) = true;
-                std::get<1>(cd) = 0.0f;
-            }
-        }
-    }
 }
 
 

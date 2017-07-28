@@ -29,9 +29,34 @@ class RespawnInvulnerability;
 class Unit
     : public GameObject
 {
-public:
-    using SpellCD = std::tuple<bool, float, float>;  // <ready, ActiveCD, nominalCD>
+    class CooldownManager
+    {
+        using Cooldown = std::pair<float, float>;
+    public:
+        void AddSpell(float cooldown)
+        { _storage.push_back(std::make_tuple(0.0f, cooldown)); }
 
+        void Restart(size_t spellIndex)
+        { _storage[spellIndex].first = _storage[spellIndex].second; }
+
+        bool SpellReady(size_t spellIndex)
+        { return _storage[spellIndex].first <= 0.0f; }
+
+        void Update(float delta)
+        {
+            std::for_each(_storage.begin(),
+                          _storage.end(),
+                          [delta](Cooldown& spell)
+                          {
+                              spell.first -= delta;
+                          });
+        }
+
+    private:
+        std::vector<Cooldown>   _storage;
+    };
+
+public:
     enum class Type
     {
         ABSTRACT,
@@ -152,7 +177,6 @@ protected:
     Unit(GameWorld * world, uint32_t uid);
     
     virtual void update(float) override;
-    virtual void UpdateCDs(float);
 
 protected:
     Unit::Type          _type;
@@ -168,7 +192,7 @@ protected:
     int16_t             _healthLimit;
     float               _moveSpeed;
 
-    std::vector<SpellCD>    _spellsCDs;
+    CooldownManager                         _cdManager;
     std::vector<std::shared_ptr<Item>>      _inventory;
     std::vector<std::shared_ptr<Effect>>    _appliedEffects;
     

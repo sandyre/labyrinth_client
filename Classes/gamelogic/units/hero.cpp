@@ -39,17 +39,17 @@ Hero::update(float delta)
         _hud->_heroStats->SetPhysicalDamage(this->GetDamage());
         _hud->_heroStats->SetMagicalDamage(0);
         
-        if(std::get<0>(_spellsCDs[0]) == true)
+        if(_cdManager.SpellReady(0))
             _hud->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(true);
         else
             _hud->m_poSkillsPanel->m_aSkillsButtons[0]->setEnabled(false);
         
-        if(std::get<0>(_spellsCDs[1]) == true)
+        if(_cdManager.SpellReady(1))
             _hud->m_poBattleView->m_poActionsView->m_apActions[0]->m_pIcon->setEnabled(true);
         else
             _hud->m_poBattleView->m_poActionsView->m_apActions[0]->m_pIcon->setEnabled(false);
         
-        if(std::get<0>(_spellsCDs[2]) == true)
+        if(_cdManager.SpellReady(2))
             _hud->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(true);
         else
             _hud->m_poBattleView->m_poActionsView->m_apActions[1]->m_pIcon->setEnabled(false);
@@ -89,7 +89,7 @@ Hero::update(float delta)
             else if(event == InputEvent::SPELL_CAST_0_CLICK)
             {
                 _inputEventsQueue.Dequeue();
-                if(std::get<0>(_spellsCDs[0]) == true)
+                if(_cdManager.SpellReady(0))
                     this->RequestSpellCast(0);
                 break;
             }
@@ -212,7 +212,7 @@ Hero::update(float delta)
                 for(int i = 0; i < _castSequences.size(); ++i)
                 {
                     auto& seq = _castSequences[i];
-                    if(std::get<0>(_spellsCDs[i+1]) == false)
+                    if(_cdManager.SpellReady(i+1) == false)
                         continue;
                     
                     auto seq_ui = _hud->m_poBattleView->m_poActionsView->m_apActions[i];

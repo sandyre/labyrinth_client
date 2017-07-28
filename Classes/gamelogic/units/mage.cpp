@@ -29,13 +29,13 @@ Mage::Mage(GameWorld * world, uint32_t uid, const std::string& sprite)
     assert(_sprite);
 
         // spell 1 cd (global)
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 30.0f));
+    _cdManager.AddSpell(30.0f);
     
         // spell 2 cd (basic atk spell)
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 0.0f));
+    _cdManager.AddSpell(0.0f);
     
         // spell 3 cd
-    _spellsCDs.push_back(std::make_tuple(true, 0.0f, 10.0f));
+    _cdManager.AddSpell(10.0f);
     
         // initialize spell 1 sequence
     InputSequence atk_seq(7, InputEvent::SWIPE_DOWN);
@@ -119,8 +119,7 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
     if(spell->spell_id() == 0)
     {
             // set up CD
-        std::get<0>(_spellsCDs[spell->spell_id()]) = false;
-        std::get<1>(_spellsCDs[spell->spell_id()]) = std::get<2>(_spellsCDs[spell->spell_id()]);
+        _cdManager.Restart(0);
         
         auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
         auto spell_info = static_cast<const GameMessage::MageTeleport*>(spells->spell());
@@ -142,8 +141,7 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
     else if(spell->spell_id() == 1)
     {
             // set up CD
-        std::get<0>(_spellsCDs[spell->spell_id()]) = false;
-        std::get<1>(_spellsCDs[spell->spell_id()]) = std::get<2>(_spellsCDs[spell->spell_id()]);
+        _cdManager.Restart(1);
 
         auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
         auto spell_info = static_cast<const GameMessage::MageAttack*>(spells->spell());
@@ -159,8 +157,7 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
     else if(spell->spell_id() == 2)
     {
             // set up CD
-        std::get<0>(_spellsCDs[spell->spell_id()]) = false;
-        std::get<1>(_spellsCDs[spell->spell_id()]) = std::get<2>(_spellsCDs[spell->spell_id()]);
+        _cdManager.Restart(2);
         
         auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
         auto spell_info = static_cast<const GameMessage::MageFreeze*>(spells->spell());
