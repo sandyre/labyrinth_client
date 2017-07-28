@@ -40,7 +40,7 @@ void
 Unit::ApplyEffect(const std::shared_ptr<Effect>& effect)
 {
     effect->start();
-    _appliedEffects.push_back(effect);
+    _effectsManager.AddEffect(effect);
 }
 
 
@@ -48,20 +48,7 @@ void
 Unit::update(float delta)
 {
     _cdManager.Update(delta);
-    
-    for(auto effect : _appliedEffects)
-    {
-        effect->update(delta);
-        if(effect->GetState() == Effect::State::OVER)
-            effect->stop();
-    }
-    _appliedEffects.erase(std::remove_if(_appliedEffects.begin(),
-                                         _appliedEffects.end(),
-                                         [this](std::shared_ptr<Effect>& eff)
-                                         {
-                                             return eff->GetState() == Effect::State::OVER;
-                                         }),
-                          _appliedEffects.end());
+    _effectsManager.Update(delta);    
 }
 
 
@@ -236,8 +223,7 @@ Unit::Die()
         this->DropItem(item->GetUID());
     
         // remove all effects
-    for(auto effect : _appliedEffects)
-        effect->stop();
+    _effectsManager.RemoveAll();
     
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);

@@ -9,6 +9,7 @@
 #ifndef unit_hpp
 #define unit_hpp
 
+#include "../effect.hpp"
 #include "../gameobject.hpp"
 #include "../../gsnet_generated.h"
 
@@ -54,6 +55,46 @@ class Unit
 
     private:
         std::vector<Cooldown>   _storage;
+    };
+
+    class EffectsManager
+    {
+    public:
+        void AddEffect(const std::shared_ptr<Effect>& effect)
+        { _storage.push_back(effect); }
+
+        void RemoveAll()
+        {
+            std::for_each(_storage.begin(),
+                          _storage.end(),
+                          [](const std::shared_ptr<Effect>& effect)
+                          {
+                              effect->stop();
+                          });
+            _storage.clear();
+        }
+
+        void Update(float delta)
+        {
+            std::for_each(_storage.begin(),
+                          _storage.end(),
+                          [delta](const std::shared_ptr<Effect>& effect)
+                          {
+                              effect->update(delta);
+                              if(effect->GetState() == Effect::State::OVER)
+                                  effect->stop();
+                          });
+            _storage.erase(std::remove_if(_storage.begin(),
+                                          _storage.end(),
+                                          [this](std::shared_ptr<Effect>& eff)
+                                          {
+                                              return eff->GetState() == Effect::State::OVER;
+                                          }),
+                           _storage.end());
+
+        }
+    private:
+        std::vector<std::shared_ptr<Effect>>    _storage;
     };
 
 public:
@@ -193,8 +234,8 @@ protected:
     float               _moveSpeed;
 
     CooldownManager                         _cdManager;
+    EffectsManager                          _effectsManager;
     std::vector<std::shared_ptr<Item>>      _inventory;
-    std::vector<std::shared_ptr<Effect>>    _appliedEffects;
     
         // Duel-data
     std::shared_ptr<Unit>   _duelTarget;

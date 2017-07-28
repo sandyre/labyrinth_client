@@ -15,6 +15,7 @@
 
 Effect::Effect(const std::shared_ptr<Unit>& targetUnit, float duration)
 : _targetUnit(targetUnit),
+  _state(Effect::State::ACTIVE),
   _duration(duration)
 {
     assert(targetUnit);
