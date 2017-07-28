@@ -199,7 +199,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 	}
 
 	// create floor
-	uint32_t current_block_uid = 1;
+	uint32_t current_block_uid = 0;
 	for (auto i = size - 1; i >= 0; --i)
 	{
 		for (auto j = size - 1; j >= 0; --j)
@@ -209,7 +209,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 			cocos2d::Vec2 log_coords(i, j);
             block->Spawn(log_coords);
 
-			world->_objects.emplace_back(block);
+            world->_objectsStorage.PushObject(block);
 			world->_objectsLayer->addChild(block->GetSprite(), 0);
 
 			++current_block_uid;
@@ -257,7 +257,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
                 cocos2d::Vec2 log_coords(i, j);
                 block->Spawn(log_coords);
 
-				world->_objects.emplace_back(block);
+                world->_objectsStorage.PushObject(block);
 				world->_objectsLayer->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}
@@ -271,7 +271,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				cocos2d::Vec2 log_coords(i, j);
                 block->Spawn(log_coords);
 
-                world->_objects.emplace_back(block);
+                world->_objectsStorage.PushObject(block);
 			    world->_objectsLayer->addChild(block->GetSprite(), 2);
 				++current_block_uid;
 			}

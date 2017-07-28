@@ -10,6 +10,7 @@
 
 #include "../construction.hpp"
 #include "../gameworld.hpp"
+#include "../../gameconfig.hpp"
 #include "../../gsnet_generated.h"
 
 #include <UI/CocosGUI.h>
@@ -70,13 +71,15 @@ Hero::update(float delta)
             auto event = _inputEventsQueue.Peek();
             if(event == InputEvent::TAKE_ITEM_BUTTON_CLICK)
             {
+                _inputEventsQueue.Dequeue();
+
                     // find item
-                for(auto object : _world->_objects)
+                auto items = _world->_objectsStorage.Subset<Item>();
+                for(auto item : items)
                 {
-                    if(object->GetType() == GameObject::Type::ITEM &&
-                       object->GetPosition() == _pos)
+                    if(item->GetPosition() == _pos)
                     {
-                        RequestTakeItem(std::dynamic_pointer_cast<Item>(object));
+                        RequestTakeItem(item);
                         break;
                     }
                 }
@@ -85,6 +88,7 @@ Hero::update(float delta)
             }
             else if(event == InputEvent::SPELL_CAST_0_CLICK)
             {
+                _inputEventsQueue.Dequeue();
                 if(std::get<0>(_spellsCDs[0]) == true)
                     this->RequestSpellCast(0);
                 break;
@@ -114,26 +118,24 @@ Hero::update(float delta)
                 // check that we are to leave the labyrinth
             if(has_key)
             {
-                for(auto obj : _world->_objects)
+                auto doors = _world->_objectsStorage.Subset<Door>();
+                for(auto door : doors)
                 {
-                    if(obj->GetType() == GameObject::Type::CONSTRUCTION &&
-                       std::dynamic_pointer_cast<Construction>(obj)->GetType() == Construction::Type::DOOR)
+                    if(door->GetPosition() == next_pos)
                     {
-                        if(obj->GetPosition() == next_pos)
-                        {
-                                // we are ready to leave
-                            flatbuffers::FlatBufferBuilder builder;
-                            auto req_win = GameMessage::CreateCLRequestWin(builder,
-                                                                         this->GetUID());
-                            auto msg = GameMessage::CreateMessage(builder,
-                                                                  this->GetUID(),
-                                                                  GameMessage::Messages_CLRequestWin,
-                                                                  req_win.Union());
-                            builder.Finish(msg);
-                            _world->_outEvents.emplace(builder.GetBufferPointer(),
-                                                       builder.GetBufferPointer() + builder.GetSize());
-                            return;
-                        }
+                            // we are ready to leave
+                        flatbuffers::FlatBufferBuilder builder;
+                        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+                        auto req_win = GameMessage::CreateCLRequestWin(builder,
+                                                                       this->GetUID());
+                        auto msg = GameMessage::CreateMessage(builder,
+                                                              uuid,
+                                                              GameMessage::Messages_CLRequestWin,
+                                                              req_win.Union());
+                        builder.Finish(msg);
+                        _world->_outEvents.emplace(builder.GetBufferPointer(),
+                                                   builder.GetBufferPointer() + builder.GetSize());
+                        return;
                     }
                 }
             }
@@ -142,20 +144,17 @@ Hero::update(float delta)
             bool duel_enter = false;
             if(_unitAttributes & Unit::Attributes::DUELABLE)
             {
-                for(auto object : _world->_objects)
+                auto units = _world->_objectsStorage.Subset<Unit>();
+                for(auto unit : units)
                 {
-                    if(object->GetUID() != this->GetUID() &&
-                       object->GetType() == GameObject::Type::UNIT)
+                    if(unit->GetUID() != this->GetUID() &&
+                       unit->GetState() == Unit::State::WALKING &&
+                       unit->GetUnitAttributes() & Unit::Attributes::DUELABLE &&
+                       unit->GetPosition() == next_pos)
                     {
-                        auto unit = std::dynamic_pointer_cast<Unit>(object);
-                        if(unit->GetState() == Unit::State::WALKING &&
-                          unit->GetUnitAttributes() & Unit::Attributes::DUELABLE &&
-                          unit->GetPosition() == next_pos)
-                        {
-                            RequestStartDuel(unit);
-                            duel_enter = true;
-                            return;
-                        }
+                        RequestStartDuel(unit);
+                        duel_enter = true;
+                        return;
                     }
                 }
             }

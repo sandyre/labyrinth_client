@@ -21,6 +21,7 @@
 GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 : _mapConf(descriptor.MapConf),
   _view(cocos2d::Layer::create()),
+  _objectsStorage(*this),
   _objectsLayer(cocos2d::Layer::create()),
   _channel(NetSystem::Instance().GetChannel("gameserver"))
 {
@@ -55,7 +56,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         }
 
         hero->SetName(player.Name);
-        _objects.push_back(hero);
+        _objectsStorage.PushObject(hero);
         _objectsLayer->addChild(hero->GetSprite(), 10);
 
         if(player.Uid == descriptor.LocalPlayer.Uid)
@@ -64,6 +65,9 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
             hero->SetIsLocalPlayer(true);
         }
     }
+
+    auto objectCount = _objectsStorage.Size();
+    int kek = 0;
 }
 
 void
@@ -81,7 +85,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(message->payload());
 
-            auto player = FindObject<Unit>(sv_spawn->player_uid());
+            auto player = _objectsStorage.FindObject<Unit>(sv_spawn->player_uid());
             player->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
             
             break;
@@ -93,7 +97,7 @@ GameWorld::ReceiveInputNetEvents()
             
             auto monster = GameObject::create<Monster>(this, sv_spawn->monster_uid(), "unit_skeleton.png");
             monster->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
-            _objects.push_back(monster);
+            _objectsStorage.PushObject(monster);
             _objectsLayer->addChild(monster->GetSprite(), 10);
             _ui->m_pBattleLogs->AddLogMessage("Skeleton spawned");
             
@@ -110,7 +114,7 @@ GameWorld::ReceiveInputNetEvents()
             {
                 auto key = GameObject::create<Key>(this, sv_spawn->item_uid(), "item_key.png");
                 key->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
-                _objects.push_back(key);
+                _objectsStorage.PushObject(key);
                 _objectsLayer->addChild(key->GetSprite(), 0);
                 break;
             }
@@ -133,7 +137,7 @@ GameWorld::ReceiveInputNetEvents()
             {
                 auto grave = GameObject::create<Graveyard>(this, sv_spawn->constr_uid(), "construction_graveyard.png");
                 grave->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
-                _objects.push_back(grave);
+                _objectsStorage.PushObject(grave);
                 _objectsLayer->addChild(grave->GetSprite(), 0);
                 break;
             }
@@ -142,7 +146,7 @@ GameWorld::ReceiveInputNetEvents()
             {
                 auto door = GameObject::create<Door>(this, sv_spawn->constr_uid(), "construction_door.png");
                 door->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
-                _objects.push_back(door);
+                _objectsStorage.PushObject(door);
                 _objectsLayer->addChild(door->GetSprite(), 0);
                 break;
             }
@@ -159,7 +163,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_mov = static_cast<const GameMessage::SVActionMove*>(message->payload());
 
-            auto unit = FindObject<Unit>(sv_mov->target_uid());
+            auto unit = _objectsStorage.FindObject<Unit>(sv_mov->target_uid());
             unit->Move(sv_mov);
 
             break;
@@ -173,8 +177,8 @@ GameWorld::ReceiveInputNetEvents()
             {
             case GameMessage::ActionItemType_TAKE:
             {
-                auto item = FindObject<Item>(sv_item->item_uid());
-                auto unit = FindObject<Unit>(sv_item->player_uid());
+                auto item = _objectsStorage.FindObject<Item>(sv_item->item_uid());
+                auto unit = _objectsStorage.FindObject<Unit>(sv_item->player_uid());
 
                 item->Destroy();
                 unit->TakeItem(item);
@@ -201,8 +205,8 @@ GameWorld::ReceiveInputNetEvents()
             {
             case GameMessage::ActionDuelType_STARTED:
             {
-                auto first = FindObject<Unit>(sv_duel->target1_uid());
-                auto second = FindObject<Unit>(sv_duel->target2_uid());
+                auto first = _objectsStorage.FindObject<Unit>(sv_duel->target1_uid());
+                auto second = _objectsStorage.FindObject<Unit>(sv_duel->target2_uid());
                 
                 if(first->GetDuelTarget() != second &&
                    second->GetDuelTarget() != first)
@@ -225,7 +229,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_death = static_cast<const GameMessage::SVActionDeath*>(message->payload());
 
-            auto unit = FindObject<Unit>(sv_death->player_uid());
+            auto unit = _objectsStorage.FindObject<Unit>(sv_death->player_uid());
             unit->Die();
 
             _ui->m_pBattleLogs->AddLogMessage(cocos2d::StringUtils::format("%s died",
@@ -237,7 +241,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_resp = static_cast<const GameMessage::SVRespawnPlayer*>(message->payload());
 
-            auto player = FindObject<Unit>(sv_resp->player_uid());
+            auto player = _objectsStorage.FindObject<Unit>(sv_resp->player_uid());
             player->Respawn(cocos2d::Vec2(sv_resp->x(), sv_resp->y()));
 
             break;
@@ -247,7 +251,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_end = static_cast<const GameMessage::SVGameEnd*>(message->payload());
 
-            auto winner = FindObject<Unit>(sv_end->player_uid());
+            auto winner = _objectsStorage.FindObject<Unit>(sv_end->player_uid());
             
                 // game ends!
             auto winner_inf_pos = cocos2d::ui::RelativeLayoutParameter::create();
@@ -281,7 +285,7 @@ GameWorld::ReceiveInputNetEvents()
         {
             auto sv_spell = static_cast<const GameMessage::SVActionSpell*>(message->payload());
 
-            auto unit = FindObject<Unit>(sv_spell->player_uid());
+            auto unit = _objectsStorage.FindObject<Unit>(sv_spell->player_uid());
             unit->SpellCast(sv_spell);
 
             break;
@@ -330,10 +334,8 @@ GameWorld::update(float delta)
 {
     SendOutgoingNetEvents();
     ReceiveInputNetEvents();
-    for(auto object : _objects)
-    {
-        object->update(delta);
-    }
+    for(auto iter = _objectsStorage.Begin(); iter != _objectsStorage.End(); ++iter)
+        (*iter)->update(delta);
 }
 
 void

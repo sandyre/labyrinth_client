@@ -98,5 +98,6 @@ protected:
     cocos2d::Vec2       _pos;
     cocos2d::Sprite *   _sprite;
 };
+using GameObjectPtr = std::shared_ptr<GameObject>;
 
 #endif /* gameobject_hpp */
