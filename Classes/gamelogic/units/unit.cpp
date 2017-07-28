@@ -153,7 +153,7 @@ Unit::RequestStartDuel(const std::shared_ptr<Unit>& enemy)
  */
 
 void
-Unit::Spawn(const cocos2d::Vec2& log_pos)
+Unit::Spawn(const Point<>& log_pos)
 {
     _state = Unit::State::WALKING;
     _objAttributes = GameObject::Attributes::DAMAGABLE | GameObject::Attributes::VISIBLE | GameObject::Attributes::MOVABLE;
@@ -170,7 +170,7 @@ Unit::Spawn(const cocos2d::Vec2& log_pos)
 
 
 void
-Unit::Respawn(const cocos2d::Vec2& log_pos)
+Unit::Respawn(const Point<>& log_pos)
 {
     this->Spawn(log_pos);
     
@@ -255,9 +255,7 @@ Unit::Die()
     
         // remove all effects
     for(auto effect : _appliedEffects)
-    {
         effect->stop();
-    }
     
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);
@@ -270,7 +268,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
 {
     Orientation new_orient = (Orientation)mov->mov_dir();
     MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
-    cocos2d::Vec2 new_pos = _pos;
+    Point<> new_pos = _pos;
     if(mov_dir == MoveDirection::UP)
     {
         ++new_pos.y;
@@ -303,7 +301,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     
     _orientation = new_orient;
 
-    _pos = cocos2d::Vec2(mov->x(), mov->y());
+    _pos = Point<>(mov->x(), mov->y());
     
         // animation
     auto moveTo = cocos2d::MoveTo::create(1.0/_moveSpeed,
@@ -311,7 +309,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     _sprite->runAction(moveTo);
     
         // sound
-    auto distance = _world->GetLocalPlayer()->GetPosition().distance(this->GetPosition());
+    auto distance = _world->GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
     if(distance <= 10.0)
     {
         auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",

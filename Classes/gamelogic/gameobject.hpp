@@ -9,6 +9,8 @@
 #ifndef gameobject_hpp
 #define gameobject_hpp
 
+#include "../toolkit/Point.hpp"
+
 #include <cocos2d.h>
 
 #include <memory>
@@ -64,10 +66,10 @@ public:
     void SetName(const std::string& name)
     { _name = name; }
 
-    cocos2d::Vec2 GetPosition() const
+    Point<> GetPosition() const
     { return _pos; }
 
-    void SetPosition(const cocos2d::Vec2& pos)
+    void SetPosition(const Point<>& pos)
     { _pos = pos; }
 
     cocos2d::Sprite * GetSprite()
@@ -76,7 +78,7 @@ public:
         return _sprite;
     }
 
-    virtual void Spawn(const cocos2d::Vec2& pos);
+    virtual void Spawn(const Point<>& pos);
     virtual void Destroy();
 
     virtual void update(float delta)
@@ -95,7 +97,7 @@ protected:
     const uint32_t      _uid;
     std::string         _name;
     uint32_t            _objAttributes;
-    cocos2d::Vec2       _pos;
+    Point<>             _pos;
     cocos2d::Sprite *   _sprite;
 };
 using GameObjectPtr = std::shared_ptr<GameObject>;

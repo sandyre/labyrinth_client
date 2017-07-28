@@ -86,7 +86,7 @@ GameWorld::ReceiveInputNetEvents()
             auto sv_spawn = static_cast<const GameMessage::SVSpawnPlayer*>(message->payload());
 
             auto player = _objectsStorage.FindObject<Unit>(sv_spawn->player_uid());
-            player->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
+            player->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
             
             break;
         }
@@ -96,7 +96,7 @@ GameWorld::ReceiveInputNetEvents()
             auto sv_spawn = static_cast<const GameMessage::SVSpawnMonster*>(message->payload());
             
             auto monster = GameObject::create<Monster>(this, sv_spawn->monster_uid(), "unit_skeleton.png");
-            monster->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
+            monster->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
             _objectsStorage.PushObject(monster);
             _objectsLayer->addChild(monster->GetSprite(), 10);
             _ui->m_pBattleLogs->AddLogMessage("Skeleton spawned");
@@ -113,7 +113,7 @@ GameWorld::ReceiveInputNetEvents()
             case Item::Type::KEY:
             {
                 auto key = GameObject::create<Key>(this, sv_spawn->item_uid(), "item_key.png");
-                key->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
+                key->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
                 _objectsStorage.PushObject(key);
                 _objectsLayer->addChild(key->GetSprite(), 0);
                 break;
@@ -136,7 +136,7 @@ GameWorld::ReceiveInputNetEvents()
             case Construction::Type::GRAVEYARD:
             {
                 auto grave = GameObject::create<Graveyard>(this, sv_spawn->constr_uid(), "construction_graveyard.png");
-                grave->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
+                grave->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
                 _objectsStorage.PushObject(grave);
                 _objectsLayer->addChild(grave->GetSprite(), 0);
                 break;
@@ -145,7 +145,7 @@ GameWorld::ReceiveInputNetEvents()
             case Construction::Type::DOOR:
             {
                 auto door = GameObject::create<Door>(this, sv_spawn->constr_uid(), "construction_door.png");
-                door->Spawn(cocos2d::Vec2(sv_spawn->x(), sv_spawn->y()));
+                door->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
                 _objectsStorage.PushObject(door);
                 _objectsLayer->addChild(door->GetSprite(), 0);
                 break;
@@ -242,7 +242,7 @@ GameWorld::ReceiveInputNetEvents()
             auto sv_resp = static_cast<const GameMessage::SVRespawnPlayer*>(message->payload());
 
             auto player = _objectsStorage.FindObject<Unit>(sv_resp->player_uid());
-            player->Respawn(cocos2d::Vec2(sv_resp->x(), sv_resp->y()));
+            player->Respawn(Point<>(sv_resp->x(), sv_resp->y()));
 
             break;
         }

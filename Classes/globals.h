@@ -9,6 +9,8 @@
 #ifndef globals_h
 #define globals_h
 
+#include "toolkit/Point.hpp"
+
 #include <cocos2d.h>
 
 #include <array>
@@ -58,7 +60,7 @@ const std::array<std::string, 4> HeroNames
 };
 
 inline
-cocos2d::Vec2 LOG_TO_PHYS_COORD(const cocos2d::Vec2& logical,
+cocos2d::Vec2 LOG_TO_PHYS_COORD(const Point<>& logical,
                                 cocos2d::Size sprite_size)
 {
     cocos2d::Vec2 result(logical.x,

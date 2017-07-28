@@ -118,12 +118,12 @@ public:
     { return _duelTarget; }
     
         // Generic actions
-    virtual void Spawn(const cocos2d::Vec2& pos) override;
+    virtual void Spawn(const Point<>& pos) override;
     virtual void Destroy() override { }
 
         // Unit only actions
     virtual void TakeDamage(const DamageDescriptor& dmg);
-    virtual void Respawn(const cocos2d::Vec2& pos);
+    virtual void Respawn(const Point<>& pos);
     virtual void EndDuel();
     virtual void Die();
 

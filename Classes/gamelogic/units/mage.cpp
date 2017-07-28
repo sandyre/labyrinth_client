@@ -125,7 +125,7 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         auto spells = static_cast<const GameMessage::Spell*>(spell->spell_info());
         auto spell_info = static_cast<const GameMessage::MageTeleport*>(spells->spell());
         
-        this->SetPosition(cocos2d::Vec2(spell_info->x(), spell_info->y()));
+        this->SetPosition(Point<>(spell_info->x(), spell_info->y()));
         
         auto fade_out = cocos2d::FadeOut::create(0.3);
         auto move_to = cocos2d::MoveTo::create(0.001, LOG_TO_PHYS_COORD(this->GetPosition(),

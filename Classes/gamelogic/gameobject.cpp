@@ -11,7 +11,7 @@
 #include "../globals.h"
 
 void
-GameObject::Spawn(const cocos2d::Vec2& pos)
+GameObject::Spawn(const Point<>& pos)
 {
     _pos = pos;
     _sprite->setOpacity(0);

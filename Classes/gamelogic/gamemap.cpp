@@ -207,7 +207,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
             auto block = GameObject::create<NoBlock>(world, current_block_uid, "floor.png");
 
 			cocos2d::Vec2 log_coords(i, j);
-            block->Spawn(log_coords);
+            block->Spawn(Point<>(i, j));
 
             world->_objectsStorage.PushObject(block);
 			world->_objectsLayer->addChild(block->GetSprite(), 0);
@@ -241,7 +241,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 			{
                     // add shadow
                 auto shadow = cocos2d::Sprite::createWithSpriteFrameName("wall_shadow.png");
-                cocos2d::Vec2 shadowlogPos(i, j);
+                Point<> shadowlogPos(i, j);
                 cocos2d::Vec2 shadow_spritePos = LOG_TO_PHYS_COORD(shadowlogPos,
                                                                    shadow->getContentSize());
                 shadow_spritePos.x = shadow_spritePos.x * 2 / 3;
@@ -253,9 +253,8 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 
 				auto block = GameObject::create<WallBlock>(world, current_block_uid, file);
-				
-                cocos2d::Vec2 log_coords(i, j);
-                block->Spawn(log_coords);
+
+                block->Spawn(Point<>(i, j));
 
                 world->_objectsStorage.PushObject(block);
 				world->_objectsLayer->addChild(block->GetSprite(), 2);
@@ -268,8 +267,7 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 
                 auto block = GameObject::create<BorderBlock>(world, current_block_uid, file);
 
-				cocos2d::Vec2 log_coords(i, j);
-                block->Spawn(log_coords);
+                block->Spawn(Point<>(i, j));
 
                 world->_objectsStorage.PushObject(block);
 			    world->_objectsLayer->addChild(block->GetSprite(), 2);

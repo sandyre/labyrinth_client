@@ -159,7 +159,7 @@ Warrior::Move(const GameMessage::SVActionMove* mov)
 {
     Orientation new_orient = (Orientation)mov->mov_dir();
     MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
-    cocos2d::Vec2 new_pos = _pos;
+    Point<> new_pos = _pos;
     if(mov_dir == MoveDirection::UP)
     {
         ++new_pos.y;
@@ -192,11 +192,9 @@ Warrior::Move(const GameMessage::SVActionMove* mov)
     
     _orientation = new_orient;
     
-    if(new_pos != cocos2d::Vec2(mov->x(),
-                                mov->y()))
+    if(new_pos != Point<>(mov->x(), mov->y()))
     {
-        new_pos = cocos2d::Vec2(mov->x(),
-                                mov->y());
+        new_pos = Point<>(mov->x(), mov->y());
     }
     
     _pos = new_pos;
@@ -217,7 +215,7 @@ Warrior::Move(const GameMessage::SVActionMove* mov)
     _sprite->runAction(spawn);
     
         // sound
-    auto distance = _world->GetLocalPlayer()->GetPosition().distance(this->GetPosition());
+    auto distance = _world->GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
     if(distance <= 10.0)
     {
         auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
