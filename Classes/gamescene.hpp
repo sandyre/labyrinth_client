@@ -31,6 +31,7 @@ protected:
     void    UpdateView(float);
 
 private:
+    std::shared_ptr<NetChannel> _channel;
     UIGameScene *               _ui;
     GameWorld *                 _world;
 };

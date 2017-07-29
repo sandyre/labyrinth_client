@@ -15,6 +15,7 @@
 #include "resources.hpp"
 #include "resourcemanager.hpp"
 #include "ui/ui_pregamescene.hpp"
+#include "toolkit/SafePacketGetter.hpp"
 
 #include <future>
 #include <sstream>
@@ -143,15 +144,19 @@ PreGameScene::update(float delta)
 {
     if(_channel->Available())
     {
-        auto packet = _channel->PopPacket();
-        
-        auto msg = GetMessage(packet.data());
-        
-        switch(msg->payload_type())
+        SafePacketGetter safeGetter(_channel->native_handler());
+        auto packet = safeGetter.Get<GameMessage::Message>();
+
+        if(!packet)
+            return;
+
+        auto message = GameMessage::GetMessage(packet->Data.data());
+
+        switch(message->payload_type())
         {
         case Messages_SVConnectionStatus:
         {
-            auto status = static_cast<const SVConnectionStatus*>(msg->payload());
+            auto status = static_cast<const SVConnectionStatus*>(message->payload());
             
             if(status->status() == ConnectionStatus_ACCEPTED)
             {
@@ -175,7 +180,7 @@ PreGameScene::update(float delta)
                 
         case Messages_SVPlayerConnected:
         {
-            auto con_info = static_cast<const SVPlayerConnected*>(msg->payload());
+            auto con_info = static_cast<const SVPlayerConnected*>(message->payload());
             
             auto iter = std::find_if(_sessionDescriptor.Players.begin(),
                                      _sessionDescriptor.Players.end(),
@@ -201,7 +206,7 @@ PreGameScene::update(float delta)
 
         case Messages_SVPlayerDisconnected:
         {
-            auto disconnect = static_cast<const SVPlayerDisconnected*>(msg->payload());
+            auto disconnect = static_cast<const SVPlayerDisconnected*>(message->payload());
 
             auto iter = std::find_if(_sessionDescriptor.Players.begin(),
                                      _sessionDescriptor.Players.end(),
@@ -269,7 +274,7 @@ PreGameScene::update(float delta)
                 
         case Messages_SVHeroPick:
         {
-            auto hero_pick = static_cast<const GameMessage::SVHeroPick*>(msg->payload());
+            auto hero_pick = static_cast<const GameMessage::SVHeroPick*>(message->payload());
             auto iter = std::find_if(_sessionDescriptor.Players.begin(),
                                      _sessionDescriptor.Players.end(),
                                      [hero_pick](auto& pl)
@@ -292,7 +297,7 @@ PreGameScene::update(float delta)
                 
         case Messages_SVReadyToStart:
         {
-            auto player_ready = static_cast<const GameMessage::SVReadyToStart*>(msg->payload());
+            auto player_ready = static_cast<const GameMessage::SVReadyToStart*>(message->payload());
             
             for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
             {
@@ -307,7 +312,7 @@ PreGameScene::update(float delta)
                 
         case Messages_SVGenerateMap:
         {
-            auto gen_info = static_cast<const GameMessage::SVGenerateMap*>(msg->payload());
+            auto gen_info = static_cast<const GameMessage::SVGenerateMap*>(message->payload());
             GameMap::Configuration sets;
             sets.nMapSize = gen_info->map_w();
             sets.nRoomSize = gen_info->room_w();

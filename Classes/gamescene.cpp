@@ -14,6 +14,7 @@
 #include "gsnet_generated.h"
 #include "mainmenuscene.hpp"
 #include "netsystem.hpp"
+#include "toolkit/SafePacketGetter.hpp"
 
 #include <memory>
 
@@ -34,6 +35,7 @@ void
 GameScene::InitWorld(GameSessionDescriptor& descr)
 {
     _world = new GameWorld(descr);
+    _channel = NetSystem::Instance().GetChannel("gameserver");
 }
 
 bool
@@ -119,6 +121,29 @@ GameScene::init()
 void
 GameScene::update(float delta)
 {
+    auto& outMessages = _world->GetOutgoingMessages();
+    while(!outMessages.empty())
+    {
+        _channel->PushPacket(outMessages.front());
+        outMessages.pop();
+    }
+    
+    while(_channel->Available())
+    {
+        SafePacketGetter safeGetter(_channel->native_handler());
+        auto packet = safeGetter.Get<GameMessage::Message>();
+
+        if(!packet)
+            continue;
+
+        auto message = GameMessage::GetMessage(packet->Data.data());
+
+        if(message->payload_type() == GameMessage::Messages_SVPing) // TODO: send ping back
+            continue;
+
+        _world->PushMessage({packet->Data.begin(), packet->Data.end()});
+    }
+    
     _world->update(delta);
     UpdateView(delta);
 }

@@ -13,6 +13,7 @@
 #include "netsystem.hpp"
 #include "pregamescene.hpp"
 #include "settingsscene.hpp"
+#include "toolkit/SafePacketGetter.hpp"
 
 #include <audio/include/AudioEngine.h>
 #include <network/HttpRequest.h>
@@ -322,15 +323,20 @@ MainMenuScene::update(float delta)
     {
         if(_channel->Available())
         {
-            std::vector<uint8_t> packet = _channel->PopPacket();
+            SafePacketGetter safeGetter(_channel->native_handler());
+
+            auto packet = safeGetter.Get<MasterMessage::Message>();
+
+            if(!packet)
+                return;
+
+            auto message = GetMessage(packet->Data.data());
             
-            auto rmsg = GetMessage(packet.data());
-            
-            switch(rmsg->payload_type())
+            switch(message->payload_type())
             {
             case MasterMessage::Messages_SVRegister:
             {
-                auto response = static_cast<const SVRegister*>(rmsg->payload());
+                auto response = static_cast<const SVRegister*>(message->payload());
                 
                 if(response->response() == RegistrationStatus_SUCCESS)
                     MessageBox("Success", "Registration done, check email");
@@ -342,7 +348,7 @@ MainMenuScene::update(float delta)
                 
             case MasterMessage::Messages_SVLogin:
             {
-                auto response = static_cast<const SVLogin*>(rmsg->payload());
+                auto response = static_cast<const SVLogin*>(message->payload());
                 
                 if(response->response() == LoginStatus_SUCCESS)
                 {
@@ -362,15 +368,20 @@ MainMenuScene::update(float delta)
     {
         if(_channel->Available())
         {
-            std::vector<uint8_t> packet = _channel->PopPacket();
+            SafePacketGetter safeGetter(_channel->native_handler());
+
+            auto packet = safeGetter.Get<MasterMessage::Message>();
+
+            if(!packet)
+                return;
+
+            auto message = GetMessage(packet->Data.data());
             
-            auto rmsg = GetMessage(packet.data());
-            
-            switch(rmsg->payload_type())
+            switch(message->payload_type())
             {
             case MasterMessage::Messages_SVGameFound:
             {
-                auto gs_info = static_cast<const SVGameFound*>(rmsg->payload());
+                auto gs_info = static_cast<const SVGameFound*>(message->payload());
                 
                 Poco::Net::SocketAddress adr(GameConfiguration::Instance().GetServerAddress());
                 NetSystem::Instance().CreateChannel("gameserver",

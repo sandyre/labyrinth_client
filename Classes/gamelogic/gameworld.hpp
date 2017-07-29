@@ -35,7 +35,7 @@ private:
     public:
         ObjectsStorage(GameWorld& world)
         : _world(world),
-        _uidSeq()
+          _uidSeq()
         { }
 
         template<typename T>
@@ -136,13 +136,18 @@ public:
     const std::shared_ptr<Hero> GetLocalPlayer()
     { return _localPlayer; }
 
+    std::queue<std::vector<uint8_t>>& GetOutgoingMessages()
+    { return _outEvents; }
+
+    void PushMessage(const std::vector<uint8_t>& message)
+    { _inputMessages.push(message); }
+
 protected:
-    void ReceiveInputNetEvents();
-    void SendOutgoingNetEvents();
+    void ApplyInputMessages();
 
 protected:
     GameMap::Configuration                  _mapConf;
-    std::shared_ptr<NetChannel>             _channel;
+    std::queue<std::vector<uint8_t>>        _inputMessages;
     std::queue<std::vector<uint8_t>>        _outEvents;
     ObjectsStorage                          _objectsStorage;
         

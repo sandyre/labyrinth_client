@@ -22,8 +22,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 : _mapConf(descriptor.MapConf),
   _view(cocos2d::Layer::create()),
   _objectsStorage(*this),
-  _objectsLayer(cocos2d::Layer::create()),
-  _channel(NetSystem::Instance().GetChannel("gameserver"))
+  _objectsLayer(cocos2d::Layer::create())
 {
     _view->retain(); // release in destructor!
 
@@ -65,18 +64,16 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
             hero->SetIsLocalPlayer(true);
         }
     }
-
-    auto objectCount = _objectsStorage.Size();
-    int kek = 0;
 }
 
 void
-GameWorld::ReceiveInputNetEvents()
+GameWorld::ApplyInputMessages()
 {
-    while(_channel->Available())
+    while(!_inputMessages.empty())
     {
-        std::vector<uint8_t> packet = _channel->PopPacket();
-        
+        auto packet = _inputMessages.front();
+        _inputMessages.pop();
+
         auto message = GameMessage::GetMessage(packet.data());
         
         switch(message->payload_type())
@@ -305,8 +302,6 @@ GameWorld::ReceiveInputNetEvents()
 
             _outEvents.emplace(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
-
-            builder.Clear();
             break;
         }
             
@@ -317,23 +312,11 @@ GameWorld::ReceiveInputNetEvents()
     }
 }
 
-void
-GameWorld::SendOutgoingNetEvents()
-{
-    while(!_outEvents.empty())
-    {
-        auto& event = _outEvents.back();
-        _channel->PushPacket(event);
-        _outEvents.pop();
-    }
-}
-
 
 void
 GameWorld::update(float delta)
 {
-    SendOutgoingNetEvents();
-    ReceiveInputNetEvents();
+    ApplyInputMessages();
     for(auto iter = _objectsStorage.Begin(); iter != _objectsStorage.End(); ++iter)
         (*iter)->update(delta);
 }
