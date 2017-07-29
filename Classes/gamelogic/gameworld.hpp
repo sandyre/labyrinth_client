@@ -19,8 +19,8 @@
 #include <cocos2d.h>
 
 #include <list>
-#include <vector>
 #include <queue>
+#include <vector>
 
 
 class GameObject;

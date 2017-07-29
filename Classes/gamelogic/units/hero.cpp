@@ -104,42 +104,6 @@ Hero::update(float delta)
             else if(event == InputEvent::SWIPE_RIGHT)
                 ++next_pos.x;
             
-                // check that we have key
-            bool has_key = false;
-            for(auto& item : _inventory)
-            {
-                if(item->GetType() == Item::Type::KEY)
-                {
-                    has_key = true;
-                    break;
-                }
-            }
-            
-                // check that we are to leave the labyrinth
-            if(has_key)
-            {
-                auto doors = _world->_objectsStorage.Subset<Door>();
-                for(auto door : doors)
-                {
-                    if(door->GetPosition() == next_pos)
-                    {
-                            // we are ready to leave
-                        flatbuffers::FlatBufferBuilder builder;
-                        auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
-                        auto req_win = GameMessage::CreateCLRequestWin(builder,
-                                                                       this->GetUID());
-                        auto msg = GameMessage::CreateMessage(builder,
-                                                              uuid,
-                                                              GameMessage::Messages_CLRequestWin,
-                                                              req_win.Union());
-                        builder.Finish(msg);
-                        _world->_outEvents.emplace(builder.GetBufferPointer(),
-                                                   builder.GetBufferPointer() + builder.GetSize());
-                        return;
-                    }
-                }
-            }
-            
                 // check that there is no opponent in path
             bool duel_enter = false;
             if(_unitAttributes & Unit::Attributes::DUELABLE)
