@@ -31,7 +31,7 @@ public:
     { return _type; }
 
 protected:
-    Item(GameWorld * world, uint32_t uid);
+    Item(GameWorld& world, uint32_t uid);
     
     Item::Type  _type;
 };
@@ -41,7 +41,7 @@ class Key
     : public Item
 {
 public:
-    Key(GameWorld * world, uint32_t uid, const std::string& sprite);
+    Key(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 
@@ -49,7 +49,7 @@ class Sword
     : public Item
 {
 public:
-    Sword(GameWorld * world, uint32_t uid, const std::string& sprite);
+    Sword(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* item_hpp */

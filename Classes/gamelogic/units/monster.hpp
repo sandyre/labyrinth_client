@@ -16,7 +16,7 @@ class Monster
     : public Unit
 {
 public:
-    Monster(GameWorld * world, uint32_t uid, const std::string& sprite);
+    Monster(GameWorld& world, uint32_t uid, const std::string& sprite);
 
     virtual void update(float) override {}
     

@@ -132,7 +132,7 @@ public:
     virtual void EndDuel() override;
 
 protected:
-    Hero(GameWorld * world, uint32_t uid);
+    Hero(GameWorld& world, uint32_t uid);
 
 protected:
     Hero::Type                      _type;

@@ -38,21 +38,19 @@ private:
           _uidSeq()
         { }
 
-        template<typename T>
-        std::shared_ptr<T> Create()
+        template<typename T, typename... Args>
+        std::shared_ptr<T> Create(Args&&... args)
         {
-            auto object = std::make_shared<T>(_world);
-            object->SetUID(_uidSeq++);
+            auto object = std::make_shared<T>(_world, _uidSeq++, std::forward<Args>(args)...);
             _storage.push_back(object);
 
             return object;
         }
 
-        template<typename T>
-        std::shared_ptr<T> Create(uint32_t uid)
+        template<typename T, typename... Args>
+        std::shared_ptr<T> CreateWithUID(uint32_t uid, Args&&... args)
         {
-            auto object = std::make_shared<T>(_world);
-            object->SetUID(uid);
+            auto object = std::make_shared<T>(_world, uid, std::forward<Args>(args)...);
             _storage.push_back(object);
 
             return object;

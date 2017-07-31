@@ -40,7 +40,7 @@ public:
     };
 
 public:
-    GameObject(GameWorld * world, uint32_t uid)
+    GameObject(GameWorld& world, uint32_t uid)
     : _world(world),
       _objType(Type::ABSTRACT),
       _uid(uid),
@@ -84,15 +84,8 @@ public:
     virtual void update(float delta)
     { }
 
-    /*
-     * Factory method
-     */
-    template<typename T, typename... Args>
-    static std::shared_ptr<T> create(GameWorld * world, uint32_t uid, Args&&... args)
-    { return std::make_shared<T>(world, uid, std::forward<Args>(args)...); }
-
 protected:
-    GameWorld *         _world;
+    GameWorld&          _world;
     GameObject::Type    _objType;
     const uint32_t      _uid;
     std::string         _name;

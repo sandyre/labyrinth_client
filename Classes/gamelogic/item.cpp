@@ -9,7 +9,7 @@
 #include "item.hpp"
 
 
-Item::Item(GameWorld * world, uint32_t uid)
+Item::Item(GameWorld& world, uint32_t uid)
 : GameObject(world, uid),
   _type(Type::ABSTRACT)
 {
@@ -18,7 +18,7 @@ Item::Item(GameWorld * world, uint32_t uid)
 }
 
 
-Key::Key(GameWorld * world, uint32_t uid, const std::string& sprite)
+Key::Key(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Item(world, uid)
 {
     _type = Item::Type::KEY;
@@ -28,7 +28,7 @@ Key::Key(GameWorld * world, uint32_t uid, const std::string& sprite)
 }
 
 
-Sword::Sword(GameWorld * world, uint32_t uid, const std::string& sprite)
+Sword::Sword(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Item(world, uid)
 {
     _type = Item::Type::SWORD;

@@ -16,6 +16,7 @@
 #include "../gameconfig.hpp"
 
 #include <memory>
+#include <string>
 
 
 GameWorld::GameWorld(GameSessionDescriptor& descriptor)
@@ -38,13 +39,13 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         {
         case Hero::Type::WARRIOR:
         {
-            hero = GameObject::create<Warrior>(this, player.Uid, "unit_warrior.png");
+            hero = _objectsStorage.CreateWithUID<Warrior>(player.Uid, "unit_warrior.png");
             break;
         }
 
         case Hero::Type::MAGE:
         {
-            hero = GameObject::create<Mage>(this, player.Uid, "unit_mage.png");
+            hero = _objectsStorage.CreateWithUID<Warrior>(player.Uid, "unit_mage.png");
             break;
         }
         default:
@@ -55,7 +56,6 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
         }
 
         hero->SetName(player.Name);
-        _objectsStorage.PushObject(hero);
         _objectsLayer->addChild(hero->GetSprite(), 10);
 
         if(player.Uid == descriptor.LocalPlayer.Uid)
@@ -92,7 +92,7 @@ GameWorld::ApplyInputMessages()
         {
             auto sv_spawn = static_cast<const GameMessage::SVSpawnMonster*>(message->payload());
             
-            auto monster = GameObject::create<Monster>(this, sv_spawn->monster_uid(), "unit_skeleton.png");
+            auto monster = _objectsStorage.CreateWithUID<Monster>(sv_spawn->monster_uid(), "unit_skeleton.png");
             monster->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
             _objectsStorage.PushObject(monster);
             _objectsLayer->addChild(monster->GetSprite(), 10);
@@ -109,7 +109,7 @@ GameWorld::ApplyInputMessages()
             {
             case Item::Type::KEY:
             {
-                auto key = GameObject::create<Key>(this, sv_spawn->item_uid(), "item_key.png");
+                auto key = _objectsStorage.CreateWithUID<Key>(sv_spawn->item_uid(), "item_key.png");
                 key->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
                 _objectsStorage.PushObject(key);
                 _objectsLayer->addChild(key->GetSprite(), 0);
@@ -132,18 +132,16 @@ GameWorld::ApplyInputMessages()
             {
             case Construction::Type::GRAVEYARD:
             {
-                auto grave = GameObject::create<Graveyard>(this, sv_spawn->constr_uid(), "construction_graveyard.png");
+                auto grave = _objectsStorage.CreateWithUID<Graveyard>(sv_spawn->constr_uid(), "construction_graveyard.png");
                 grave->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
-                _objectsStorage.PushObject(grave);
                 _objectsLayer->addChild(grave->GetSprite(), 0);
                 break;
             }
                 
             case Construction::Type::DOOR:
             {
-                auto door = GameObject::create<Door>(this, sv_spawn->constr_uid(), "construction_door.png");
+                auto door = _objectsStorage.CreateWithUID<Door>(sv_spawn->constr_uid(), "construction_door.png");
                 door->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
-                _objectsStorage.PushObject(door);
                 _objectsLayer->addChild(door->GetSprite(), 0);
                 break;
             }

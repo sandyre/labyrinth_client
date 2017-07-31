@@ -9,7 +9,7 @@
 #include "construction.hpp"
 
 
-Construction::Construction(GameWorld * world, uint32_t uid)
+Construction::Construction(GameWorld& world, uint32_t uid)
 : GameObject(world, uid),
   _type(Type::ABSTRACT)
 {
@@ -18,7 +18,7 @@ Construction::Construction(GameWorld * world, uint32_t uid)
 }
 
 
-Door::Door(GameWorld * world, uint32_t uid, const std::string& sprite)
+Door::Door(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Construction(world, uid)
 {
     _type = Construction::Type::DOOR;
@@ -28,7 +28,7 @@ Door::Door(GameWorld * world, uint32_t uid, const std::string& sprite)
 }
 
 
-Graveyard::Graveyard(GameWorld * world, uint32_t uid, const std::string& sprite)
+Graveyard::Graveyard(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Construction(world, uid)
 {
     _type = Construction::Type::GRAVEYARD;

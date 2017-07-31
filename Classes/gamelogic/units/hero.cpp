@@ -16,7 +16,7 @@
 #include <UI/CocosGUI.h>
 
 
-Hero::Hero(GameWorld * world, uint32_t uid)
+Hero::Hero(GameWorld& world, uint32_t uid)
 : Unit(world, uid),
   _type(Type::FIRST_HERO),
   _isLocal(),
@@ -74,7 +74,7 @@ Hero::update(float delta)
                 _inputEventsQueue.Dequeue();
 
                     // find item
-                auto items = _world->_objectsStorage.Subset<Item>();
+                auto items = _world._objectsStorage.Subset<Item>();
                 for(auto item : items)
                 {
                     if(item->GetPosition() == _pos)
@@ -108,7 +108,7 @@ Hero::update(float delta)
             bool duel_enter = false;
             if(_unitAttributes & Unit::Attributes::DUELABLE)
             {
-                auto units = _world->_objectsStorage.Subset<Unit>();
+                auto units = _world._objectsStorage.Subset<Unit>();
                 for(auto unit : units)
                 {
                     if(unit->GetUID() != this->GetUID() &&

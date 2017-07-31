@@ -11,8 +11,8 @@
 #include <cocos2d.h>
 
 
-Monster::Monster(GameWorld * world, uint32_t uid, const std::string& sprite)
-    : Unit(world, uid)
+Monster::Monster(GameWorld& world, uint32_t uid, const std::string& sprite)
+: Unit(world, uid)
 {
     _type = Unit::Type::MONSTER;
     

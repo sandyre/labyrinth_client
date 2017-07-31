@@ -19,7 +19,7 @@ class Mage
     : public Hero
 {
 public:
-    Mage(GameWorld * world, uint32_t uid, const std::string& sprite);
+    Mage(GameWorld& world, uint32_t uid, const std::string& sprite);
     
     virtual void update(float) override;
 

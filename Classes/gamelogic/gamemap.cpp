@@ -199,20 +199,14 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 	}
 
 	// create floor
-	uint32_t current_block_uid = 0;
 	for (auto i = size - 1; i >= 0; --i)
 	{
 		for (auto j = size - 1; j >= 0; --j)
 		{
-            auto block = GameObject::create<NoBlock>(world, current_block_uid, "floor.png");
-
-			cocos2d::Vec2 log_coords(i, j);
+            auto block = world->_objectsStorage.Create<NoBlock>("floor.png");
             block->Spawn(Point<>(i, j));
 
-            world->_objectsStorage.PushObject(block);
 			world->_objectsLayer->addChild(block->GetSprite(), 0);
-
-			++current_block_uid;
 		}
 	}
 
@@ -252,26 +246,20 @@ GameMap::GenerateMap(const Configuration& settings, GameWorld * world)
 				int rand = (int)m_oRandDistr(m_oRandGen) < 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 
-				auto block = GameObject::create<WallBlock>(world, current_block_uid, file);
-
+                auto block = world->_objectsStorage.Create<WallBlock>(file);
                 block->Spawn(Point<>(i, j));
 
-                world->_objectsStorage.PushObject(block);
 				world->_objectsLayer->addChild(block->GetSprite(), 2);
-				++current_block_uid;
 			}
 			else if (tmp_map[i][j] == MapBlockType::BORDER)
 			{
 				int rand = (int)m_oRandDistr(m_oRandGen) > 700 ? 0 : 1;
 				std::string file = "wall_" + std::to_string(wall_numb) + "_" + std::to_string(rand) + ".png";
 
-                auto block = GameObject::create<BorderBlock>(world, current_block_uid, file);
-
+                auto block = world->_objectsStorage.Create<BorderBlock>(file);
                 block->Spawn(Point<>(i, j));
 
-                world->_objectsStorage.PushObject(block);
 			    world->_objectsLayer->addChild(block->GetSprite(), 2);
-				++current_block_uid;
 			}
 		}
 	}

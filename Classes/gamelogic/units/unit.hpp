@@ -215,7 +215,7 @@ public:
     virtual void ApplyEffect(const std::shared_ptr<Effect>& effect);
 
 protected:
-    Unit(GameWorld * world, uint32_t uid);
+    Unit(GameWorld& world, uint32_t uid);
     
     virtual void update(float) override;
 

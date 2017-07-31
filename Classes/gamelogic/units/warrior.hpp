@@ -18,9 +18,9 @@ class Warrior
     : public Hero
 {
 public:
-    Warrior(GameWorld * world, uint32_t uid, const std::string& sprite);
+    Warrior(GameWorld& world, uint32_t uid, const std::string& sprite);
     
-    virtual void    update(float delta) override;
+    virtual void update(float delta) override;
     
     virtual void RequestSpellCast(int index) override;
     virtual void SpellCast(const GameMessage::SVActionSpell*) override;

@@ -32,7 +32,7 @@ public:
     { }
 
 protected:
-    MapBlock(GameWorld * world, uint32_t uid);
+    MapBlock(GameWorld& world, uint32_t uid);
 
 protected:
     MapBlock::Type  _type;
@@ -43,7 +43,7 @@ class NoBlock
     : public MapBlock
 {
 public:
-    NoBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
+    NoBlock(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 
@@ -51,7 +51,7 @@ class WallBlock
     : public MapBlock
 {
 public:
-    WallBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
+    WallBlock(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 
@@ -59,7 +59,7 @@ class BorderBlock
     : public MapBlock
 {
 public:
-    BorderBlock(GameWorld * world, uint32_t uid, const std::string& sprite);
+    BorderBlock(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* mapblock_hpp */

@@ -14,7 +14,7 @@
 #include "../../gameconfig.hpp"
 
 
-Mage::Mage(GameWorld * world, uint32_t uid, const std::string& sprite)
+Mage::Mage(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Hero(world, uid)
 {
     _type = Hero::Type::MAGE;
@@ -66,7 +66,7 @@ Mage::RequestSpellCast(int index)
                                                 spell1.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
         // attack
@@ -83,7 +83,7 @@ Mage::RequestSpellCast(int index)
                                                 spell1.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
         // frostbolt
@@ -106,7 +106,7 @@ Mage::RequestSpellCast(int index)
                                                 cl_spell.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
 }

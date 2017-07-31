@@ -9,7 +9,7 @@
 #include "mapblock.hpp"
 
 
-MapBlock::MapBlock(GameWorld * world, uint32_t uid)
+MapBlock::MapBlock(GameWorld& world, uint32_t uid)
 : GameObject(world, uid),
   _type(Type::ABSTRACT)
 {
@@ -17,7 +17,7 @@ MapBlock::MapBlock(GameWorld * world, uint32_t uid)
 }
 
 
-NoBlock::NoBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+NoBlock::NoBlock(GameWorld& world, uint32_t uid, const std::string& sprite)
 : MapBlock(world, uid)
 {
     _type = MapBlock::Type::NOBLOCK;
@@ -28,7 +28,7 @@ NoBlock::NoBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
 }
 
 
-WallBlock::WallBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+WallBlock::WallBlock(GameWorld& world, uint32_t uid, const std::string& sprite)
 : MapBlock(world, uid)
 {
     _type = MapBlock::Type::WALL;
@@ -39,7 +39,7 @@ WallBlock::WallBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
 }
 
 
-BorderBlock::BorderBlock(GameWorld * world, uint32_t uid, const std::string& sprite)
+BorderBlock::BorderBlock(GameWorld& world, uint32_t uid, const std::string& sprite)
 : MapBlock(world, uid)
 {
     _type = MapBlock::Type::BORDER;

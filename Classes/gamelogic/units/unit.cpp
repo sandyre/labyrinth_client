@@ -17,7 +17,7 @@
 #include <cocos2d.h>
 
 
-Unit::Unit(GameWorld * world, uint32_t uid)
+Unit::Unit(GameWorld& world, uint32_t uid)
 : GameObject(world, uid),
   _type(Type::ABSTRACT),
   _state(State::WALKING),
@@ -71,7 +71,7 @@ Unit::RequestMove(MoveDirection dir)
                                             move.Union());
     builder.Finish(event);
     
-    _world->_outEvents.emplace(builder.GetBufferPointer(),
+    _world._outEvents.emplace(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
 }
 
@@ -91,7 +91,7 @@ Unit::RequestTakeItem(const std::shared_ptr<Item>& item)
                                             take.Union());
     builder.Finish(event);
         
-    _world->_outEvents.emplace(builder.GetBufferPointer(),
+    _world._outEvents.emplace(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
 }
 
@@ -111,7 +111,7 @@ Unit::RequestStartDuel(const std::shared_ptr<Unit>& enemy)
                                             take.Union());
     builder.Finish(event);
     
-    _world->_outEvents.emplace(builder.GetBufferPointer(),
+    _world._outEvents.emplace(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
 }
 
@@ -161,7 +161,7 @@ Unit::DropItem(int32_t uid)
     if(item == _inventory.end())
         return nullptr;
 
-    _world->_objectsStorage.PushObject(*item);
+    _world._objectsStorage.PushObject(*item);
     (*item)->Spawn(_pos);
 
     auto item_ptr = *item;
@@ -277,7 +277,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     _sprite->runAction(moveTo);
     
         // sound
-    auto distance = _world->GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
+    auto distance = _world.GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
     if(distance <= 10.0)
     {
         auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",

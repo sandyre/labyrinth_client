@@ -16,7 +16,7 @@
 #include <audio/include/AudioEngine.h>
 
 
-Warrior::Warrior(GameWorld * world, uint32_t uid, const std::string& sprite)
+Warrior::Warrior(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Hero(world, uid)
 {
     _type = Hero::Type::WARRIOR;
@@ -68,7 +68,7 @@ Warrior::RequestSpellCast(int index)
                                                 spell1.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
         // warrior attack
@@ -85,7 +85,7 @@ Warrior::RequestSpellCast(int index)
                                                 spell1.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
         // warrior armor up
@@ -102,7 +102,7 @@ Warrior::RequestSpellCast(int index)
                                                 spell1.Union());
         builder.Finish(event);
         
-        _world->_outEvents.emplace(builder.GetBufferPointer(),
+        _world._outEvents.emplace(builder.GetBufferPointer(),
                                    builder.GetBufferPointer() + builder.GetSize());
     }
 }
@@ -212,7 +212,7 @@ Warrior::Move(const GameMessage::SVActionMove* mov)
     _sprite->runAction(spawn);
     
         // sound
-    auto distance = _world->GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
+    auto distance = _world.GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
     if(distance <= 10.0)
     {
         auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
