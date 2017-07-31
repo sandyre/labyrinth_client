@@ -50,6 +50,16 @@ private:
         template<typename T, typename... Args>
         std::shared_ptr<T> CreateWithUID(uint32_t uid, Args&&... args)
         {
+#ifdef _DEBUG
+            // Consistency check (uid should not have duplicates)
+            bool is_copy = std::any_of(_storage.begin(),
+                                       _storage.end(),
+                                       [uid](const GameObjectPtr& obj)
+                                       {
+                                           return uid == obj->GetUID();
+                                       });
+            assert(is_copy == false);
+#endif
             auto object = std::make_shared<T>(_world, uid, std::forward<Args>(args)...);
             _storage.push_back(object);
 
@@ -79,16 +89,6 @@ private:
         template<typename T = GameObject>
         std::shared_ptr<T> FindObject(uint32_t uid)
         {
-#ifdef _DEBUG
-            // Consistency check (uid should not have duplicates)
-            bool is_copy = std::any_of(_storage.begin(),
-                                       _storage.end(),
-                                       [uid](const GameObjectPtr& obj)
-                                       {
-                                           return uid == obj->GetUID();
-                                       });
-            assert(is_copy == false);
-#endif
             auto iter = std::find_if(_storage.begin(),
                                      _storage.end(),
                                      [uid](const GameObjectPtr& obj)
