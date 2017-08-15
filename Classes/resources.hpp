@@ -17,10 +17,10 @@ static const std::string TempestaFive = "res/ui/ui_fonts/pf_tempesta_five.ttf";
 
 static const std::array<std::string, 4> HeroPortraits
 {
-    "res/graphics/unit_warrior.png",
-    "res/graphics/unit_mage.png",
-    "res/graphics/unit_rogue.png",
-    "res/graphics/unit_priest.png"
+    "res/graphics/raw/unit_warrior.png",
+    "res/graphics/raw/unit_mage.png",
+    "res/graphics/raw/unit_rogue.png",
+    "res/graphics/raw/unit_priest.png"
 };
 
 static const std::array<std::string, 4> HeroIcons
