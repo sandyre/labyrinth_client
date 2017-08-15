@@ -206,11 +206,66 @@
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
             <key type="filename">construction_door.png</key>
+            <key type="filename">construction_fontain_1.png</key>
+            <key type="filename">construction_fontain_2.png</key>
+            <key type="filename">construction_fontain_3.png</key>
             <key type="filename">construction_graveyard.png</key>
             <key type="filename">item_key.png</key>
             <key type="filename">unit_mage.png</key>
+            <key type="filename">unit_mage_attack_1.png</key>
+            <key type="filename">unit_mage_attack_2.png</key>
+            <key type="filename">unit_mage_attack_3.png</key>
+            <key type="filename">unit_mage_attack_4.png</key>
+            <key type="filename">unit_mage_attack_5.png</key>
+            <key type="filename">unit_mage_die_1.png</key>
+            <key type="filename">unit_mage_die_2.png</key>
+            <key type="filename">unit_mage_die_3.png</key>
+            <key type="filename">unit_mage_die_4.png</key>
+            <key type="filename">unit_mage_die_5.png</key>
+            <key type="filename">unit_mage_die_6.png</key>
+            <key type="filename">unit_mage_die_7.png</key>
+            <key type="filename">unit_mage_freeze_1.png</key>
+            <key type="filename">unit_mage_freeze_2.png</key>
+            <key type="filename">unit_mage_freeze_3.png</key>
+            <key type="filename">unit_mage_freeze_4.png</key>
+            <key type="filename">unit_mage_move_1.png</key>
+            <key type="filename">unit_mage_move_2.png</key>
+            <key type="filename">unit_mage_move_3.png</key>
+            <key type="filename">unit_mage_move_4.png</key>
+            <key type="filename">unit_mage_move_5.png</key>
+            <key type="filename">unit_mage_move_6.png</key>
+            <key type="filename">unit_mage_move_7.png</key>
+            <key type="filename">unit_mage_move_8.png</key>
             <key type="filename">unit_skeleton.png</key>
+            <key type="filename">unit_skeleton_attack_1.png</key>
+            <key type="filename">unit_skeleton_attack_2.png</key>
+            <key type="filename">unit_skeleton_attack_3.png</key>
+            <key type="filename">unit_skeleton_death_1.png</key>
+            <key type="filename">unit_skeleton_death_2.png</key>
+            <key type="filename">unit_skeleton_death_3.png</key>
+            <key type="filename">unit_skeleton_death_4.png</key>
+            <key type="filename">unit_skeleton_death_5.png</key>
+            <key type="filename">unit_skeleton_move_1.png</key>
+            <key type="filename">unit_skeleton_move_2.png</key>
+            <key type="filename">unit_skeleton_move_3.png</key>
+            <key type="filename">unit_skeleton_move_4.png</key>
+            <key type="filename">unit_skeleton_move_5.png</key>
             <key type="filename">unit_warrior.png</key>
+            <key type="filename">unit_warrior_attack_1.png</key>
+            <key type="filename">unit_warrior_attack_2.png</key>
+            <key type="filename">unit_warrior_attack_3.png</key>
+            <key type="filename">unit_warrior_attack_4.png</key>
+            <key type="filename">unit_warrior_block_1.png</key>
+            <key type="filename">unit_warrior_block_2.png</key>
+            <key type="filename">unit_warrior_block_3.png</key>
+            <key type="filename">unit_warrior_block_4.png</key>
+            <key type="filename">unit_warrior_block_5.png</key>
+            <key type="filename">unit_warrior_death_1.png</key>
+            <key type="filename">unit_warrior_death_2.png</key>
+            <key type="filename">unit_warrior_death_3.png</key>
+            <key type="filename">unit_warrior_death_4.png</key>
+            <key type="filename">unit_warrior_death_5.png</key>
+            <key type="filename">unit_warrior_death_6.png</key>
             <key type="filename">unit_warrior_move_1.png</key>
             <key type="filename">unit_warrior_move_2.png</key>
             <key type="filename">unit_warrior_move_3.png</key>
@@ -351,6 +406,9 @@
         <key>fileList</key>
         <array>
             <filename>construction_door.png</filename>
+            <filename>construction_fontain_1.png</filename>
+            <filename>construction_fontain_2.png</filename>
+            <filename>construction_fontain_3.png</filename>
             <filename>construction_graveyard.png</filename>
             <filename>floor.png</filename>
             <filename>frame.png</filename>
@@ -362,8 +420,60 @@
             <filename>ui_icon_mage.png</filename>
             <filename>ui_icon_warrior.png</filename>
             <filename>unit_mage.png</filename>
+            <filename>unit_mage_attack_1.png</filename>
+            <filename>unit_mage_attack_2.png</filename>
+            <filename>unit_mage_attack_3.png</filename>
+            <filename>unit_mage_attack_4.png</filename>
+            <filename>unit_mage_attack_5.png</filename>
+            <filename>unit_mage_die_1.png</filename>
+            <filename>unit_mage_die_2.png</filename>
+            <filename>unit_mage_die_3.png</filename>
+            <filename>unit_mage_die_4.png</filename>
+            <filename>unit_mage_die_5.png</filename>
+            <filename>unit_mage_die_6.png</filename>
+            <filename>unit_mage_die_7.png</filename>
+            <filename>unit_mage_freeze_1.png</filename>
+            <filename>unit_mage_freeze_2.png</filename>
+            <filename>unit_mage_freeze_3.png</filename>
+            <filename>unit_mage_freeze_4.png</filename>
+            <filename>unit_mage_move_1.png</filename>
+            <filename>unit_mage_move_2.png</filename>
+            <filename>unit_mage_move_3.png</filename>
+            <filename>unit_mage_move_4.png</filename>
+            <filename>unit_mage_move_5.png</filename>
+            <filename>unit_mage_move_6.png</filename>
+            <filename>unit_mage_move_7.png</filename>
+            <filename>unit_mage_move_8.png</filename>
             <filename>unit_skeleton.png</filename>
+            <filename>unit_skeleton_attack_1.png</filename>
+            <filename>unit_skeleton_attack_2.png</filename>
+            <filename>unit_skeleton_attack_3.png</filename>
+            <filename>unit_skeleton_death_1.png</filename>
+            <filename>unit_skeleton_death_2.png</filename>
+            <filename>unit_skeleton_death_3.png</filename>
+            <filename>unit_skeleton_death_4.png</filename>
+            <filename>unit_skeleton_death_5.png</filename>
+            <filename>unit_skeleton_move_1.png</filename>
+            <filename>unit_skeleton_move_2.png</filename>
+            <filename>unit_skeleton_move_3.png</filename>
+            <filename>unit_skeleton_move_4.png</filename>
+            <filename>unit_skeleton_move_5.png</filename>
             <filename>unit_warrior.png</filename>
+            <filename>unit_warrior_attack_1.png</filename>
+            <filename>unit_warrior_attack_2.png</filename>
+            <filename>unit_warrior_attack_3.png</filename>
+            <filename>unit_warrior_attack_4.png</filename>
+            <filename>unit_warrior_block_1.png</filename>
+            <filename>unit_warrior_block_2.png</filename>
+            <filename>unit_warrior_block_3.png</filename>
+            <filename>unit_warrior_block_4.png</filename>
+            <filename>unit_warrior_block_5.png</filename>
+            <filename>unit_warrior_death_1.png</filename>
+            <filename>unit_warrior_death_2.png</filename>
+            <filename>unit_warrior_death_3.png</filename>
+            <filename>unit_warrior_death_4.png</filename>
+            <filename>unit_warrior_death_5.png</filename>
+            <filename>unit_warrior_death_6.png</filename>
             <filename>unit_warrior_move_1.png</filename>
             <filename>unit_warrior_move_2.png</filename>
             <filename>unit_warrior_move_3.png</filename>
