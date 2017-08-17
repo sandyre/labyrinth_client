@@ -30,6 +30,56 @@ Warrior::Warrior(GameWorld& world, uint32_t uid, const std::string& sprite)
     _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
     assert(_sprite);
 
+    _actionExecutor.SetTarget(_sprite);
+
+    // Animations init
+    // Movement
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_move");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto movAnimation = cocos2d::Animate::create(animation);
+        movAnimation->setDuration(1.0 / _moveSpeed);
+
+        _animationStorage.Push("move", movAnimation);
+    }
+    // Attack
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_attack");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto atkAnimation = cocos2d::Animate::create(animation);
+        atkAnimation->setDuration(0.4f);
+        atkAnimation->setTag(10);
+
+        _animationStorage.Push("attack", atkAnimation);
+    }
+    // Block
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_block");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto blockAnimation = cocos2d::Animate::create(animation);
+        blockAnimation->setDuration(0.5f);
+        blockAnimation->setTag(10);
+
+        _animationStorage.Push("block", blockAnimation);
+    }
+    // Death
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_death");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto deathAnimation = cocos2d::Animate::create(animation);
+        deathAnimation->setDuration(0.8);
+
+        _animationStorage.Push("death", deathAnimation);
+    }
+
         // spell 1 cd (global)
     _cdManager.AddSpell(10.0f);
     
@@ -131,6 +181,9 @@ Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
         dmg.Type = DamageDescriptor::DamageType::PHYSICAL;
 
         _duelTarget->TakeDamage(dmg);
+
+            // animation
+        _actionExecutor.LaunchAction(_animationStorage.Get("attack"), ActionExecutor::ActionType::ANIMATION);
     }
         // spell2 == armor up
     else if(spell->spell_id() == 2)
@@ -140,83 +193,8 @@ Warrior::SpellCast(const GameMessage::SVActionSpell* spell)
         
         auto armorUp = std::make_shared<WarriorArmorUp>(std::static_pointer_cast<Unit>(shared_from_this()), 5.0f, 4);
         this->ApplyEffect(armorUp);
-    }
-}
 
-
-void
-Warrior::update(float delta)
-{
-    Hero::update(delta);
-}
-
-
-void
-Warrior::Move(const GameMessage::SVActionMove* mov)
-{
-    Orientation new_orient = (Orientation)mov->mov_dir();
-    MoveDirection mov_dir = (MoveDirection)mov->mov_dir();
-    Point<> new_pos = _pos;
-    if(mov_dir == MoveDirection::UP)
-    {
-        ++new_pos.y;
-    }
-    else if(mov_dir == MoveDirection::DOWN)
-    {
-        --new_pos.y;
-    }
-    else if(mov_dir == MoveDirection::LEFT)
-    {
-        --new_pos.x;
-    }
-    else if(mov_dir == MoveDirection::RIGHT)
-    {
-        ++new_pos.x;
-    }
-    
-        // change orientation properly
-    if(_orientation != new_orient)
-    {
-        if(new_orient == Orientation::LEFT)
-        {
-            _sprite->setFlippedX(true);
-        }
-        else if(new_orient == Orientation::RIGHT)
-        {
-            _sprite->setFlippedX(false);
-        }
-    }
-    
-    _orientation = new_orient;
-    
-    if(new_pos != Point<>(mov->x(), mov->y()))
-    {
-        new_pos = Point<>(mov->x(), mov->y());
-    }
-    
-    _pos = new_pos;
-    
-        // animation
-    auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_warrior_move");
-    animation->setRestoreOriginalFrame(true);
-    animation->setLoops(1);
-    auto mov_animation = cocos2d::Animate::create(animation);
-    mov_animation->setDuration(1.0/_moveSpeed);
-    
-    auto moveTo = cocos2d::MoveTo::create(1.0/_moveSpeed,
-                                          LOG_TO_PHYS_COORD(new_pos, _sprite->getContentSize()));
-    auto spawn = cocos2d::Spawn::create(mov_animation,
-                                        moveTo,
-                                        nullptr);
-    spawn->setTag(5);
-    _sprite->runAction(spawn);
-    
-        // sound
-    auto distance = _world.GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
-    if(distance <= 10.0)
-    {
-        auto audio = cocos2d::experimental::AudioEngine::play2d("res/audio/step.mp3",
-                                                                false,
-                                                                1.0f / distance);
+            // animation
+       _actionExecutor.LaunchAction(_animationStorage.Get("block"), ActionExecutor::ActionType::ANIMATION);
     }
 }

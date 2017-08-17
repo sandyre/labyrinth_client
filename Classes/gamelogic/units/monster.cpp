@@ -24,6 +24,44 @@ Monster::Monster(GameWorld& world, uint32_t uid, const std::string& sprite)
 
     _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
     assert(_sprite);
+
+    _actionExecutor.SetTarget(_sprite);
+
+    // Animations init
+    // Movement
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_skeleton_move");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto movAnimation = cocos2d::Animate::create(animation);
+        movAnimation->setDuration(1.0 / _moveSpeed);
+
+        _animationStorage.Push("move", movAnimation);
+    }
+    // Attack
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_skeleton_attack");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto atkAnimation = cocos2d::Animate::create(animation);
+        atkAnimation->setDuration(0.4f);
+        atkAnimation->setTag(10);
+
+        _animationStorage.Push("attack", atkAnimation);
+    }
+    // Death
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_skeleton_death");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto deathAnimation = cocos2d::Animate::create(animation);
+        deathAnimation->setDuration(0.8);
+
+        _animationStorage.Push("death", deathAnimation);
+    }
 }
 
 
@@ -37,6 +75,9 @@ Monster::SpellCast(const GameMessage::SVActionSpell * spell)
         dmg.Type = DamageDescriptor::DamageType::PHYSICAL;
 
         if(_duelTarget)
+        {
             _duelTarget->TakeDamage(dmg);
+            _actionExecutor.LaunchAction(_animationStorage.Get("attack"), ActionExecutor::ActionType::ANIMATION);
+        }
     }
 }

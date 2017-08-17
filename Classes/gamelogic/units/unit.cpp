@@ -47,6 +47,7 @@ Unit::ApplyEffect(const std::shared_ptr<Effect>& effect)
 void
 Unit::update(float delta)
 {
+    GameObject::update(delta);
     _cdManager.Update(delta);
     _effectsManager.Update(delta);    
 }
@@ -228,6 +229,8 @@ Unit::Die()
         // animation
     auto fadeOut = cocos2d::FadeOut::create(0.5);
     _sprite->runAction(fadeOut);
+
+    _actionExecutor.LaunchAction(_animationStorage.Get("death"), ActionExecutor::ActionType::ANIMATION);
 }
 
 
@@ -254,7 +257,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
         ++new_pos.x;
     }
     
-        // change orientation properly
+    // change orientation properly
     if(_orientation != new_orient)
     {
         if(new_orient == Orientation::LEFT)
@@ -266,16 +269,27 @@ Unit::Move(const GameMessage::SVActionMove* mov)
             _sprite->setFlippedX(false);
         }
     }
-    
+
     _orientation = new_orient;
 
-    _pos = Point<>(mov->x(), mov->y());
-    
+    if(new_pos != Point<>(mov->x(), mov->y()))
+    {
+        new_pos = Point<>(mov->x(), mov->y());
+    }
+
+    _pos = new_pos;
+
         // animation
-    auto moveTo = cocos2d::MoveTo::create(1.0/_moveSpeed,
+    auto moveAnim = _animationStorage.Get("move");
+    moveAnim->setDuration(1.0 / _moveSpeed);
+
+    auto moveTo = cocos2d::MoveTo::create(1.0 / _moveSpeed,
                                           LOG_TO_PHYS_COORD(new_pos, _sprite->getContentSize()));
-    _sprite->runAction(moveTo);
-    
+
+    auto spawn = cocos2d::Spawn::create(moveAnim, moveTo, nullptr);
+
+    _actionExecutor.LaunchAction(spawn, ActionExecutor::ActionType::MOVEMENT);
+
         // sound
     auto distance = _world.GetLocalPlayer()->GetPosition().Distance(this->GetPosition());
     if(distance <= 10.0)
@@ -289,14 +303,24 @@ Unit::Move(const GameMessage::SVActionMove* mov)
 
 void
 Unit::TakeItem(const std::shared_ptr<Item>& item)
-{
-    _inventory.push_back(item);
-}
+{ _inventory.push_back(item); }
 
 
 void
 Unit::StartDuel(const std::shared_ptr<Unit>& unit)
 {
+    // change orientation properly
+    if(unit->GetPosition().x > this->GetPosition().x)
+    {
+        _orientation = Orientation::RIGHT;
+        _sprite->setFlippedX(false);
+    }
+    else
+    {
+        _orientation = Orientation::LEFT;
+        _sprite->setFlippedX(true);
+    }
+
     _state = State::DUEL;
     _unitAttributes &= ~(Unit::Attributes::DUELABLE);
 

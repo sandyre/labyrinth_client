@@ -122,8 +122,8 @@ Hero::update(float delta)
                     }
                 }
             }
-            
-            if(!(_sprite->getActionByTag(5)))
+
+            if (!_sprite->getNumberOfRunningActionsByTag(1))
             {
                 RequestMove((MoveDirection)event);
                 _inputEventsQueue.Dequeue();

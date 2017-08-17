@@ -28,6 +28,56 @@ Mage::Mage(GameWorld& world, uint32_t uid, const std::string& sprite)
     _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
     assert(_sprite);
 
+    _actionExecutor.SetTarget(_sprite);
+
+    // Animations init
+    // Movement
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_move");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto movAnimation = cocos2d::Animate::create(animation);
+        movAnimation->setDuration(1.0 / _moveSpeed);
+
+        _animationStorage.Push("move", movAnimation);
+    }
+    // Attack
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_attack");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto atkAnimation = cocos2d::Animate::create(animation);
+        atkAnimation->setDuration(0.4f);
+        atkAnimation->setTag(10);
+
+        _animationStorage.Push("attack", atkAnimation);
+    }
+    // Block
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_freeze");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto blockAnimation = cocos2d::Animate::create(animation);
+        blockAnimation->setDuration(0.5f);
+        blockAnimation->setTag(10);
+
+        _animationStorage.Push("block", blockAnimation);
+    }
+    // Death
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_death");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto deathAnimation = cocos2d::Animate::create(animation);
+        deathAnimation->setDuration(0.8);
+
+        _animationStorage.Push("death", deathAnimation);
+    }
+
         // spell 1 cd (global)
     _cdManager.AddSpell(30.0f);
     
@@ -165,11 +215,4 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         auto freeze = std::make_shared<MageFreeze>(_duelTarget, 3.0f);
         _duelTarget->ApplyEffect(freeze);
     }
-}
-
-
-void
-Mage::update(float delta)
-{
-    Hero::update(delta);
 }

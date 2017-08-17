@@ -20,8 +20,6 @@ class Mage
 {
 public:
     Mage(GameWorld& world, uint32_t uid, const std::string& sprite);
-    
-    virtual void update(float) override;
 
     virtual void RequestSpellCast(int index) override;
     virtual void SpellCast(const GameMessage::SVActionSpell*) override;

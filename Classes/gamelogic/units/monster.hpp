@@ -17,8 +17,6 @@ class Monster
 {
 public:
     Monster(GameWorld& world, uint32_t uid, const std::string& sprite);
-
-    virtual void update(float) override {}
     
     virtual void RequestSpellCast(int) override {}
     virtual void SpellCast(const GameMessage::SVActionSpell*);
