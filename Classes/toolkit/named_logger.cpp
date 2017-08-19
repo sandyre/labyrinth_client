@@ -34,7 +34,7 @@ NamedLogger::LoggerStream::LoggerStream(const NamedLogger& parent,
             _prefix += Color::YELLOW;
             _prefix += "[ Warning ] ";
             break;
-        case Level::ERROR:
+        case Level::ERR:
             _prefix += Color::RED;
             _prefix += "[ Error ] ";
             break;

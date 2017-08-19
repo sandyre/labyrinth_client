@@ -45,7 +45,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
 
         case Hero::Type::MAGE:
         {
-            hero = _objectsStorage.CreateWithUID<Warrior>(player.Uid, "unit_mage.png");
+            hero = _objectsStorage.CreateWithUID<Mage>(player.Uid, "unit_mage.png");
             break;
         }
         default:

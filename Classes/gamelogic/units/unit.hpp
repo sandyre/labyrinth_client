@@ -36,7 +36,7 @@ class Unit
         using Cooldown = std::pair<float, float>;
     public:
         void AddSpell(float cooldown)
-        { _storage.push_back(std::make_tuple(0.0f, cooldown)); }
+        { _storage.push_back(std::make_pair(0.0f, cooldown)); }
 
         void Restart(size_t spellIndex)
         { _storage[spellIndex].first = _storage[spellIndex].second; }

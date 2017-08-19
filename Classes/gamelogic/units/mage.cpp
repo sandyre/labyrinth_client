@@ -60,11 +60,11 @@ Mage::Mage(GameWorld& world, uint32_t uid, const std::string& sprite)
         animation->setRestoreOriginalFrame(true);
         animation->setLoops(1);
 
-        auto blockAnimation = cocos2d::Animate::create(animation);
-        blockAnimation->setDuration(0.5f);
-        blockAnimation->setTag(10);
+        auto freezeAnimation = cocos2d::Animate::create(animation);
+        freezeAnimation->setDuration(0.5f);
+        freezeAnimation->setTag(10);
 
-        _animationStorage.Push("block", blockAnimation);
+        _animationStorage.Push("freeze", freezeAnimation);
     }
     // Death
     {
@@ -202,6 +202,8 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         dmg.DealerName = "";
 
         _duelTarget->TakeDamage(dmg);
+		// animation
+		_actionExecutor.LaunchAction(_animationStorage.Get("attack"), ActionExecutor::ActionType::ANIMATION);
     }
         // spell2 == freeze
     else if(spell->spell_id() == 2)
@@ -214,5 +216,7 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         
         auto freeze = std::make_shared<MageFreeze>(_duelTarget, 3.0f);
         _duelTarget->ApplyEffect(freeze);
+		// animation
+		_actionExecutor.LaunchAction(_animationStorage.Get("freeze"), ActionExecutor::ActionType::ANIMATION);
     }
 }

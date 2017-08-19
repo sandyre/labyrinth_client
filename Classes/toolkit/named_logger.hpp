@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <mutex>
 
 #include <string>
 
@@ -40,7 +41,7 @@ private:
             DBG,
             INFO,
             WARNING,
-            ERROR
+            ERR
         };
 
     private:
@@ -96,7 +97,7 @@ public:
     { return LoggerStream(*this, LoggerStream::Level::WARNING); }
 
     LoggerStream Error()
-    { return LoggerStream(*this, LoggerStream::Level::ERROR); }
+    { return LoggerStream(*this, LoggerStream::Level::ERR); }
 
 private:
     void Write(const std::string& str) const;
