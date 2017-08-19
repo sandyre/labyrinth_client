@@ -129,6 +129,7 @@ Unit::Spawn(const Point<>& log_pos)
     _objAttributes = GameObject::Attributes::DAMAGABLE | GameObject::Attributes::VISIBLE | GameObject::Attributes::MOVABLE;
     _unitAttributes = Unit::Attributes::ATTACK | Unit::Attributes::DUELABLE | Unit::Attributes::INPUT;
     _health = _healthLimit;
+	_animMoveState = Unit::AnimMoveState::LEFT;
     
     _pos = log_pos;
     _sprite->setPosition(LOG_TO_PHYS_COORD(log_pos, _sprite->getContentSize()));
@@ -281,6 +282,15 @@ Unit::Move(const GameMessage::SVActionMove* mov)
 
         // animation
     auto moveAnim = _animationStorage.Get("move");
+	if (_type == Unit::Type::HERO)
+		if (_animMoveState == Unit::AnimMoveState::LEFT) {
+			moveAnim = _animationStorage.Get("move_l");
+			_animMoveState = Unit::AnimMoveState::RIGHT;
+		}
+		else {
+			moveAnim = _animationStorage.Get("move_r");
+			_animMoveState = Unit::AnimMoveState::LEFT;
+		}
     moveAnim->setDuration(1.0 / _moveSpeed);
 
     auto moveTo = cocos2d::MoveTo::create(1.0 / _moveSpeed,

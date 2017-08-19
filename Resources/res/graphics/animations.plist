@@ -4,6 +4,30 @@
 <dict>
 	<key>animations</key>
 	<dict>
+		<key>unit_warrior_move_l</key>
+		<dict>
+			<key>frames</key>
+			<array>
+				<string>unit_warrior_move_1.png</string>
+				<string>unit_warrior_move_2.png</string>
+				<string>unit_warrior_move_3.png</string>
+				<string>unit_warrior_move_4.png</string>
+			</array>
+			<key>delay</key>
+			<integer>5</integer>
+		</dict>
+		<key>unit_warrior_move_r</key>
+		<dict>
+			<key>frames</key>
+			<array>
+				<string>unit_warrior_move_5.png</string>
+				<string>unit_warrior_move_6.png</string>
+				<string>unit_warrior_move_7.png</string>
+				<string>unit_warrior_move_8.png</string>
+			</array>
+			<key>delay</key>
+			<integer>5</integer>
+		</dict>
 		<key>unit_warrior_move</key>
 		<dict>
 			<key>frames</key>
@@ -55,6 +79,30 @@
 				<string>unit_warrior_death_4.png</string>
 				<string>unit_warrior_death_5.png</string>
 				<string>unit_warrior_death_6.png</string>
+			</array>
+			<key>delay</key>
+			<integer>5</integer>
+		</dict>
+		<key>unit_mage_move_l</key>
+		<dict>
+			<key>frames</key>
+			<array>
+				<string>unit_mage_move_1.png</string>
+				<string>unit_mage_move_2.png</string>
+				<string>unit_mage_move_3.png</string>
+				<string>unit_mage_move_4.png</string>
+			</array>
+			<key>delay</key>
+			<integer>5</integer>
+		</dict>
+		<key>unit_mage_move_r</key>
+		<dict>
+			<key>frames</key>
+			<array>
+				<string>unit_mage_move_5.png</string>
+				<string>unit_mage_move_6.png</string>
+				<string>unit_mage_move_7.png</string>
+				<string>unit_mage_move_8.png</string>
 			</array>
 			<key>delay</key>
 			<integer>5</integer>

@@ -129,6 +129,10 @@ public:
         DUEL,
         DEAD
     };
+	enum class AnimMoveState {
+		LEFT = 0x00,
+		RIGHT = 0x01
+	};
 
     struct DamageDescriptor
     {
@@ -225,6 +229,7 @@ protected:
     uint32_t            _unitAttributes;
     Unit::State         _state;
     Unit::Orientation   _orientation;
+	Unit::AnimMoveState _animMoveState;
 
     int16_t             _baseDamage;
     int16_t             _bonusDamage;
