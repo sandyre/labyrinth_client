@@ -129,7 +129,7 @@ Unit::Spawn(const Point<>& log_pos)
     _objAttributes = GameObject::Attributes::DAMAGABLE | GameObject::Attributes::VISIBLE | GameObject::Attributes::MOVABLE;
     _unitAttributes = Unit::Attributes::ATTACK | Unit::Attributes::DUELABLE | Unit::Attributes::INPUT;
     _health = _healthLimit;
-	_left = true;
+	_animMoveState = Unit::AnimMoveState::LEFT;
     
     _pos = log_pos;
     _sprite->setPosition(LOG_TO_PHYS_COORD(log_pos, _sprite->getContentSize()));
