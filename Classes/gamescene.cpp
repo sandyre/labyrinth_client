@@ -49,6 +49,8 @@ GameScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     
         // add gameworld
+    _world->InitView();
+
     _world->GetView()->setPosition(Vec2::ZERO);
     this->addChild(_world->GetView());
     
@@ -151,11 +153,5 @@ GameScene::update(float delta)
 void
 GameScene::UpdateView(float delta)
 {
-        // update camera pos
-    auto player = _world->GetLocalPlayer();
-    auto pCam = Camera::getDefaultCamera();
-    auto cur_pos = pCam->getPosition3D();
-    cur_pos.x = (player->GetSprite()->getPosition().x - cur_pos.x)*delta*3 + cur_pos.x;
-    cur_pos.y = (player->GetSprite()->getPosition().y- cur_pos.y)*delta*3 + cur_pos.y;
-    pCam->setPosition3D(Vec3(cur_pos.x, cur_pos.y, 800));
+        
 }

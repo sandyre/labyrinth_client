@@ -281,16 +281,17 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     _pos = new_pos;
 
         // animation
-    auto moveAnim = _animationStorage.Get("move");
-	if (_type == Unit::Type::HERO)
-		if (_animMoveState == Unit::AnimMoveState::LEFT) {
-			moveAnim = _animationStorage.Get("move_l");
-			_animMoveState = Unit::AnimMoveState::RIGHT;
-		}
-		else {
-			moveAnim = _animationStorage.Get("move_r");
-			_animMoveState = Unit::AnimMoveState::LEFT;
-		}
+    cocos2d::Animate * moveAnim = nullptr;
+    if (_animMoveState == Unit::AnimMoveState::LEFT)
+    {
+        moveAnim = _animationStorage.Get("move_l");
+        _animMoveState = Unit::AnimMoveState::RIGHT;
+    }
+    else
+    {
+        moveAnim = _animationStorage.Get("move_r");
+        _animMoveState = Unit::AnimMoveState::RIGHT;
+    }
     moveAnim->setDuration(1.0 / _moveSpeed);
 
     auto moveTo = cocos2d::MoveTo::create(1.0 / _moveSpeed,

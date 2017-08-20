@@ -37,7 +37,17 @@ Monster::Monster(GameWorld& world, uint32_t uid, const std::string& sprite)
         auto movAnimation = cocos2d::Animate::create(animation);
         movAnimation->setDuration(1.0 / _moveSpeed);
 
-        _animationStorage.Push("move", movAnimation);
+        _animationStorage.Push("move_l", movAnimation);
+    }
+    {
+        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_skeleton_move");
+        animation->setRestoreOriginalFrame(true);
+        animation->setLoops(1);
+
+        auto movAnimation = cocos2d::Animate::create(animation);
+        movAnimation->setDuration(1.0 / _moveSpeed);
+
+        _animationStorage.Push("move_r", movAnimation);
     }
     // Attack
     {

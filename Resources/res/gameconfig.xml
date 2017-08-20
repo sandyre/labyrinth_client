@@ -1,7 +1,7 @@
 <!-- Game configuration file. Do not modify it yourself. -->
 <settings>
 	<network>
-		<masterserver host="localhost" port="1930"/>
+		<masterserver host="78.155.206.151" port="1930"/>
 	</network>
-	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="qwerty123" uuid=""/>
+	<player autologin="yes" email="mush3d@gmail.com" nickname="defaultnickname" password="vsemprivet" uuid=""/>
 </settings>

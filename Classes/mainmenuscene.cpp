@@ -150,6 +150,7 @@ MainMenuScene::init()
                              Messages_CLPing,
                              ping.Union());
     builder.Finish(msg);
+
     _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
                                               builder.GetBufferPointer() + builder.GetSize()));
     builder.Clear();
@@ -215,7 +216,7 @@ MainMenuScene::init()
                                      Messages_CLLogin,
                                      log_msg.Union());
             builder.Finish(msg);
-            
+
             _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
                                                       builder.GetBufferPointer() + builder.GetSize()));
         }

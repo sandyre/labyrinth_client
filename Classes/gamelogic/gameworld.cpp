@@ -26,9 +26,7 @@ GameWorld::GameWorld(GameSessionDescriptor& descriptor)
   _objectsLayer(cocos2d::Layer::create())
 {
     _view->retain(); // release in destructor!
-
-    _objectsLayer->setAnchorPoint(cocos2d::Vec2::ZERO);
-    _view->addChild(_objectsLayer, 0);
+    _objectsLayer->retain();
 
     GameMap().GenerateMap(descriptor.MapConf, this);
 
@@ -317,11 +315,59 @@ GameWorld::update(float delta)
     ApplyInputMessages();
     for(auto iter = _objectsStorage.Begin(); iter != _objectsStorage.End(); ++iter)
         (*iter)->update(delta);
+
+    // update camera pos
+    auto cur_pos = _localPlayer->GetSprite()->getPosition();
+//    auto cur_pos = _camera->getPosition3D();
+//    cur_pos.x = (_localPlayer->GetSprite()->getPosition().x - cur_pos.x)*delta*3 + cur_pos.x;
+//    cur_pos.y = (_localPlayer->GetSprite()->getPosition().y- cur_pos.y)*delta*3 + cur_pos.y;
+    _camera->setPosition3D(cocos2d::Vec3(cur_pos.x, cur_pos.y, 800));
+}
+
+void
+GameWorld::InitView()
+{
+    auto screenSize = cocos2d::Director::getInstance()->getWinSizeInPixels();
+    auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+
+    _objectsLayer->setAnchorPoint(cocos2d::Vec2::ZERO);
+
+    _tempLayer = cocos2d::Layer::create();
+    _tempLayer->addChild(_objectsLayer, 0);
+    _view->addChild(_tempLayer);
+
+    _tempLayer->setCameraMask((unsigned short)cocos2d::CameraFlag::DEFAULT);
+
+    auto frameBuffer = cocos2d::experimental::FrameBuffer::create(0, screenSize.width, screenSize.height);
+    _renderTarget = cocos2d::experimental::RenderTarget::create(screenSize.width, screenSize.height);
+
+    frameBuffer->attachRenderTarget(_renderTarget);
+    frameBuffer->setClearColor(cocos2d::Color4F::BLACK);
+    _renderTarget->getTexture()->setAliasTexParameters();
+
+    auto depth = cocos2d::experimental::RenderTargetDepthStencil::create(screenSize.width, screenSize.height);
+    frameBuffer->attachDepthStencilTarget(depth);
+
+    _postProcess = cocos2d::Sprite::createWithTexture(_renderTarget->getTexture());
+    cocos2d::GLProgramCache::getInstance()->addGLProgram(
+                                                         cocos2d::GLProgram::createWithFilenames("res/graphics/shaders/Basic.vsh", "res/graphics/shaders/Light.fsh"),
+                                                         "@shader"
+                                                         );
+    _postProcess->setGLProgram(cocos2d::GLProgramCache::getInstance()->getGLProgram("@shader"));
+    _postProcess->getGLProgramState()->setUniformVec2("resolution", visibleSize);
+    _postProcess->setFlippedY(true);
+    _postProcess->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+    _view->addChild(_postProcess);
+
+    _camera = cocos2d::Camera::create();
+    _camera->setFrameBufferObject(frameBuffer);
+    _camera->setCameraFlag(cocos2d::CameraFlag::DEFAULT);
+    _view->addChild(_camera);
 }
 
 void
 GameWorld::SetHUD(UIGameScene * ui)
 {
     _ui = ui;
-    _localPlayer->SetHUD(ui);
+    _localPlayer->SetHUD(ui);;
 }

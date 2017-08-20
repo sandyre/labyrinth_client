@@ -130,6 +130,8 @@ public:
     { return _view; }
 
     void SetHUD(UIGameScene * ui);
+
+    void InitView();
     
     const std::shared_ptr<Hero> GetLocalPlayer()
     { return _localPlayer; }
@@ -153,8 +155,12 @@ protected:
     std::shared_ptr<Hero>                   _localPlayer;
 
     cocos2d::Layer *                        _objectsLayer;
-    
+
+    cocos2d::experimental::RenderTarget *   _renderTarget;
     cocos2d::Layer *                        _view;
+    cocos2d::Layer *                        _tempLayer;
+    cocos2d::Camera *                       _camera;
+    cocos2d::Sprite *                       _postProcess;
     UIGameScene *                           _ui;
     
     friend GameMap;
