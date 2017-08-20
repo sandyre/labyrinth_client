@@ -31,6 +31,7 @@ Mage::Mage(GameWorld& world, uint32_t uid, const std::string& sprite)
     _actionExecutor.SetTarget(_sprite);
 
     // Animations init
+    // Movement
 	{
 		auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_move_l");
 		animation->setRestoreOriginalFrame(true);
@@ -51,17 +52,6 @@ Mage::Mage(GameWorld& world, uint32_t uid, const std::string& sprite)
 
 		_animationStorage.Push("move_r", movAnimation);
 	}
-    // Movement
-    {
-        auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_move");
-        animation->setRestoreOriginalFrame(true);
-        animation->setLoops(1);
-
-        auto movAnimation = cocos2d::Animate::create(animation);
-        movAnimation->setDuration(1.0 / _moveSpeed);
-
-        _animationStorage.Push("move", movAnimation);
-    }
     // Attack
     {
         auto animation = cocos2d::AnimationCache::getInstance()->getAnimation("unit_mage_attack");
@@ -222,8 +212,9 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         dmg.DealerName = "";
 
         _duelTarget->TakeDamage(dmg);
+
 		// animation
-		_actionExecutor.LaunchAction(_animationStorage.Get("attack"), ActionExecutor::ActionType::ANIMATION);
+        _actionExecutor.LaunchAction(_animationStorage.Get("attack"), ActionExecutor::ActionType::ANIMATION);
     }
         // spell2 == freeze
     else if(spell->spell_id() == 2)
@@ -236,7 +227,8 @@ Mage::SpellCast(const GameMessage::SVActionSpell* spell)
         
         auto freeze = std::make_shared<MageFreeze>(_duelTarget, 3.0f);
         _duelTarget->ApplyEffect(freeze);
+
 		// animation
-		_actionExecutor.LaunchAction(_animationStorage.Get("freeze"), ActionExecutor::ActionType::ANIMATION);
+        _actionExecutor.LaunchAction(_animationStorage.Get("freeze"), ActionExecutor::ActionType::ANIMATION);
     }
 }

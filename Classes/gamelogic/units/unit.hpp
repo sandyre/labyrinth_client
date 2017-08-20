@@ -129,7 +129,8 @@ public:
         DUEL,
         DEAD
     };
-	enum class AnimMoveState {
+	enum class AnimMoveState
+    {
 		LEFT = 0x00,
 		RIGHT = 0x01
 	};
