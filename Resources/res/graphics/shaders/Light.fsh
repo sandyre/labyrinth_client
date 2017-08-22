@@ -9,7 +9,7 @@ uniform vec2 resolution;
 
 void main(void)
 {
-    float cutoffRadius = 0.5;
+    float cutoffRadius = 0.75;
     vec2 lightPos = vec2(0.5, 0.5);
     vec3 ambientColor = vec3(0.1, 0.1, 0.1);
     vec3 lightColor = vec3(1.0, 0.8, 0.8);
@@ -24,7 +24,7 @@ void main(void)
 
     if (dist < radius)
     {
-        finalColor = finalColor * (ambientColor + (lightColor * clamp(1.0 - (dist / radius), 0.01, 0.8) * (0.7 + 0.1 * sin(CC_Time.z))));
+        finalColor = finalColor * (ambientColor + (lightColor * clamp(1.0 - (dist / radius), 0.01, 0.8) * (1.7 + 0.3 * sin(CC_Time.z))));
     }
     else
         finalColor = texColor.rgb * ambientColor;

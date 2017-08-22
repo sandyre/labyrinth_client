@@ -42,6 +42,7 @@ private:
         std::shared_ptr<T> Create(Args&&... args)
         {
             auto object = std::make_shared<T>(_world, _uidSeq++, std::forward<Args>(args)...);
+            object->GetSprite()->setCameraMask((unsigned short)cocos2d::CameraFlag::USER2);
             _storage.push_back(object);
 
             return object;
@@ -61,6 +62,7 @@ private:
             assert(is_copy == false);
 #endif
             auto object = std::make_shared<T>(_world, uid, std::forward<Args>(args)...);
+            object->GetSprite()->setCameraMask((unsigned short)cocos2d::CameraFlag::USER2);
             _storage.push_back(object);
 
             return object;

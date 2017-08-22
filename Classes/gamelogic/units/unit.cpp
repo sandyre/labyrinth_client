@@ -185,12 +185,13 @@ Unit::TakeDamage(const Unit::DamageDescriptor& dmg)
     _health -= damageTaken;
     
         // animated text
-    auto hp_text = cocos2d::Label::create(cocos2d::StringUtils::format("-%d", damageTaken),
-                                          "fonts/alagard.ttf",
-                                          12);
+    auto hp_text = cocos2d::Label::createWithTTF(cocos2d::StringUtils::format("-%d", damageTaken),
+                                                 "fonts/alagard.ttf",
+                                                 12);
     hp_text->setTextColor(dmg.Type == DamageDescriptor::DamageType::PHYSICAL ? cocos2d::Color4B::WHITE : cocos2d::Color4B::MAGENTA);
     
     auto center_pos = _sprite->getContentSize() / 2;
+    hp_text->setCameraMask((unsigned short)cocos2d::CameraFlag::USER2);
     hp_text->setPosition(center_pos);
     _sprite->addChild(hp_text);
     
