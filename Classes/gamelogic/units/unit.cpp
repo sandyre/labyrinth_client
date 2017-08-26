@@ -290,7 +290,7 @@ Unit::Move(const GameMessage::SVActionMove* mov)
     else
     {
         moveAnim = _animationStorage.Get("move_r");
-        _animMoveState = Unit::AnimMoveState::RIGHT;
+        _animMoveState = Unit::AnimMoveState::LEFT;
     }
     moveAnim->setDuration(1.0 / _moveSpeed);
 

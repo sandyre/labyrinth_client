@@ -9,7 +9,7 @@ uniform vec2 resolution;
 
 void main(void)
 {
-    float cutoffRadius = 0.5;
+    float cutoffRadius = 0.8;
     vec2 lightPos = vec2(0.5, 0.5);
     vec3 ambientColor = vec3(0.1, 0.1, 0.1);
     vec3 lightColor = vec3(1.0, 0.8, 0.8);

@@ -132,6 +132,7 @@
 				<string>unit_mage_attack_3.png</string>
 				<string>unit_mage_attack_4.png</string>
 				<string>unit_mage_attack_5.png</string>
+        <string>unit_mage_attack_6.png</string>
 			</array>
 			<key>delay</key>
 			<integer>5</integer>
