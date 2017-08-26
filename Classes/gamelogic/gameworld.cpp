@@ -318,9 +318,6 @@ GameWorld::update(float delta)
 
     // update camera pos
     auto cur_pos = _localPlayer->GetSprite()->getPosition();
-//    auto cur_pos = _camera->getPosition3D();
-//    cur_pos.x = (_localPlayer->GetSprite()->getPosition().x - cur_pos.x)*delta*3 + cur_pos.x;
-//    cur_pos.y = (_localPlayer->GetSprite()->getPosition().y- cur_pos.y)*delta*3 + cur_pos.y;
     _camera->setPosition3D(cocos2d::Vec3(cur_pos.x, cur_pos.y, 800));
 }
 
@@ -336,7 +333,7 @@ GameWorld::InitView()
     _tempLayer->addChild(_objectsLayer, 0);
     _view->addChild(_tempLayer);
 
-    _tempLayer->setCameraMask((unsigned short)cocos2d::CameraFlag::DEFAULT);
+    _tempLayer->setCameraMask((unsigned short)cocos2d::CameraFlag::USER2);
 
     auto frameBuffer = cocos2d::experimental::FrameBuffer::create(0, screenSize.width, screenSize.height);
     _renderTarget = cocos2d::experimental::RenderTarget::create(screenSize.width, screenSize.height);
@@ -357,11 +354,12 @@ GameWorld::InitView()
     _postProcess->getGLProgramState()->setUniformVec2("resolution", visibleSize);
     _postProcess->setFlippedY(true);
     _postProcess->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+
     _view->addChild(_postProcess);
 
     _camera = cocos2d::Camera::create();
     _camera->setFrameBufferObject(frameBuffer);
-    _camera->setCameraFlag(cocos2d::CameraFlag::DEFAULT);
+    _camera->setCameraFlag(cocos2d::CameraFlag::USER2);
     _view->addChild(_camera);
 }
 
