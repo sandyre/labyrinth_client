@@ -20,7 +20,8 @@ public:
     {
         ABSTRACT = 0x00,
         DOOR = 0x00,
-        GRAVEYARD = 0x01
+        GRAVEYARD = 0x01,
+        FOUNTAIN
     };
 
 public:
@@ -48,6 +49,14 @@ class Graveyard
 {
 public:
     Graveyard(GameWorld& world, uint32_t uid, const std::string& sprite);
+};
+
+
+class Fountain
+    : public Construction
+{
+public:
+    Fountain(GameWorld& world, uint32_t uid, const std::string& sprite);
 };
 
 #endif /* construction_hpp */

@@ -143,6 +143,14 @@ GameWorld::ApplyInputMessages()
                 _objectsLayer->addChild(door->GetSprite(), 0);
                 break;
             }
+
+            case Construction::Type::FOUNTAIN:
+            {
+                auto fountain = _objectsStorage.CreateWithUID<Fountain>(sv_spawn->constr_uid(), "construction_fontaine_3.png");
+                fountain->Spawn(Point<>(sv_spawn->x(), sv_spawn->y()));
+                _objectsLayer->addChild(fountain->GetSprite(), 0);
+                break;
+            }
                 
             default:
                 assert(false);

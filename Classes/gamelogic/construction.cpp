@@ -14,7 +14,6 @@ Construction::Construction(GameWorld& world, uint32_t uid)
   _type(Type::ABSTRACT)
 {
     _objType = GameObject::Type::CONSTRUCTION;
-    _objAttributes |= GameObject::Attributes::PASSABLE;
 }
 
 
@@ -32,6 +31,17 @@ Graveyard::Graveyard(GameWorld& world, uint32_t uid, const std::string& sprite)
 : Construction(world, uid)
 {
     _type = Construction::Type::GRAVEYARD;
+
+    _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
+    assert(_sprite);
+}
+
+
+Fountain::Fountain(GameWorld& world, uint32_t uid, const std::string& sprite)
+: Construction(world, uid)
+{
+    _type = Construction::Type::FOUNTAIN;
+    _objAttributes |= GameObject::Attributes::PASSABLE;
 
     _sprite = cocos2d::Sprite::createWithSpriteFrameName(sprite);
     assert(_sprite);
