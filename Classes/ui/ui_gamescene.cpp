@@ -9,7 +9,7 @@
 #include "ui_gamescene.hpp"
 
 #include "../resources.hpp"
-#include "../gamelogic/units/hero.hpp"
+#include "game/client/units/hero.hpp"
 USING_NS_CC;
 
 

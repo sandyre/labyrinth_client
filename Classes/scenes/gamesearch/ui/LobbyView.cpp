@@ -8,7 +8,7 @@
 
 #include "scenes/gamesearch/ui/LobbyView.hpp"
 
-#include "gamelogic/units/hero.hpp"
+#include "game/client/units/hero.hpp"
 #include "resources.hpp"
 
 #include "toolkit/make_autorelease.hpp"
@@ -49,7 +49,6 @@ namespace impl
 
             this->setCascadeOpacityEnabled(true);
             this->setLayoutType(Layout::Type::RELATIVE);
-            this->setPosition(Vec2::ZERO);
             this->setContentSize(contentSize);
 
             auto herosPos = RelativeLayoutParameter::create();
@@ -110,8 +109,18 @@ namespace impl
             auto statusPos = RelativeLayoutParameter::create();
             statusPos->setAlign(RelativeAlign::PARENT_RIGHT_CENTER_VERTICAL);
 
-            _status = CheckBox::create("res/frame.png", "res/ready.png");
+            _status = CheckBox::create("res/ui/ui_buttons/b_rect_m_3.png", "res/ui/ui_buttons/b_rect_m_1.png");
             _status->setLayoutParameter(statusPos);
+            _status->addTouchEventListener([&](Ref * pSender, Widget::TouchEventType type)
+            {
+                if (type == Widget::TouchEventType::ENDED && _status->isSelected())
+                {
+                    _status->setEnabled(false);
+                    _status->setTouchEnabled(false);
+                    _onReadyClicked();
+                }
+            });
+            _status->setEnabled(false);
             this->addChild(_status);
 
             return true;
@@ -154,22 +163,36 @@ namespace impl
         }
 
 
-        void PlayersList::InsertPlayer(const std::string& name, uint32_t uuid)
+        PlayerRow * PlayersList::GetPlayerRow(uint32_t uuid) const
+        {
+            for (auto player : _playersListInternal)
+                if (player->GetUuid() == uuid)
+                    return player;
+
+            return nullptr;
+        }
+
+
+        PlayerRow * PlayersList::InsertPlayer(const std::string& name, uint32_t uuid)
         {
             auto playerRow = make_autorelease<PlayerRow>(name, uuid);
 
             _playersList->pushBackCustomItem(playerRow);
             _playersListInternal.push_back(playerRow);
+
+            return playerRow;
         }
 
 
         void PlayersList::RemovePlayer(uint32_t uuid)
         {
-            
+            if (const auto playerRow = GetPlayerRow(uuid))
+                _playersList->removeChild(playerRow);
         }
 
     }
 
+    
     bool LobbyView::init()
     {
         if (!Layout::init())
@@ -180,7 +203,6 @@ namespace impl
         this->setCascadeOpacityEnabled(true);
         this->setLayoutType(Layout::Type::RELATIVE);
         this->setContentSize(visibleSize);
-        this->setPosition(Vec2::ZERO);
 
         // NOTE: Status plate is unmanaged (its only for view)
         auto statusPlatePos = RelativeLayoutParameter::create();

@@ -56,8 +56,18 @@ PreGameScene::init()
     
     m_pUI = new UIPregameScene;
     this->addChild(m_pUI);
-    
-    _channel = NetSystem::Instance().GetChannel("gameserver");
+
+    _socket = std::make_shared<TcpSocket>(Poco::Net::SocketAddress("localhost", 1946));
+    _socket->OnMessageConnector(std::bind(&PreGameScene::MessageHandler, this, std::placeholders::_1));
+
+    {
+        auto uuid = GameConfiguration::Instance().GetUUID();
+        auto handshake_msg = std::make_shared<MessageBuffer>();
+        std::copy(uuid.begin(), uuid.end(), std::back_inserter(*handshake_msg));
+
+        _socket->SendMessage(handshake_msg);
+    }
+
     flatbuffers::FlatBufferBuilder builder;
     auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
     auto nickname = builder.CreateString(GameConfiguration::Instance().GetPlayerName());
@@ -69,8 +79,8 @@ PreGameScene::init()
                                                GameMessage::Messages_CLConnection,
                                                con_info.Union());
     builder.Finish(gs_event);
-    _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                              builder.GetBufferPointer() + builder.GetSize()));
+    _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                         builder.GetBufferPointer() + builder.GetSize()));
     
         // add listeners to hero pick platform
     auto& left_hero_button = m_pUI->m_pHeroPick->m_pLeftChange;
@@ -96,8 +106,8 @@ PreGameScene::init()
                                                       heropick.Union());
                 builder.Finish(msg);
                 
-                _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                                          builder.GetBufferPointer() + builder.GetSize()));
+                _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                                     builder.GetBufferPointer() + builder.GetSize()));
             }
         }
     };
@@ -127,8 +137,8 @@ PreGameScene::init()
                                                       heropick.Union());
                 builder.Finish(msg);
                 
-                _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                                          builder.GetBufferPointer() + builder.GetSize()));
+                _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                                     builder.GetBufferPointer() + builder.GetSize()));
             }
         }
     };
@@ -142,240 +152,240 @@ PreGameScene::init()
 void
 PreGameScene::update(float delta)
 {
-    if(_channel->Available())
+    MessageStorage messages;
     {
-        SafePacketGetter safeGetter(_channel->native_handler());
-        auto packet = safeGetter.Get<GameMessage::Message>();
+        std::lock_guard<std::mutex> l(_mutex);
+        messages.swap(_messages);
+    }
 
-        if(!packet)
-            return;
+    for (const auto& messageBuf : messages)
+    {
+        auto message = GameMessage::GetMessage(messageBuf->data());
 
-        auto message = GameMessage::GetMessage(packet->Data.data());
-
-        switch(message->payload_type())
+        switch (message->payload_type())
         {
-        case Messages_SVConnectionStatus:
-        {
-            auto status = static_cast<const SVConnectionStatus*>(message->payload());
-            
-            if(status->status() == ConnectionStatus_ACCEPTED)
+            case Messages_SVConnectionStatus:
             {
-                m_pUI->m_pStatusText->setString("WAITING OTHER PLAYERS");
+                auto status = static_cast<const SVConnectionStatus*>(message->payload());
 
-                GameSessionDescriptor::Player player;
-                player.Name = GameConfiguration::Instance().GetPlayerName();
-                player.Hero = Hero::Type::FIRST_HERO;
-                player.Uid = status->player_uid();
-                _sessionDescriptor.LocalPlayer = player;
+                if(status->status() == ConnectionStatus_ACCEPTED)
+                {
+                    m_pUI->m_pStatusText->setString("WAITING OTHER PLAYERS");
+
+                    GameSessionDescriptor::Player player;
+                    player.Name = GameConfiguration::Instance().GetPlayerName();
+                    player.Hero = Hero::Type::FIRST_HERO;
+                    player.Uid = status->player_uid();
+                    _sessionDescriptor.LocalPlayer = player;
+                }
+                else
+                {
+                    MessageBox("Error", "Lobby is full, try searching again");
+                    Director::getInstance()->popScene();
+                }
+
+                break;
             }
-            else
+
+            case Messages_SVPlayerConnected:
             {
-                NetSystem::Instance().RemoveChannel("gameserver");
-                MessageBox("Error", "Lobby is full, try searching again");
-                Director::getInstance()->popScene();
-            }
-            
-            break;
-        }
-                
-        case Messages_SVPlayerConnected:
-        {
-            auto con_info = static_cast<const SVPlayerConnected*>(message->payload());
-            
-            auto iter = std::find_if(_sessionDescriptor.Players.begin(),
-                                     _sessionDescriptor.Players.end(),
-                                     [con_info](auto& pl)
-                                     {
-                                         return pl.Uid == con_info->player_uid();
-                                     });
-            
+                auto con_info = static_cast<const SVPlayerConnected*>(message->payload());
+
+                auto iter = std::find_if(_sessionDescriptor.Players.begin(),
+                                         _sessionDescriptor.Players.end(),
+                                         [con_info](auto& pl)
+                                         {
+                                             return pl.Uid == con_info->player_uid();
+                                         });
+
                 // player is not in-game already, add him
-            if(iter == _sessionDescriptor.Players.end())
-            {
-                GameSessionDescriptor::Player player_info;
-                player_info.Uid = con_info->player_uid();
-                player_info.Name = con_info->nickname()->c_str();
-                player_info.Hero = Hero::Type::FIRST_HERO;
-                _sessionDescriptor.Players.push_back(player_info);
-                
-                m_pUI->m_pPlayersList->AddPlayer(player_info);
-            }
-            
-            break;
-        }
+                if(iter == _sessionDescriptor.Players.end())
+                {
+                    GameSessionDescriptor::Player player_info;
+                    player_info.Uid = con_info->player_uid();
+                    player_info.Name = con_info->nickname()->c_str();
+                    player_info.Hero = Hero::Type::FIRST_HERO;
+                    _sessionDescriptor.Players.push_back(player_info);
 
-        case Messages_SVPlayerDisconnected:
-        {
-            auto disconnect = static_cast<const SVPlayerDisconnected*>(message->payload());
+                    m_pUI->m_pPlayersList->AddPlayer(player_info);
+                }
 
-            auto iter = std::find_if(_sessionDescriptor.Players.begin(),
-                                     _sessionDescriptor.Players.end(),
-                                     [disconnect](auto& pl)
-                                     {
-                                         return pl.Uid == disconnect->player_uid();
-                                     });
-
-            if(iter == _sessionDescriptor.Players.end())
-                assert(false); // cheto ne tak, lol
-
-            if(disconnect->player_uid() == _sessionDescriptor.LocalPlayer.Uid)
-            {
-                MessageBox("Disconnect", "You have been disconnected by server (reason: connection timeout)");
-                cocos2d::Director::getInstance()->popScene();
+                break;
             }
 
-            break;
-        }
-                
-        case Messages_SVHeroPickStage:
-        {
-            m_pUI->m_pHeroPick->m_pLeftChange->setEnabled(true);
-            m_pUI->m_pHeroPick->m_pRightChange->setEnabled(true);
-            m_pUI->m_pStatusText->setString("HERO PICK STAGE");
+            case Messages_SVPlayerDisconnected:
+            {
+                auto disconnect = static_cast<const SVPlayerDisconnected*>(message->payload());
+
+                auto iter = std::find_if(_sessionDescriptor.Players.begin(),
+                                         _sessionDescriptor.Players.end(),
+                                         [disconnect](auto& pl)
+                                         {
+                                             return pl.Uid == disconnect->player_uid();
+                                         });
+
+                if(iter == _sessionDescriptor.Players.end())
+                    assert(false); // cheto ne tak, lol
+
+                if(disconnect->player_uid() == _sessionDescriptor.LocalPlayer.Uid)
+                {
+                    MessageBox("Disconnect", "You have been disconnected by server (reason: connection timeout)");
+                    cocos2d::Director::getInstance()->popScene();
+                }
+
+                break;
+            }
+
+            case Messages_SVHeroPickStage:
+            {
+                m_pUI->m_pHeroPick->m_pLeftChange->setEnabled(true);
+                m_pUI->m_pHeroPick->m_pRightChange->setEnabled(true);
+                m_pUI->m_pStatusText->setString("HERO PICK STAGE");
 
                 // make checkbox selectable
-            for(auto& player_inf : m_pUI->m_pPlayersList->m_aPlayers)
-            {
-                if(player_inf->m_stPlayerInfo.Uid == _sessionDescriptor.LocalPlayer.Uid)
+                for(auto& player_inf : m_pUI->m_pPlayersList->m_aPlayers)
                 {
+                    if(player_inf->m_stPlayerInfo.Uid == _sessionDescriptor.LocalPlayer.Uid)
+                    {
                         // TODO: i dont know why, but it works that way
                         // that 2 event listeners are triggered
-                    player_inf->m_pReadyStatus->setEnabled(true);
-                    player_inf->m_pReadyStatus->addTouchEventListener(
-                      [this, player_inf](Ref * pSender, ui::Widget::TouchEventType type)
-                      {
-                          if(type == ui::Widget::TouchEventType::ENDED)
-                          {
-                              if(player_inf->m_pReadyStatus->isSelected())
-                              {
-                                  player_inf->m_pReadyStatus->setSelected(true);
-                                  player_inf->m_pReadyStatus->setTouchEnabled(false);
+                        player_inf->m_pReadyStatus->setEnabled(true);
+                        player_inf->m_pReadyStatus->addTouchEventListener(
+                                                                          [this, player_inf](Ref * pSender, ui::Widget::TouchEventType type)
+                                                                          {
+                                                                              if(type == ui::Widget::TouchEventType::ENDED)
+                                                                              {
+                                                                                  if(player_inf->m_pReadyStatus->isSelected())
+                                                                                  {
+                                                                                      player_inf->m_pReadyStatus->setSelected(true);
+                                                                                      player_inf->m_pReadyStatus->setTouchEnabled(false);
 
-                                  flatbuffers::FlatBufferBuilder builder;
-                                  auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
-                                  auto ready_msg = GameMessage::CreateCLReadyToStart(builder,
-                                                                                     player_inf->m_stPlayerInfo.Uid);
-                                  auto msg = GameMessage::CreateMessage(builder,
-                                                                        uuid,
-                                                                        GameMessage::Messages_CLReadyToStart,
-                                                                        ready_msg.Union());
-                                  builder.Finish(msg);
+                                                                                      flatbuffers::FlatBufferBuilder builder;
+                                                                                      auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+                                                                                      auto ready_msg = GameMessage::CreateCLReadyToStart(builder,
+                                                                                                                                         player_inf->m_stPlayerInfo.Uid);
+                                                                                      auto msg = GameMessage::CreateMessage(builder,
+                                                                                                                            uuid,
+                                                                                                                            GameMessage::Messages_CLReadyToStart,
+                                                                                                                            ready_msg.Union());
+                                                                                      builder.Finish(msg);
 
-                                  _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                                                            builder.GetBufferPointer() + builder.GetSize()));
-                              }
-                          }
-                      });
+                                                                                      _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                                                                                                           builder.GetBufferPointer() + builder.GetSize()));
+                                                                                  }
+                                                                              }
+                                                                          });
+                    }
                 }
+
+                break;
             }
-            
-            break;
-        }
-                
-        case Messages_SVHeroPick:
-        {
-            auto hero_pick = static_cast<const GameMessage::SVHeroPick*>(message->payload());
-            auto iter = std::find_if(_sessionDescriptor.Players.begin(),
-                                     _sessionDescriptor.Players.end(),
-                                     [hero_pick](auto& pl)
-                                     {
-                                         return pl.Uid == hero_pick->player_uid();
-                                     });
-            
-            iter->Hero = hero_pick->hero_type();
-            
-            for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
+
+            case Messages_SVHeroPick:
             {
-                if(player_info->m_stPlayerInfo.Uid == hero_pick->player_uid())
+                auto hero_pick = static_cast<const GameMessage::SVHeroPick*>(message->payload());
+                auto iter = std::find_if(_sessionDescriptor.Players.begin(),
+                                         _sessionDescriptor.Players.end(),
+                                         [hero_pick](auto& pl)
+                                         {
+                                             return pl.Uid == hero_pick->player_uid();
+                                         });
+
+                iter->Hero = hero_pick->hero_type();
+
+                for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
                 {
-                    player_info->m_pHeroImage->loadTexture(HeroIcons[iter->Hero]);
+                    if(player_info->m_stPlayerInfo.Uid == hero_pick->player_uid())
+                    {
+                        player_info->m_pHeroImage->loadTexture(HeroIcons[iter->Hero]);
+                    }
                 }
+
+                break;
             }
-            
-            break;
-        }
-                
-        case Messages_SVReadyToStart:
-        {
-            auto player_ready = static_cast<const GameMessage::SVReadyToStart*>(message->payload());
-            
-            for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
+
+            case Messages_SVReadyToStart:
             {
-                if(player_info->m_stPlayerInfo.Uid == player_ready->player_uid())
+                auto player_ready = static_cast<const GameMessage::SVReadyToStart*>(message->payload());
+
+                for(auto& player_info : m_pUI->m_pPlayersList->m_aPlayers)
                 {
-                    player_info->m_pReadyStatus->setSelected(true);
+                    if(player_info->m_stPlayerInfo.Uid == player_ready->player_uid())
+                    {
+                        player_info->m_pReadyStatus->setSelected(true);
+                    }
                 }
+
+                break;
             }
-            
-            break;
-        }
-                
-        case Messages_SVGenerateMap:
-        {
-            auto gen_info = static_cast<const GameMessage::SVGenerateMap*>(message->payload());
-            GameMap::Configuration sets;
-            sets.nMapSize = gen_info->map_w();
-            sets.nRoomSize = gen_info->room_w();
-            sets.nSeed = gen_info->seed();
-            _sessionDescriptor.MapConf = sets;
-            
-            m_eStatus = Status::GENERATING_LEVEL;
-            m_pUI->m_pStatusText->setString("GENERATING WORLD");
-            
+
+            case Messages_SVGenerateMap:
+            {
+                auto gen_info = static_cast<const GameMessage::SVGenerateMap*>(message->payload());
+                GameMap::Configuration sets;
+                sets.nMapSize = gen_info->map_w();
+                sets.nRoomSize = gen_info->room_w();
+                sets.nSeed = gen_info->seed();
+                _sessionDescriptor.MapConf = sets;
+
+                m_eStatus = Status::GENERATING_LEVEL;
+                m_pUI->m_pStatusText->setString("GENERATING WORLD");
+
                 // launch async'd level generation, which will AUTOMATICLY notify server that its done
-            std::async(std::launch::async,
-                       [this]()
-                       {
-                           m_pGameScene->InitWorld(_sessionDescriptor);
+                std::async(std::launch::async,
+                           [this]()
+                           {
+                               m_pGameScene->InitWorld(_sessionDescriptor);
 
                                // notify server that generating is done
-                           flatbuffers::FlatBufferBuilder builder;
-                           auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
-                           auto gen_ok = GameMessage::CreateCLMapGenerated(builder,
-                                                                           _sessionDescriptor.LocalPlayer.Uid);
-                           auto cl_event = GameMessage::CreateMessage(builder,
-                                                                      uuid,
-                                                                      GameMessage::Messages_CLMapGenerated,
-                                                                      gen_ok.Union());
-                           builder.Finish(cl_event);
-
-                           _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                                                     builder.GetBufferPointer() + builder.GetSize()));
-                       });
-
-            break;
-        }
+                               flatbuffers::FlatBufferBuilder builder;
+                               auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+                               auto gen_ok = GameMessage::CreateCLMapGenerated(builder,
+                                                                               _sessionDescriptor.LocalPlayer.Uid);
+                               auto cl_event = GameMessage::CreateMessage(builder,
+                                                                          uuid,
+                                                                          GameMessage::Messages_CLMapGenerated,
+                                                                          gen_ok.Union());
+                               builder.Finish(cl_event);
+                               
+                               _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                                                    builder.GetBufferPointer() + builder.GetSize()));
+                           });
                 
-        case Messages_SVGameStart:
-        {
-            if(m_pGameScene->init())
-            {
-                auto scene = new Scene();
-                scene->addChild(m_pGameScene);
-                Director::getInstance()->replaceScene(scene);
+                break;
             }
-            
-            break;
-        }
                 
-        case Messages_SVPing:
-        {
-            flatbuffers::FlatBufferBuilder builder;
-            auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
-            auto ping = CreateCLPing(builder);
-            auto msg = CreateMessage(builder,
-                                     uuid,
-                                     Messages_CLPing,
-                                     ping.Union());
-            builder.Finish(msg);
-            _channel->PushPacket(std::vector<uint8_t>(builder.GetBufferPointer(),
-                                                      builder.GetBufferPointer() + builder.GetSize()));
-            
-            break;
-        }
-            
-        default:
-            break;
+            case Messages_SVGameStart:
+            {
+                if(m_pGameScene->init())
+                {
+                    auto scene = new Scene();
+                    scene->addChild(m_pGameScene);
+                    m_pGameScene->release();
+                    Director::getInstance()->replaceScene(scene);
+                }
+                
+                break;
+            }
+                
+            case Messages_SVPing:
+            {
+                flatbuffers::FlatBufferBuilder builder;
+                auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+                auto ping = CreateCLPing(builder);
+                auto msg = CreateMessage(builder,
+                                         uuid,
+                                         Messages_CLPing,
+                                         ping.Union());
+                builder.Finish(msg);
+                _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
+                                                                     builder.GetBufferPointer() + builder.GetSize()));
+                
+                break;
+            }
+                
+            default:
+                break;
         }
     }
 }

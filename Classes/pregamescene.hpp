@@ -11,12 +11,15 @@
 
 #include "globals.h"
 #include "gamescene.hpp"
+#include "toolkit/TcpSocket.hpp"
 
 #include "gamescene.hpp"
 
 #include <cocos2d.h>
 #include <Poco/Net/SocketAddress.h>
 #include <ui/CocosGUI.h>
+
+#include <mutex>
 
 
 class UIPregameScene;
@@ -55,11 +58,20 @@ public:
     
     virtual bool init();
     virtual void update(float);
+
+private:
+    void MessageHandler(const MessageBufferPtr& message)
+    {
+        std::lock_guard<std::mutex> l(_mutex);
+        _messages.push_back(message);
+    }
     
-protected:
-    Status           m_eStatus;
-    
-    std::shared_ptr<NetChannel> _channel;
+private:
+    Status                      m_eStatus;
+
+    std::mutex                  _mutex;
+    MessageStorage              _messages;
+    TcpSocketPtr                _socket;
     
     GameSessionDescriptor   _sessionDescriptor;
     GameMap::Configuration m_stMapConfig;

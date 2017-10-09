@@ -9,10 +9,9 @@
 #include "gamescene.hpp"
 
 #include "gameconfig.hpp"
-#include "gamelogic/units/units_inc.hpp"
+#include "game/client/units/units_inc.hpp"
 #include "globals.h"
 #include "gsnet_generated.h"
-#include "mainmenuscene.hpp"
 #include "netsystem.hpp"
 #include "toolkit/SafePacketGetter.hpp"
 

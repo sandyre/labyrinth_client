@@ -21,23 +21,25 @@ namespace ui {
 namespace impl
 {
 
-    SearchView::SearchView()
+    bool SearchView::init()
     {
-        auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+        if (!Layout::init())
+            return false;
+
+        const auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
 
         this->setCascadeOpacityEnabled(true);
         this->setLayoutType(Layout::Type::RELATIVE);
         this->setContentSize(visibleSize);
-        this->setPosition(Vec2::ZERO);
 
         auto statusTextPos = RelativeLayoutParameter::create();
-        statusTextPos->setAlign(RelativeLayoutParameter::RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
+        statusTextPos->setAlign(RelativeLayoutParameter::RelativeAlign::CENTER_IN_PARENT);
 
         _statusText = Text::create("GameSearch view", TitleFont, 40);
         _statusText->setLayoutParameter(statusTextPos);
         this->addChild(_statusText);
 
-        CCLOG("qoolity");
+        return true;
     }
 
 

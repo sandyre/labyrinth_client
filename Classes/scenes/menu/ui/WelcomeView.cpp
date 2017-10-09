@@ -54,7 +54,7 @@ namespace impl
         _startButton = Button::create("res/ui/ui_buttons/b_big_1.png",
                                       "res/ui/ui_buttons/b_big_1_press.png");
         _startButton->setLayoutParameter(startPos);
-        _startButton->setTitleText("Network offline");
+        _startButton->setTitleText("Begin");
         _startButton->setTitleFontName(TitleFont);
         _startButton->setTitleFontSize(50);
         _startButton->setEnabled(true);

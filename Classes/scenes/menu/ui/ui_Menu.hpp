@@ -25,7 +25,7 @@ namespace ui
         : public cocos2d::ui::Layout
     {
     public:
-        enum View
+        enum class View
         {
             Welcome,
             Login,

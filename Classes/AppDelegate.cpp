@@ -2,8 +2,10 @@
 
 #include "gamescene.hpp"
 #include "gameconfig.hpp"
-#include "mainmenuscene.hpp"
 #include "resourcemanager.hpp"
+#include "scenes/menu/MenuScene.hpp"
+
+#include "toolkit/make_autorelease.hpp"
 
 USING_NS_CC;
 
@@ -77,7 +79,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
     
     // create a scene. it's an autorelease object
-    auto scene = MainMenuScene::createScene();
+    auto scene = make_autorelease<labyrinth::MenuScene>();
 
     // run
     director->runWithScene(scene);

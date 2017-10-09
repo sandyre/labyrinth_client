@@ -10,6 +10,7 @@
 
 #include "globals.h"
 #include "gameconfig.hpp"
+#include "game/client/gamemap.hpp"
 #include "flat_generated/msnet_generated.h"
 #include "flat_generated/gsnet_generated.h"
 
@@ -21,29 +22,21 @@ using cocos2d::Director;
 namespace labyrinth
 {
 
-    GameSearchScene::GameSearchScene()
-    { }
-
-
     bool GameSearchScene::init()
     {
         if (!Scene::init())
             return false;
 
-        auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
-
         _ui = make_autorelease<ui::GameSearch>();
-        _ui->setPosition(visibleSize / 2);
         this->addChild(_ui);
 
-        _ui->GetSearchView()->SetStatus("Finding available lobby");
+        _ui->GetSearchView()->SetStatus("Connecting to network");
 
         // Create socket, and send find game request
         _masterSocket = std::make_shared<UdpSocket>(Poco::Net::SocketAddress("localhost:1930"));
         _masterSocketConnection = _masterSocket->OnMessageConnector(std::bind(&GameSearchScene::MasterMessageHandler, this, std::placeholders::_1));
 
         flatbuffers::FlatBufferBuilder builder;
-
         auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
         auto req_lobby = MasterMessage::CreateCLFindGame(builder,
                                                          0/*GameConfiguration::Instance().GetUUID()*/,
@@ -56,9 +49,7 @@ namespace labyrinth
                                                      req_lobby.Union());
         builder.Finish(ms_event);
 
-        _masterSocket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
-                                                                   builder.GetBufferPointer() + builder.GetSize()));
-
+        _masterSocket->SendMessage(CONSTRUCT_MESSAGEBUFFER(builder));
 
         this->scheduleUpdate();
 
@@ -88,6 +79,12 @@ namespace labyrinth
                 {
                     _ui->GetSearchView()->SetStatus("Server accepted connection");
                     _ui->SwitchTo(ui::GameSearch::View::Lobby);
+
+                    const PlayerConnection connection(GameConfiguration::Instance().GetPlayerName(), status->player_uid());
+                    _playerConnections.push_back(connection);
+                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(connection.Name, connection.Uuid);
+
+                    _selfConnection = connection;
                 }
                 else
                 {
@@ -101,12 +98,49 @@ namespace labyrinth
             {
                 const auto player = static_cast<const GameMessage::SVPlayerConnected*>(message->payload());
 
-                _playerConnections.emplace_back(player->nickname()->c_str(), player->player_uid());
+                const PlayerConnection connection(player->nickname()->c_str(), player->player_uid());
 
-                _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(player->nickname()->c_str(), player->player_uid());
+                // check if player exists
+                const auto iter = std::find_if(_playerConnections.cbegin(), _playerConnections.cend(),
+                                               [&](const PlayerConnection& playerCon)
+                                               {
+                                                   if (playerCon.Uuid == connection.Uuid)
+                                                       return true;
+                                                   return false;
+                                               });
+
+                if (iter == _playerConnections.cend())
+                {
+                    _playerConnections.push_back(connection);
+                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(player->nickname()->c_str(), player->player_uid());
+                }
 
                 break;
             }
+            case GameMessage::Messages_SVHeroPickStage:
+            {
+                const auto playerRow = _ui->GetLobbyView()->GetPlayersList()->GetPlayerRow(_selfConnection.Uuid);
+                _readyConnection = playerRow->OnReadyClickedConnector(std::bind(&GameSearchScene::ReadyClickedHandler, this));
+
+                break;
+            }
+            case GameMessage::Messages_SVGenerateMap:
+            {
+                const auto genInfo = static_cast<const GameMessage::SVGenerateMap*>(message->payload());
+
+                _ui->SwitchTo(ui::GameSearch::View::Loading);
+                _ui->GetLoadingView()->SetStatus("Generating world");
+
+                GameMap::Configuration config;
+                config.nMapSize = genInfo->map_w();
+                config.nRoomSize = genInfo->room_w();
+                config.nSeed = genInfo->seed();
+
+                break;
+            }
+            default:
+                CCLOG("Currently unsupported event, discarded");
+                break;
             }
         }
     }
@@ -141,10 +175,22 @@ namespace labyrinth
                                                            GameMessage::Messages_CLConnection,
                                                            con_info.Union());
                 builder.Finish(gs_event);
-                _socket->SendMessage(std::make_shared<MessageBuffer>(builder.GetBufferPointer(),
-                                                                     builder.GetBufferPointer() + builder.GetSize()));
+                _socket->SendMessage(CONSTRUCT_MESSAGEBUFFER(builder));
             }
         }
+    }
+
+
+    void GameSearchScene::ReadyClickedHandler()
+    {
+        flatbuffers::FlatBufferBuilder builder;
+        const auto uuid = builder.CreateString(GameConfiguration::Instance().GetUUID());
+        const auto ready_msg = GameMessage::CreateCLReadyToStart(builder, _selfConnection.Uuid);
+        const auto message = GameMessage::CreateMessage(builder, uuid, GameMessage::Messages_CLReadyToStart, ready_msg.Union());
+
+        builder.Finish(message);
+
+        _socket->SendMessage(CONSTRUCT_MESSAGEBUFFER(builder));
     }
 
 }

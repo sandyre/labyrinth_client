@@ -9,6 +9,7 @@
 #ifndef ui_GameSearch_hpp
 #define ui_GameSearch_hpp
 
+#include "scenes/gamesearch/ui/LoadingView.hpp"
 #include "scenes/gamesearch/ui/LobbyView.hpp"
 #include "scenes/gamesearch/ui/SearchView.hpp"
 
@@ -24,28 +25,30 @@ namespace ui
         : public cocos2d::ui::Layout
     {
     public:
-        enum View
+        enum class View
         {
             Search,
-            Lobby
+            Lobby,
+            Loading
         };
 
     public:
         GameSearch();
 
+        virtual bool init() override;
+
         void SwitchTo(View view);
 
-        impl::SearchView * GetSearchView()
-        { return _searchView; }
-
-        impl::LobbyView * GetLobbyView()
-        { return _lobbyView; }
+        impl::SearchView * GetSearchView() { return _searchView; }
+        impl::LobbyView * GetLobbyView() { return _lobbyView; }
+        impl::LoadingView * GetLoadingView() { return _loadingView; }
 
     private:
         View                  _currentView;
 
         impl::SearchView *    _searchView;
         impl::LobbyView *     _lobbyView;
+        impl::LoadingView *   _loadingView;
     };
 
 }}

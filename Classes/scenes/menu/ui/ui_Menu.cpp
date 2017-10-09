@@ -25,15 +25,16 @@ namespace ui
 {
 
     Menu::Menu()
-        : _currentView(Menu::View::Welcome)
+    : _currentView(Menu::View::Welcome)
     { }
+
 
     bool Menu::init()
     {
         if (!Layout::init())
             return false;
 
-        auto visibleSize = Director::getInstance()->getVisibleSize();
+        const auto visibleSize = Director::getInstance()->getVisibleSize();
 
         this->setContentSize(visibleSize);
         this->setPosition(Vec2::ZERO);
@@ -60,17 +61,17 @@ namespace ui
         switch (_currentView)
         {
         case Menu::View::Welcome:
-            _welcomeView->runAction(cocos2d::FadeOut::create(1.0));
+            _welcomeView->runAction(cocos2d::FadeOut::create(0.2));
             _welcomeView->setEnabled(false);
             break;
 
         case Menu::View::Login:
-            _loginView->runAction(cocos2d::FadeOut::create(1.0));
+            _loginView->runAction(cocos2d::FadeOut::create(0.2));
             _loginView->setEnabled(false);
             break;
 
         case Menu::View::Main:
-            _menuView->runAction(cocos2d::FadeOut::create(1.0));
+            _menuView->runAction(cocos2d::FadeOut::create(0.2));
             _menuView->setEnabled(false);
             break;
         }

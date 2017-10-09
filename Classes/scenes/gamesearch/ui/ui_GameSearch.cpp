@@ -21,13 +21,19 @@ namespace ui
 {
 
     GameSearch::GameSearch()
-        : _currentView(Search)
+    : _currentView(View::Search)
+    { }
+
+
+    bool GameSearch::init()
     {
-        auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+        if (!Layout::init())
+            return false;
+
+        const auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
 
         this->setLayoutType(Layout::Type::RELATIVE);
         this->setContentSize(visibleSize);
-        this->setPosition(Vec2::ZERO);
 
         auto searchViewPos = RelativeLayoutParameter::create();
         searchViewPos->setAlign(RelativeAlign::CENTER_IN_PARENT);
@@ -44,6 +50,17 @@ namespace ui
         _lobbyView->setOpacity(0);
         _lobbyView->setEnabled(false);
         this->addChild(_lobbyView);
+
+        auto loadingViewPos = RelativeLayoutParameter::create();
+        loadingViewPos->setAlign(RelativeAlign::CENTER_IN_PARENT);
+
+        _loadingView = make_autorelease<impl::LoadingView>();
+        _loadingView->setLayoutParameter(loadingViewPos);
+        _loadingView->setOpacity(0);
+        _loadingView->setEnabled(false);
+        this->addChild(_loadingView);
+
+        return true;
     }
 
 
@@ -60,6 +77,11 @@ namespace ui
             _lobbyView->runAction(cocos2d::FadeOut::create(1.0));
             _lobbyView->setEnabled(false);
             break;
+
+        case View::Loading:
+            _loadingView->runAction(cocos2d::FadeOut::create(1.0));
+            _loadingView->setEnabled(false);
+            break;
         }
 
         switch (view)
@@ -72,6 +94,11 @@ namespace ui
         case View::Lobby:
             _lobbyView->runAction(cocos2d::FadeIn::create(1.0));
             _lobbyView->setEnabled(true);
+            break;
+
+        case View::Loading:
+            _loadingView->runAction(cocos2d::FadeIn::create(1.0));
+            _loadingView->setEnabled(true);
             break;
         }
 

@@ -23,8 +23,6 @@ namespace labyrinth
         if (!Scene::init())
             return false;
 
-        auto visibleSize = Director::getInstance()->getVisibleSize();
-
         _ui = make_autorelease<ui::Menu>();
         this->addChild(_ui);
 

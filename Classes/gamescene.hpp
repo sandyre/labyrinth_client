@@ -9,7 +9,7 @@
 #ifndef gamescene_hpp
 #define gamescene_hpp
 
-#include "gamelogic/gameworld.hpp"
+#include "game/client/gameworld.hpp"
 #include "gsnet_generated.h"
 #include "ui/ui_gamescene.hpp"
 

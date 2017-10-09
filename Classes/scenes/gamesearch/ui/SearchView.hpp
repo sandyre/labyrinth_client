@@ -22,7 +22,7 @@ namespace impl
         : public cocos2d::ui::Layout
     {
     public:
-        SearchView();
+        virtual bool init() override;
 
         void SetStatus(const std::string& status);
 

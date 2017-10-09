@@ -10,7 +10,7 @@
 #define ui_gamescene_hpp
 
 #include <cocos2d.h>
-#include <UI/CocosGUI.h>
+#include <ui/CocosGUI.h>
 
 class UIBattleView;
 class UISpellsPanel;

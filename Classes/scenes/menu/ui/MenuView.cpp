@@ -61,7 +61,7 @@ namespace impl
 
         _searchButton = Button::create("res/ui/ui_buttons/b_mid_1.png", "res/ui/ui_buttons/b_mid_1_press.png");
         _searchButton->setLayoutParameter(searchButtonPos);
-        _searchButton->setTitleText("Search");
+        _searchButton->setTitleText("Play");
         _searchButton->setTitleFontName(TitleFont);
         _searchButton->setTitleFontSize(50);
 

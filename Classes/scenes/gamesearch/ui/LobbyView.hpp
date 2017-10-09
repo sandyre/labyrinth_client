@@ -46,6 +46,8 @@ namespace impl
         class PlayerRow
             : public cocos2d::ui::Layout
         {
+            using OnReadyClickedSignal = boost::signals2::signal<void(void)>;
+
         public:
             PlayerRow(const std::string& name, uint32_t uuid)
             : _rawName(name),
@@ -56,6 +58,22 @@ namespace impl
 
             void SetIcon();
 
+            std::string GetName() const
+            { return _rawName; }
+            
+            uint32_t GetUuid() const
+            { return _uuid; }
+
+            boost::signals2::scoped_connection OnReadyClickedConnector(const OnReadyClickedSignal::slot_type& slot)
+            {
+                cocos2d::Director::getInstance()->getScheduler()->performFunctionInCocosThread([&]()
+                {
+                    _status->setEnabled(true);
+                    _status->setTouchEnabled(true);
+                });
+                return _onReadyClicked.connect(slot);
+            }
+
         private:
             cocos2d::ui::ImageView *    _icon;
             cocos2d::ui::Text *         _name;
@@ -63,6 +81,8 @@ namespace impl
 
             const std::string           _rawName;
             uint32_t                    _uuid;
+
+            OnReadyClickedSignal        _onReadyClicked;
         };
 
 
@@ -74,7 +94,7 @@ namespace impl
 
             PlayerRow * GetPlayerRow(uint32_t uuid) const;
 
-            void InsertPlayer(const std::string& name, uint32_t uuid);
+            PlayerRow * InsertPlayer(const std::string& name, uint32_t uuid);
             void RemovePlayer(uint32_t uuid);
 
         private:

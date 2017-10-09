@@ -25,21 +25,20 @@ namespace labyrinth
 
     struct PlayerConnection
     {
+        PlayerConnection() = default;
         PlayerConnection(const std::string& name, uint32_t uuid)
         : Name(name),
           Uuid(uuid)
         { }
 
-        const std::string Name;
-        const uint32_t Uuid;
+        std::string Name;
+        uint32_t Uuid;
     };
 
     class GameSearchScene
         : public cocos2d::Scene
     {
     public:
-        GameSearchScene();
-
         virtual bool init() override;
 
     private:
@@ -49,6 +48,8 @@ namespace labyrinth
         { std::lock_guard<std::mutex> l(_mutex); _messages.push_back(message); }
 
         void MasterMessageHandler(const MessageBufferPtr& message);
+
+        void ReadyClickedHandler();
 
     private:
         boost::signals2::connection _socketConnection;
@@ -62,7 +63,10 @@ namespace labyrinth
 
         ui::GameSearch *            _ui;
 
+        PlayerConnection                _selfConnection;
         std::vector<PlayerConnection>   _playerConnections;
+
+        boost::signals2::scoped_connection  _readyConnection;
     };
 
 }
