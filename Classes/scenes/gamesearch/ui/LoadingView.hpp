@@ -23,11 +23,13 @@ namespace impl
     public:
         enum class State
         {
-            Generating
+            Generating,
             Waiting
         };
 
     public:
+        LoadingView();
+
         virtual bool init() override;
 
         void SetState(State state);

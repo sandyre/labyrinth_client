@@ -119,7 +119,7 @@ namespace labyrinth
             }
             case GameMessage::Messages_SVHeroPickStage:
             {
-                _ui->GetLobbyView()->SetState(ui::LobbyView::State::Picking);
+                _ui->GetLobbyView()->SetState(ui::impl::LobbyView::State::Picking);
 
                 const auto playerRow = _ui->GetLobbyView()->GetPlayersList()->GetPlayerRow(_selfConnection.Uuid);
                 _readyConnection = playerRow->OnReadyClickedConnector(std::bind(&GameSearchScene::ReadyClickedHandler, this));
@@ -131,7 +131,7 @@ namespace labyrinth
                 const auto genInfo = static_cast<const GameMessage::SVGenerateMap*>(message->payload());
 
                 _ui->SwitchTo(ui::GameSearch::View::Loading);
-                _ui->GetLoadingView()->SetStatus("Generating world");
+                _ui->GetLoadingView()->SetState(ui::impl::LoadingView::State::Generating);
 
                 GameMap::Configuration config;
                 config.nMapSize = genInfo->map_w();
