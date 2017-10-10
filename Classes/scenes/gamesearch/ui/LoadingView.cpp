@@ -20,6 +20,11 @@ namespace ui {
 namespace impl
 {
 
+    LoadingView::LoadingView()
+    : _currentState(LoadingView::State::Generating)
+    { }
+
+
     bool LoadingView::init()
     {
         if (!Layout::init())
@@ -42,9 +47,20 @@ namespace impl
     }
 
 
-    void LoadingView::SetStatus(const std::string& status)
+    void LoadingView::SetState(LoadingView::State state)
     {
-        Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, status));
+        switch (state)
+        {
+            case State::Generating:
+                Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Generating level"));
+                break;
+
+            case State::Waiting:
+                Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Waiting others"));
+                break;
+        }
+
+        _currentState = state;
     }
 
 }}}
