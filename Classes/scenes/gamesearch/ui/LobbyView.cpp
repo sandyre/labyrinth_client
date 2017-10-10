@@ -113,7 +113,7 @@ namespace impl
             _status->setLayoutParameter(statusPos);
             _status->addTouchEventListener([&](Ref * pSender, Widget::TouchEventType type)
             {
-                if (type == Widget::TouchEventType::ENDED && _status->isSelected())
+                if (type == Widget::TouchEventType::ENDED && !_status->isSelected())
                 {
                     _status->setEnabled(false);
                     _status->setTouchEnabled(false);
@@ -216,7 +216,7 @@ namespace impl
         statusTextPos->setAlign(RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
         statusTextPos->setMargin(Margin(0, 30, 0, 0));
 
-        _statusText = Text::create("Default status", TitleFont, 38);
+        _statusText = Text::create("Lobby", TitleFont, 38);
         _statusText->setLayoutParameter(statusTextPos);
         this->addChild(_statusText);
 
