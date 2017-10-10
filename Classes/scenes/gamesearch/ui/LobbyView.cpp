@@ -192,7 +192,12 @@ namespace impl
 
     }
 
-    
+
+    LobbyView::LobbyView()
+    : _currentState(LobbyView::State::Forming)
+    { }
+
+
     bool LobbyView::init()
     {
         if (!Layout::init())
@@ -216,7 +221,7 @@ namespace impl
         statusTextPos->setAlign(RelativeAlign::PARENT_TOP_CENTER_HORIZONTAL);
         statusTextPos->setMargin(Margin(0, 30, 0, 0));
 
-        _statusText = Text::create("Default status", TitleFont, 38);
+        _statusText = Text::create("Lobby view", TitleFont, 38);
         _statusText->setLayoutParameter(statusTextPos);
         this->addChild(_statusText);
 
@@ -236,6 +241,23 @@ namespace impl
         this->addChild(_playersList);
 
         return true;
+    }
+
+
+    void LobbyView::SetState(LobbyView::State state)
+    {
+        switch (state)
+        {
+        case State::Forming:
+            Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Waiting others"));
+            break;
+
+        case State::Picking:
+            Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Pick your hero!"));
+            break;
+        }
+
+        _currentState = state;
     }
 
 }}}

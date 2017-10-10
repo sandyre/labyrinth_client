@@ -110,10 +110,18 @@ namespace impl
         : public cocos2d::ui::Layout
     {
     public:
+        enum class State
+        {
+            Forming,
+            Picking
+        };
+
+    public:
+        LobbyView();
+
         virtual bool init() override;
 
-        void SetStatus(const std::string& status)
-        { }
+        void SetState(State state);
 
         impl::HeroCarousel * GetHeroCarousel()
         { return _heroCarousel; }
@@ -122,6 +130,8 @@ namespace impl
         { return _playersList; }
 
     private:
+        State                   _currentState;
+
         cocos2d::ui::Text *     _statusText;
         impl::HeroCarousel *    _heroCarousel;
         impl::PlayersList *     _playersList;

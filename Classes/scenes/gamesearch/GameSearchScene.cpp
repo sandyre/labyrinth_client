@@ -91,7 +91,7 @@ namespace labyrinth
                     cocos2d::MessageBox("Error", "Lobby is full, try searching again");
                     cocos2d::Director::getInstance()->popScene();
                 }
-                
+
                 break;
             }
             case GameMessage::Messages_SVPlayerConnected:
@@ -119,6 +119,8 @@ namespace labyrinth
             }
             case GameMessage::Messages_SVHeroPickStage:
             {
+                _ui->GetLobbyView()->SetState(ui::LobbyView::State::Picking);
+
                 const auto playerRow = _ui->GetLobbyView()->GetPlayersList()->GetPlayerRow(_selfConnection.Uuid);
                 _readyConnection = playerRow->OnReadyClickedConnector(std::bind(&GameSearchScene::ReadyClickedHandler, this));
 
