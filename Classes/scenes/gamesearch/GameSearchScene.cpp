@@ -112,7 +112,7 @@ namespace labyrinth
                 if (iter == _playerConnections.cend())
                 {
                     _playerConnections.push_back(connection);
-                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(player->nickname()->c_str(), player->player_uid());
+                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(connection.Name, connection.Uuid);
                 }
 
                 break;
