@@ -39,3 +39,4 @@
 /proj.ios_mac
 /CMakeLists.txt
 /.cocos-project.json
+**/.DS_STORE
