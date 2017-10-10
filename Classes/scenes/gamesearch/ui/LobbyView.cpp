@@ -192,7 +192,12 @@ namespace impl
 
     }
 
-    
+
+    LobbyView::LobbyView()
+    : _currentState(LobbyView::State::Forming)
+    { }
+
+
     bool LobbyView::init()
     {
         if (!Layout::init())
@@ -236,6 +241,23 @@ namespace impl
         this->addChild(_playersList);
 
         return true;
+    }
+
+
+    void LobbyView::SetState(LobbyView::State state)
+    {
+        switch (state)
+        {
+        case State::Forming:
+            Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Waiting others"));
+            break;
+
+        case State::Picking:
+            Director::getInstance()->getScheduler()->performFunctionInCocosThread(std::bind(&Text::setString, _statusText, "Pick your hero!"));
+            break;
+        }
+
+        _currentState = state;
     }
 
 }}}

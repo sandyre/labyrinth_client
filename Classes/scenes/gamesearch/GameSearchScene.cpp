@@ -91,7 +91,7 @@ namespace labyrinth
                     cocos2d::MessageBox("Error", "Lobby is full, try searching again");
                     cocos2d::Director::getInstance()->popScene();
                 }
-                
+
                 break;
             }
             case GameMessage::Messages_SVPlayerConnected:
@@ -112,13 +112,15 @@ namespace labyrinth
                 if (iter == _playerConnections.cend())
                 {
                     _playerConnections.push_back(connection);
-                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(player->nickname()->c_str(), player->player_uid());
+                    _ui->GetLobbyView()->GetPlayersList()->InsertPlayer(connection.Name, connection.Uuid);
                 }
 
                 break;
             }
             case GameMessage::Messages_SVHeroPickStage:
             {
+                _ui->GetLobbyView()->SetState(ui::LobbyView::State::Picking);
+
                 const auto playerRow = _ui->GetLobbyView()->GetPlayersList()->GetPlayerRow(_selfConnection.Uuid);
                 _readyConnection = playerRow->OnReadyClickedConnector(std::bind(&GameSearchScene::ReadyClickedHandler, this));
 

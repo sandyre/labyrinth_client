@@ -17,17 +17,26 @@ namespace ui {
 namespace impl
 {
 
-        class LoadingView
-            : public cocos2d::ui::Layout
+    class LoadingView
+        : public cocos2d::ui::Layout
+    {
+    public:
+        enum class State
         {
-        public:
-            virtual bool init() override;
-
-            void SetStatus(const std::string& status);
-
-        private:
-            cocos2d::ui::Text *     _statusText;
+            Generating
+            Waiting
         };
+
+    public:
+        virtual bool init() override;
+
+        void SetState(State state);
+
+    private:
+        State                   _currentState;
+
+        cocos2d::ui::Text *     _statusText;
+    };
 
 }}}
 
