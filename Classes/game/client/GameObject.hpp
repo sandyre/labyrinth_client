@@ -1,11 +1,14 @@
 #ifndef gameobject_hpp
 #define gameobject_hpp
 
+#include <game/client/ActionExecutor.hpp>
+
 #include <toolkit/Point.hpp>
 
 #include <cocos2d.h>
 
 #include <memory>
+
 
 namespace labyrinth
 {
