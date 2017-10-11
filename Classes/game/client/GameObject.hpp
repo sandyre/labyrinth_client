@@ -7,6 +7,7 @@
 
 #include <cocos2d.h>
 
+#include <cstdint>
 #include <memory>
 
 
@@ -18,7 +19,7 @@ namespace labyrinth
 	class ObjectAttributes
 	{
 	public:
-		enum Attribute : uint32_t
+		enum class Attribute : uint32_t
 		{
 			Movable   = 0x01,
 			Visible   = 0x02,
@@ -33,11 +34,11 @@ namespace labyrinth
 
 		template < Attribute T >
 		bool Check() const
-		{ return _state & T; }
+		{ return _state & (uint32_t)T; }
 
 		template < Attribute T >
 		void Set(bool enabled)
-		{ _state = enabled ? (_state | T) : (_state & (~T)); }
+		{ _state = enabled ? (_state | (uint32_t)T) : (_state & (~(uint32_t)T)); }
 
 	private:
 		uint32_t	_state;
