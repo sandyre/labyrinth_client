@@ -49,14 +49,6 @@ namespace labyrinth
 		: public std::enable_shared_from_this<GameObject>
 	{
 	public:
-		struct Attributes
-		{
-			static const int MOVABLE = 0x01;
-			static const int VISIBLE = 0x02;
-			static const int DAMAGABLE = 0x04;
-			static const int PASSABLE = 0x08;
-		};
-
 		enum class Type
 		{
 			UNDEFINED,
@@ -85,19 +77,15 @@ namespace labyrinth
 		uint32_t GetUid() const { return _uid; }
 		std::string GetName() const { return _name; }
 
-		Point<> GetPosition() const
-		{ return _position; }
-
-		void SetPosition(const Point<>& pos)
-		{ _position = pos; }
+		Point<> GetPosition() const { return _position; }
+		void SetPosition(const Point<>& pos) { _position = pos; }
 
 		cocos2d::Sprite * GetSprite() const { return _sprite; }
 
 		virtual void Spawn(const Point<>& pos) = 0;
 		virtual void Destroy() = 0;
 
-		virtual void update(float delta)
-		{ _actionExecutor.Update(); }
+		virtual void update(float delta) { _actionExecutor.Update(); }
 
 	protected:
 		Type					_objType;
