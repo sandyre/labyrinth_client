@@ -33,7 +33,7 @@ namespace labyrinth
 		{ }
 
 		template < Attribute T >
-		bool Check() const
+		bool Get() const
 		{ return _state & (uint32_t)T; }
 
 		template < Attribute T >
