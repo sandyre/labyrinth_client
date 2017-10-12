@@ -1,0 +1,3 @@
+[submodule "Classes/game/core"]
+	path = Classes/game/core
+	url = https://github.com/sandyre/labyrinth_core
